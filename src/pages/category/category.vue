@@ -9,10 +9,13 @@
 
     <view class="body">
       <scroll-view scroll-y class="side">
-        <view v-for="c in categories" :key="c" class="side-item" :class="{ on: c === picked }" @tap="picked = c">{{ c }}</view>
+        <view class="side-inner">
+          <view v-for="c in categories" :key="c" class="side-item" :class="{ on: c === picked }" @tap="picked = c">{{ c }}</view>
+        </view>
       </scroll-view>
 
       <scroll-view scroll-y class="list">
+        <view class="list-inner">
         <view class="muted count">{{ picked }} · 共 {{ list.length }} 个单子</view>
         <view class="card item" v-for="p in list" :key="p.id" @tap="openDetail(p.id)">
           <view class="cover item-cover">[封面]</view>
@@ -26,6 +29,7 @@
           </view>
         </view>
         <view v-if="!list.length" class="muted empty">没有找到相关单子</view>
+        </view>
       </scroll-view>
     </view>
   </view>
@@ -62,10 +66,12 @@ function openDetail(id) {
 .search-input { flex: 1; font-size: 28rpx; }
 .clear { width: 48rpx; text-align: center; font-size: 36rpx; color: #4A5D7A; }
 .body { flex: 1; display: flex; min-height: 0; }
-.side { width: 192rpx; height: 100%; padding: 0 16rpx 0 32rpx; box-sizing: border-box; }
-.side-item { height: 88rpx; margin-bottom: 12rpx; border-radius: 24rpx; background: #FFFFFF; font-size: 26rpx; display: flex; align-items: center; justify-content: center; }
+.side { flex: 0 0 192rpx; width: 192rpx; height: 100%; }
+.side-inner { padding: 0 16rpx 0 32rpx; }
+.side-item { white-space: nowrap; height: 88rpx; margin-bottom: 12rpx; border-radius: 24rpx; background: #FFFFFF; font-size: 26rpx; display: flex; align-items: center; justify-content: center; }
 .side-item.on { background: #1A6FE0; color: #FFFFFF; font-weight: 700; }
-.list { flex: 1; height: 100%; padding: 0 32rpx 32rpx 8rpx; box-sizing: border-box; }
+.list { flex: 1; width: 0; height: 100%; }
+.list-inner { padding: 0 32rpx 32rpx 8rpx; }
 .count { font-size: 26rpx; margin-bottom: 20rpx; }
 .item { padding: 20rpx; margin-bottom: 20rpx; border-radius: 28rpx; display: flex; gap: 20rpx; }
 .item-cover { width: 152rpx; height: 152rpx; border-radius: 20rpx; flex-shrink: 0; }
