@@ -2,23 +2,32 @@
   "pages": [
     { "path": "pages/index/index", "style": { "navigationBarTitleText": "[品牌名]" } },
     { "path": "pages/category/category", "style": { "navigationBarTitleText": "分类" } },
-    { "path": "pages/orders/orders", "style": { "navigationBarTitleText": "我的订单" } },
+    { "path": "pages/orders/orders", "style": { "enablePullDownRefresh": true, "navigationBarTitleText": "我的订单" } },
     { "path": "pages/service/service", "style": { "navigationBarTitleText": "客服" } },
-    { "path": "pages/me/me", "style": { "navigationBarTitleText": "个人中心" } },
+    { "path": "pages/me/me", "style": { "navigationBarTitleText": "我的" } },
     { "path": "pages/detail/detail", "style": { "navigationBarTitleText": "单子详情" } },
-    { "path": "pages/chat/chat", "style": { "navigationBarTitleText": "订单沟通" } }
+    { "path": "pages/order/order", "style": { "navigationBarTitleText": "订单详情" } },
+    { "path": "pages/chat/chat", "style": { "navigationBarTitleText": "订单沟通" } },
+    { "path": "pages/login/login", "style": { "navigationBarTitleText": "登录" } },
+    { "path": "pages/login/bind-phone", "style": { "navigationBarTitleText": "绑定手机号" } },
+    { "path": "pages/staff/escort", "style": { "enablePullDownRefresh": true, "navigationBarTitleText": "护航工作台" } },
+    { "path": "pages/staff/cs", "style": { "enablePullDownRefresh": true, "navigationBarTitleText": "客服工作台" } },
+    { "path": "pages/staff/admin", "style": { "enablePullDownRefresh": true, "navigationBarTitleText": "管理后台" } },
+    { "path": "pages/staff/product-edit", "style": { "navigationBarTitleText": "编辑单子" } },
+    { "path": "pages/staff/staff-edit", "style": { "navigationBarTitleText": "新建员工账号" } },
+    { "path": "pages/staff/profile", "style": { "navigationBarTitleText": "账号设置" } }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "[品牌名]",
-    "navigationBarBackgroundColor": "#EEF5FF",
-    "backgroundColor": "#EEF5FF"
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F5F5F5"
   },
   "tabBar": {
-    "color": "#5B6B82",
-    "selectedColor": "#1A6FE0",
+    "color": "#8C8C8C",
+    "selectedColor": "#1F1F1F",
     "backgroundColor": "#FFFFFF",
-    "borderStyle": "white",
+    "borderStyle": "black",
     "list": [
       { "pagePath": "pages/index/index", "text": "首页", "iconPath": "static/tab/home.png", "selectedIconPath": "static/tab/home-on.png" },
       { "pagePath": "pages/category/category", "text": "分类", "iconPath": "static/tab/cat.png", "selectedIconPath": "static/tab/cat-on.png" },

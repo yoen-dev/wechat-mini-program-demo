@@ -1,96 +1,42 @@
 <template>
-  <view class="page">
-    <view class="seg">
-      <view v-for="t in tabs" :key="t" class="seg-item" :class="{ on: t === tab }" @tap="tab = t">{{ t }}</view>
+  <view class="wrap">
+    <view class="card">
+      <view class="list-row" @tap="goOrders"><text>订单沟通</text><text class="arrow">›</text></view>
+      <!-- 小程序内 open-type="contact" 会打开微信官方客服会话 -->
+      <button class="list-row plain" open-type="contact" @tap="onContact"><text>联系客服</text><text class="muted">24 小时在线 ›</text></button>
     </view>
 
-    <view v-if="tab === '订单沟通'" class="list">
-      <view class="card conv" v-for="c in convs" :key="c.id" @tap="openChat(c.id)">
-        <view class="avatar"></view>
-        <view class="conv-body">
-          <view class="conv-top">
-            <text class="conv-name">{{ c.title }}</text>
-          </view>
-          <text class="muted conv-last ellipsis">{{ c.name }} · {{ c.last }}</text>
-        </view>
-      </view>
-      <view v-if="!convs.length" class="muted empty">还没有订单沟通</view>
-    </view>
-
-    <view v-else-if="tab === '联系客服'" class="card contact">
-      <view class="contact-icon">☎</view>
-      <text class="contact-title">在线客服 · 24 小时</text>
-      <text class="muted contact-sub">下单前咨询、派单进度、售后投诉都可以找我们</text>
-      <!-- 微信小程序里 open-type="contact" 会直接打开微信官方客服会话 -->
-      <button class="btn-primary contact-btn" open-type="contact" @tap="onContact">开始咨询</button>
-    </view>
-
-    <view v-else class="list">
-      <view class="card notice" v-for="(n, i) in notices" :key="i">
-        <view class="notice-top">
-          <text class="notice-title">{{ n.title }}</text>
-          <text class="muted notice-time">[时间]</text>
-        </view>
-        <text class="muted notice-text">{{ n.text }}</text>
+    <text class="sec-title sec">常见问题</text>
+    <view class="card">
+      <view v-for="(f, i) in faqs" :key="f.q">
+        <view class="list-row" @tap="open = open === i ? -1 : i"><text>{{ f.q }}</text><text class="arrow">{{ open === i ? '−' : '+' }}</text></view>
+        <view v-if="open === i" class="ans sub">{{ f.a }}</view>
       </view>
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { state, describeOrder, getEscort } from '@/store/index.js'
+import { ref } from 'vue'
+import { toast } from '@/utils.js'
 
-const tabs = ['订单沟通', '联系客服', '系统通知']
-const tab = ref('订单沟通')
-
-const convs = computed(() =>
-  state.orders
-    .filter((o) => o.status !== '已退款')
-    .map((o) => {
-      const d = describeOrder(o)
-      const e = getEscort(o.escortId)
-      const m = state.messages[o.id]
-      return { id: o.id, name: d.name, title: e ? e.name : '平台客服', last: m && m.length ? m[m.length - 1].text : '正在为你安排护航，请稍等' }
-    })
-)
-
-const notices = computed(() =>
-  state.orders.slice(0, 5).map((o) => {
-    const d = describeOrder(o)
-    return o.status === '已付款'
-      ? { title: '支付成功', text: `「${d.name}」支付成功，客服正在派单。` }
-      : { title: `订单${o.status}`, text: `你的「${d.name}」当前状态：${o.status}。` }
-  })
-)
-
-function openChat(id) {
-  uni.navigateTo({ url: `/pages/chat/chat?id=${id}` })
-}
+const open = ref(-1)
+const faqs = [
+  { q: '怎么下单？', a: '1. 选单子和规格\n2. 选择客服派单或指定护航，填写游戏昵称 / ID\n3. 支付后护航会在「订单沟通」里联系你并拉你进队' },
+  { q: '客服派单和指定护航有什么区别？', a: '客服派单：付款后由客服安排合适的护航，速度最快。\n指定护航：你自己选护航，需要等对方接单；如果对方暂时没空，会转为客服派单。' },
+  { q: '可以退款吗？', a: '护航开始前可以在订单里申请退款，客服审核后原路退回；护航进行中有问题请联系客服处理。具体以 [售后条款] 为准。' },
+  { q: '保底是什么意思？', a: '保底单打不到约定的哈夫币数量，护航会继续带你直到达标，不额外收费。' }
+]
+const goOrders = () => uni.switchTab({ url: '/pages/orders/orders' })
 function onContact() {
   // #ifdef H5
-  uni.showToast({ title: '网页预览版不支持，小程序里会打开微信客服', icon: 'none' })
+  toast('网页预览版不支持，小程序里会打开微信客服')
   // #endif
 }
 </script>
 
 <style scoped>
-.page { padding: 24rpx 32rpx 40rpx; display: flex; flex-direction: column; gap: 24rpx; }
-.list { display: flex; flex-direction: column; gap: 20rpx; }
-.conv { padding: 28rpx; display: flex; gap: 24rpx; align-items: center; }
-.avatar { width: 88rpx; height: 88rpx; border-radius: 50%; background: #D6E6FC; flex-shrink: 0; }
-.conv-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8rpx; }
-.conv-name { font-size: 28rpx; font-weight: 700; }
-.conv-last { font-size: 24rpx; }
-.contact { padding: 40rpx; display: flex; flex-direction: column; align-items: center; gap: 20rpx; text-align: center; }
-.contact-icon { width: 128rpx; height: 128rpx; border-radius: 50%; background: #E3EEFF; color: #1A6FE0; font-size: 56rpx; display: flex; align-items: center; justify-content: center; }
-.contact-title { font-size: 32rpx; font-weight: 700; }
-.contact-sub { font-size: 26rpx; line-height: 1.6; }
-.contact-btn { width: 100%; height: 88rpx; font-size: 30rpx; margin-top: 12rpx; border: 0; }
-.contact-btn::after { border: 0; }
-.notice { padding: 28rpx; display: flex; flex-direction: column; gap: 8rpx; }
-.notice-top { display: flex; justify-content: space-between; }
-.notice-title { font-size: 28rpx; font-weight: 700; }
-.notice-time, .notice-text { font-size: 24rpx; }
-.empty { text-align: center; padding-top: 120rpx; }
+.sec { display: block; margin: 36rpx 8rpx 16rpx; }
+.plain { background: transparent; margin: 0; line-height: normal; border-radius: 0; text-align: left; }
+.ans { padding: 0 32rpx 28rpx; font-size: 26rpx; line-height: 1.7; white-space: pre-line; }
 </style>

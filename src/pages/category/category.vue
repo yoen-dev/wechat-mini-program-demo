@@ -1,34 +1,25 @@
 <template>
   <view class="page">
     <view class="top">
-      <view class="search">
-        <input class="search-input" v-model="keyword" placeholder="搜索服务" confirm-type="search" />
-        <view v-if="keyword" class="clear" @tap="keyword = ''">×</view>
-      </view>
+      <input class="search" v-model="keyword" :focus="focus" placeholder="搜索单子" confirm-type="search" />
     </view>
-
     <view class="body">
       <scroll-view scroll-y class="side">
         <view class="side-inner">
-          <view v-for="c in categories" :key="c" class="side-item" :class="{ on: c === picked }" @tap="picked = c">{{ c }}</view>
+          <view v-for="c in cats" :key="c" class="side-item" :class="{ on: c === picked }" @tap="picked = c">{{ c || '全部' }}</view>
         </view>
       </scroll-view>
-
       <scroll-view scroll-y class="list">
         <view class="list-inner">
-        <view class="muted count">{{ picked }} · 共 {{ list.length }} 个单子</view>
-        <view class="card item" v-for="p in list" :key="p.id" @tap="openDetail(p.id)">
-          <view class="cover item-cover">[封面]</view>
-          <view class="item-body">
-            <text class="item-name">{{ p.name }}</text>
-            <text class="muted item-desc ellipsis">{{ p.desc }}</text>
-            <view class="item-foot">
-              <text class="price item-price">¥{{ p.price }}</text>
-              <text class="tag">{{ p.tag }}</text>
+          <view class="card item" v-for="p in shown" :key="p.id" @tap="open(p.id)">
+            <view class="cover ic">封面</view>
+            <view class="ii">
+              <text class="in">{{ p.name }}</text>
+              <text class="muted idesc ellipsis">{{ p.desc }}</text>
+              <view class="between"><text class="price ip">¥{{ p.price }}</text><view class="btn sm" @tap.stop="open(p.id)">下单</view></view>
             </view>
           </view>
-        </view>
-        <view v-if="!list.length" class="muted empty">没有找到相关单子</view>
+          <Empty v-if="!shown.length" text="没有找到相关单子" />
         </view>
       </scroll-view>
     </view>
@@ -38,47 +29,41 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { categories, products, state } from '@/store/index.js'
+import { listProducts, CATEGORIES } from '@/api/products.js'
+import { run } from '@/utils.js'
+import Empty from '@/components/Empty.vue'
 
-const picked = ref('全部')
+const cats = ['', ...CATEGORIES]
+const all = ref([])
+const picked = ref('')
 const keyword = ref('')
+const focus = ref(false)
 
-onShow(() => {
-  picked.value = state.presetCat || '全部'
-  keyword.value = state.keyword || ''
-  state.presetCat = '全部'
-  state.keyword = ''
+onShow(async () => {
+  const g = getApp().globalData
+  if (g.presetCat !== undefined) { picked.value = g.presetCat; focus.value = !!g.focusSearch; delete g.presetCat; delete g.focusSearch }
+  all.value = (await run(listProducts())) || []
 })
 
-const list = computed(() =>
-  products.filter((p) => (picked.value === '全部' || p.cats.includes(picked.value)) && (!keyword.value || p.name.includes(keyword.value) || p.desc.includes(keyword.value)))
-)
-
-function openDetail(id) {
-  uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
-}
+const shown = computed(() => all.value.filter((p) =>
+  (!picked.value || p.cats.includes(picked.value)) && (!keyword.value || p.name.includes(keyword.value) || p.desc.includes(keyword.value))))
+const open = (id) => uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
 </script>
 
 <style scoped>
 .page { height: calc(100vh - var(--window-top) - var(--window-bottom)); display: flex; flex-direction: column; }
-.top { padding: 24rpx 32rpx; }
-.search { display: flex; align-items: center; height: 88rpx; padding: 0 28rpx; background: #FFFFFF; border-radius: 44rpx; border: 2rpx solid #CFE0F7; }
-.search-input { flex: 1; font-size: 28rpx; }
-.clear { width: 48rpx; text-align: center; font-size: 36rpx; color: #4A5D7A; }
+.top { padding: 20rpx 32rpx; background: #FFFFFF; }
+.search { height: 72rpx; background: #F5F5F5; border-radius: 36rpx; padding: 0 28rpx; font-size: 26rpx; }
 .body { flex: 1; display: flex; min-height: 0; }
-.side { flex: 0 0 192rpx; width: 192rpx; height: 100%; }
-.side-inner { padding: 0 16rpx 0 32rpx; }
-.side-item { white-space: nowrap; height: 88rpx; margin-bottom: 12rpx; border-radius: 24rpx; background: #FFFFFF; font-size: 26rpx; display: flex; align-items: center; justify-content: center; }
-.side-item.on { background: #1A6FE0; color: #FFFFFF; font-weight: 700; }
+.side { flex: 0 0 180rpx; width: 180rpx; height: 100%; background: #FFFFFF; }
+.side-item { height: 96rpx; display: flex; align-items: center; justify-content: center; font-size: 26rpx; color: #595959; white-space: nowrap; }
+.side-item.on { background: #F5F5F5; color: #1F1F1F; font-weight: 700; border-left: 6rpx solid #1F1F1F; }
 .list { flex: 1; width: 0; height: 100%; }
-.list-inner { padding: 0 32rpx 32rpx 8rpx; }
-.count { font-size: 26rpx; margin-bottom: 20rpx; }
-.item { padding: 20rpx; margin-bottom: 20rpx; border-radius: 28rpx; display: flex; gap: 20rpx; }
-.item-cover { width: 152rpx; height: 152rpx; border-radius: 20rpx; flex-shrink: 0; }
-.item-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; }
-.item-name { font-size: 28rpx; font-weight: 700; }
-.item-desc { font-size: 24rpx; }
-.item-foot { display: flex; align-items: center; justify-content: space-between; }
-.item-price { font-size: 34rpx; }
-.empty { text-align: center; padding-top: 120rpx; }
+.list-inner { padding: 20rpx 24rpx 40rpx; }
+.item { display: flex; gap: 16rpx; padding: 16rpx; margin-bottom: 16rpx; }
+.ic { width: 140rpx; height: 140rpx; border-radius: 12rpx; flex-shrink: 0; }
+.ii { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; }
+.in { font-size: 28rpx; font-weight: 600; }
+.idesc { font-size: 22rpx; }
+.ip { font-size: 32rpx; }
 </style>

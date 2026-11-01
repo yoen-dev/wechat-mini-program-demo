@@ -1,70 +1,59 @@
 <template>
-  <view class="page">
-    <view class="seg tabs">
-      <view v-for="t in tabs" :key="t" class="seg-item" :class="{ on: t === tab }" @tap="tab = t">{{ t }}</view>
-    </view>
-
-    <view class="card order" v-for="o in list" :key="o.id">
-      <view class="order-head muted">
-        <text>订单号 {{ o.id }}</text>
-        <text class="status" :style="{ color: colors[o.status] }">{{ o.status }}</text>
+  <view class="wrap">
+    <template v-if="logged">
+      <view class="seg">
+        <view v-for="t in tabs" :key="t.name" class="seg-item" :class="{ on: t.name === tab }" @tap="tab = t.name">{{ t.name }}</view>
       </view>
-      <view class="order-main">
-        <view class="cover order-cover"></view>
-        <view class="order-info">
-          <text class="order-name">{{ o.name }}</text>
-          <text class="muted order-who">{{ o.who }}</text>
-          <text class="price order-price">¥{{ o.price }}</text>
-        </view>
+      <view class="list">
+        <OrderCard v-for="o in shown" :key="o.id" :order="o" @open="open">
+          <view v-for="b in actionsFor(o, session.user)" :key="b.key" class="btn sm" :class="{ ghost: b.ghost }" @tap="act(b.key, o)">{{ b.label }}</view>
+        </OrderCard>
+        <Empty v-if="!shown.length" text="暂无订单" />
       </view>
-      <view class="order-actions">
-        <view class="btn-ghost act" @tap="goService">联系客服</view>
-        <view class="btn-primary act" @tap="openChat(o.id)">订单沟通</view>
-      </view>
-    </view>
-
-    <view v-if="!list.length" class="empty">
-      <view class="empty-icon">≡</view>
-      <text class="empty-title">暂无订单</text>
-      <text class="muted empty-sub">切换状态看看其他订单吧</text>
-    </view>
+    </template>
+    <Empty v-else text="登录后查看你的订单">
+      <view class="btn login" @tap="needUserLogin">去登录</view>
+    </Empty>
   </view>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import { state, ORDER_STATUS, describeOrder } from '@/store/index.js'
+import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
+import { listOrders } from '@/api/orders.js'
+import { session, needUserLogin } from '@/store/session.js'
+import { actionsFor, doAction } from '@/orderActions.js'
+import { run } from '@/utils.js'
+import OrderCard from '@/components/OrderCard.vue'
+import Empty from '@/components/Empty.vue'
 
-const tabs = ['全部', ...ORDER_STATUS]
+const tabs = [
+  { name: '全部', s: [] },
+  { name: '待付款', s: ['待付款'] },
+  { name: '进行中', s: ['待派单', '待接单', '已接单', '进行中'] },
+  { name: '已完成', s: ['已完成'] },
+  { name: '售后', s: ['退款中', '已退款'] }
+]
 const tab = ref('全部')
-const colors = { 已付款: '#D2600F', 已接单: '#1A6FE0', 护航中: '#1A6FE0', 已完成: '#2E7D4F', 已退款: '#4A5D7A' }
+const orders = ref([])
+const logged = computed(() => session.user && session.user.role === 'user' && session.user.phone)
+const shown = computed(() => {
+  const s = tabs.find((t) => t.name === tab.value).s
+  return orders.value.filter((o) => !s.length || s.includes(o.status))
+})
 
-const list = computed(() => state.orders.filter((o) => tab.value === '全部' || o.status === tab.value).map(describeOrder))
+async function load() {
+  if (!logged.value) return
+  orders.value = (await run(listOrders(session.user, { scope: 'mine' }))) || []
+}
+onShow(load)
+onPullDownRefresh(async () => { await load(); uni.stopPullDownRefresh() })
 
-function goService() {
-  uni.switchTab({ url: '/pages/service/service' })
-}
-function openChat(id) {
-  uni.navigateTo({ url: `/pages/chat/chat?id=${id}` })
-}
+const open = (id) => uni.navigateTo({ url: `/pages/order/order?id=${id}` })
+async function act(key, o) { if (await doAction(key, o, session.user)) load() }
 </script>
 
 <style scoped>
-.page { padding: 24rpx 32rpx 40rpx; display: flex; flex-direction: column; gap: 20rpx; }
-.tabs { margin-bottom: 4rpx; }
-.order { padding: 28rpx; display: flex; flex-direction: column; gap: 20rpx; }
-.order-head { display: flex; justify-content: space-between; font-size: 24rpx; }
-.status { font-weight: 700; }
-.order-main { display: flex; gap: 20rpx; }
-.order-cover { width: 128rpx; height: 128rpx; border-radius: 20rpx; flex-shrink: 0; }
-.order-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-.order-name { font-size: 28rpx; font-weight: 700; }
-.order-who { font-size: 24rpx; }
-.order-price { font-size: 32rpx; }
-.order-actions { display: flex; justify-content: flex-end; gap: 16rpx; }
-.act { height: 68rpx; padding: 0 28rpx; font-size: 26rpx; }
-.empty { padding-top: 200rpx; display: flex; flex-direction: column; align-items: center; gap: 20rpx; }
-.empty-icon { width: 192rpx; height: 192rpx; border-radius: 50%; background: #FFFFFF; color: #1A6FE0; font-size: 80rpx; display: flex; align-items: center; justify-content: center; }
-.empty-title { font-size: 30rpx; font-weight: 600; }
-.empty-sub { font-size: 24rpx; }
+.list { margin-top: 20rpx; }
+.login { width: 280rpx; margin-top: 16rpx; }
 </style>

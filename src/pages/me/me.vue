@@ -1,80 +1,75 @@
 <template>
-  <view class="page">
-    <view class="profile">
-      <view class="avatar"></view>
-      <view class="profile-text">
-        <text class="nick">[微信昵称]</text>
-        <text class="tag level">消费等级 Lv.1</text>
+  <view class="wrap">
+    <view class="card profile" @tap="!logged && login()">
+      <view class="avatar">{{ logged ? session.user.name.slice(0, 1) : '?' }}</view>
+      <view class="pt" v-if="logged">
+        <text class="pn">{{ session.user.name }}</text>
+        <text class="muted">{{ maskPhone(session.user.phone) }}</text>
       </view>
+      <view class="pt" v-else>
+        <text class="pn">登录 / 注册</text>
+        <text class="muted">微信一键登录</text>
+      </view>
+      <text class="arrow" v-if="!logged">›</text>
     </view>
 
-    <view class="wallet">
-      <view class="wallet-left">
-        <text class="wallet-label">我的余额（元）</text>
-        <text class="wallet-num">0.00</text>
-      </view>
-      <view class="wallet-actions">
-        <view class="wallet-btn" @tap="soon">记录</view>
-        <view class="btn-primary wallet-btn primary" @tap="soon">充值</view>
-      </view>
+    <view class="card wallet between">
+      <view><text class="muted wl">余额（元）</text><text class="wn">0.00</text></view>
+      <view class="btn sm light" @tap="soon">充值</view>
     </view>
 
-    <view class="card main">
-      <view class="main-item" v-for="m in mainItems" :key="m.label" @tap="m.action">
-        <view class="main-icon">{{ m.glyph }}</view>
-        <text>{{ m.label }}</text>
-      </view>
+    <view class="card quick">
+      <view class="q" v-for="q in quick" :key="q.t" @tap="q.go"><view class="qi">{{ q.t.slice(0, 1) }}</view><text>{{ q.t }}</text></view>
     </view>
 
-    <view class="card more">
-      <text class="more-title">更多服务</text>
-      <view class="more-grid">
-        <view class="more-item" v-for="m in moreItems" :key="m" @tap="soon">
-          <view class="more-dot"></view>
-          <text>{{ m }}</text>
-        </view>
-        <view class="more-item disabled">
-          <view class="more-dot grey"></view>
-          <text>陪玩·即将上线</text>
-        </view>
-      </view>
+    <view class="card menu">
+      <view class="list-row" @tap="soon"><text>成为护航</text><text class="arrow">›</text></view>
+      <view class="list-row" @tap="toService"><text>投诉 / 售后</text><text class="arrow">›</text></view>
+      <view class="list-row" @tap="toService"><text>帮助中心</text><text class="arrow">›</text></view>
+      <view class="list-row" @tap="soon"><text>相关协议</text><text class="arrow">›</text></view>
+      <view class="list-row"><text class="muted">陪玩</text><text class="muted">即将上线</text></view>
+    </view>
+
+    <view class="card menu">
+      <view class="list-row" @tap="staffLogin"><text>员工登录</text><text class="arrow">›</text></view>
+      <view class="list-row" v-if="logged" @tap="logout"><text>退出登录</text><text class="arrow">›</text></view>
+      <view class="list-row" @tap="reset"><text class="muted">重置演示数据</text><text class="arrow">›</text></view>
     </view>
   </view>
 </template>
 
 <script setup>
-const soon = () => uni.showToast({ title: '敬请期待', icon: 'none' })
+import { computed } from 'vue'
+import { session, logout } from '@/store/session.js'
+import { resetDb } from '@/api/db.js'
+import { maskPhone, toast, confirm } from '@/utils.js'
 
-const mainItems = [
-  { label: '我的订单', glyph: '≡', action: () => uni.switchTab({ url: '/pages/orders/orders' }) },
-  { label: '投诉进度', glyph: '✓', action: soon },
-  { label: '成为护航', glyph: '+', action: soon },
-  { label: '我的收藏', glyph: '☆', action: soon }
+const logged = computed(() => session.user && session.user.role === 'user')
+const login = () => uni.navigateTo({ url: '/pages/login/login' })
+const staffLogin = () => uni.navigateTo({ url: '/pages/login/login?tab=staff' })
+const toService = () => uni.switchTab({ url: '/pages/service/service' })
+const toOrders = () => uni.switchTab({ url: '/pages/orders/orders' })
+const soon = () => toast('敬请期待')
+const quick = [
+  { t: '我的订单', go: toOrders }, { t: '优惠券', go: soon }, { t: '收藏', go: soon }, { t: '我的评价', go: soon }
 ]
-const moreItems = ['优惠券', '我的评价', '消费等级', '福利活动', '帮助中心', '功能建议', '相关协议']
+async function reset() {
+  if (!(await confirm('清空本机所有演示订单和新建账号，恢复初始数据？'))) return
+  resetDb()
+  logout()
+}
 </script>
 
 <style scoped>
-.page { padding: 24rpx 32rpx 40rpx; display: flex; flex-direction: column; gap: 28rpx; }
-.profile { display: flex; align-items: center; gap: 28rpx; padding: 8rpx 4rpx; }
-.avatar { width: 128rpx; height: 128rpx; border-radius: 50%; background: #D6E6FC; border: 6rpx solid #FFFFFF; }
-.profile-text { display: flex; flex-direction: column; align-items: flex-start; gap: 8rpx; }
-.nick { font-size: 36rpx; font-weight: 700; }
-.wallet { background: #12233D; border-radius: 32rpx; padding: 32rpx; display: flex; align-items: center; justify-content: space-between; color: #FFFFFF; }
-.wallet-left { display: flex; flex-direction: column; gap: 8rpx; }
-.wallet-label { font-size: 24rpx; color: #B9C7DC; }
-.wallet-num { font-size: 56rpx; font-weight: 800; }
-.wallet-actions { display: flex; gap: 16rpx; }
-.wallet-btn { height: 72rpx; padding: 0 28rpx; border-radius: 36rpx; border: 2rpx solid #4A5D7A; font-size: 26rpx; display: flex; align-items: center; }
-.wallet-btn.primary { border: 0; }
-.main { display: flex; padding: 32rpx 8rpx; }
-.main-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 12rpx; font-size: 24rpx; }
-.main-icon { width: 88rpx; height: 88rpx; border-radius: 28rpx; background: #E3EEFF; color: #1A6FE0; font-size: 40rpx; font-weight: 700; display: flex; align-items: center; justify-content: center; }
-.more { padding: 32rpx; display: flex; flex-direction: column; gap: 28rpx; }
-.more-title { font-size: 30rpx; font-weight: 700; }
-.more-grid { display: flex; flex-wrap: wrap; row-gap: 36rpx; }
-.more-item { width: 25%; display: flex; flex-direction: column; align-items: center; gap: 12rpx; font-size: 24rpx; }
-.more-item.disabled { color: #4A5D7A; }
-.more-dot { width: 48rpx; height: 48rpx; border-radius: 14rpx; border: 4rpx solid #1A6FE0; box-sizing: border-box; }
-.more-dot.grey { border-color: #9AAAC0; }
+.profile { display: flex; align-items: center; gap: 24rpx; padding: 32rpx; }
+.avatar { width: 112rpx; height: 112rpx; border-radius: 50%; background: #1F1F1F; color: #FFFFFF; font-size: 40rpx; display: flex; align-items: center; justify-content: center; }
+.pt { flex: 1; display: flex; flex-direction: column; gap: 8rpx; }
+.pn { font-size: 34rpx; font-weight: 700; }
+.wallet { margin-top: 20rpx; padding: 28rpx 32rpx; }
+.wl { display: block; font-size: 24rpx; }
+.wn { font-size: 44rpx; font-weight: 700; }
+.quick { margin-top: 20rpx; display: flex; padding: 28rpx 0; }
+.q { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10rpx; font-size: 24rpx; }
+.qi { width: 72rpx; height: 72rpx; border-radius: 20rpx; background: #F5F5F5; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.menu { margin-top: 20rpx; }
 </style>

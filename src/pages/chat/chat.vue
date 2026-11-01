@@ -1,82 +1,91 @@
 <template>
   <view class="page">
-    <view class="head">
-      <view class="order-bar">
-        <view class="cover thumb"></view>
-        <view class="order-text">
-          <text class="order-name">{{ order.name }} · ¥{{ order.price }}</text>
-          <text class="muted order-no">订单号 {{ order.id }}</text>
-        </view>
-        <text class="order-status">{{ order.status }}</text>
-      </view>
+    <view v-if="o" class="obar">
+      <view class="cover th">封面</view>
+      <view class="ot"><text class="on">{{ o.productName }} · ¥{{ o.amount }}</text><text class="muted ono">#{{ o.id }} · {{ o.escortName || '待分配护航' }}</text></view>
+      <StatusTag :status="o.status" />
     </view>
 
-    <scroll-view scroll-y class="msgs" :scroll-into-view="lastId" scroll-with-animation>
-      <view class="sys">{{ order.escortId ? '护航已接单，请保持语音畅通' : '客服正在为你安排护航，请稍等' }}</view>
-      <view v-for="(m, i) in msgs" :key="i" :id="'m' + i" class="row" :class="{ me: m.me }">
-        <view v-if="!m.me" class="avatar"></view>
-        <view class="bubble">{{ m.text }}</view>
+    <scroll-view scroll-y class="msgs" :scroll-into-view="last" scroll-with-animation>
+      <view class="sys">消息仅订单相关人员可见：老板、护航、客服</view>
+      <view v-for="m in msgs" :key="m.id" :id="'m' + m.id" class="mrow" :class="{ me: m.from === me.id }">
+        <view v-if="m.from !== me.id" class="av">{{ m.name.slice(0, 1) }}</view>
+        <view class="mcol">
+          <text v-if="m.from !== me.id" class="muted who">{{ m.name }} · {{ ROLE_NAME[m.role] }}</text>
+          <view class="bubble">{{ m.text }}</view>
+        </view>
       </view>
     </scroll-view>
 
     <view class="composer">
-      <input class="input" v-model="draft" placeholder="发消息给护航…" confirm-type="send" @confirm="send" />
-      <view class="btn-primary send" @tap="send">发送</view>
+      <input class="input box" v-model="draft" placeholder="发消息…" confirm-type="send" @confirm="send" />
+      <view class="btn sm send" @tap="send">发送</view>
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
-import { state, describeOrder, getEscort, sendMessage } from '@/store/index.js'
+import { ref, nextTick } from 'vue'
+import { onLoad, onShow, onHide, onUnload } from '@dcloudio/uni-app'
+import { getOrder, listMessages, sendMessage } from '@/api/orders.js'
+import { ROLE_NAME } from '@/api/staff.js'
+import { session } from '@/store/session.js'
+import { run } from '@/utils.js'
+import StatusTag from '@/components/StatusTag.vue'
 
-const orderId = ref(null)
+const id = ref(null)
+const o = ref(null)
+const msgs = ref([])
 const draft = ref('')
-const lastId = ref('')
+const last = ref('')
+const me = session.user || {}
+let timer = null
 
-onLoad((q) => {
-  orderId.value = Number(q.id) || state.orders[0].id
-  const raw = state.orders.find((o) => o.id === orderId.value)
-  const e = getEscort(raw && raw.escortId)
-  uni.setNavigationBarTitle({ title: e ? e.name : '平台客服' })
-  scrollBottom()
-})
-
-const order = computed(() => describeOrder(state.orders.find((o) => o.id === orderId.value) || state.orders[0]))
-const msgs = computed(() => state.messages[orderId.value] || [])
-
-function scrollBottom() {
-  nextTick(() => { lastId.value = msgs.value.length ? 'm' + (msgs.value.length - 1) : '' })
+async function refresh() {
+  const list = await listMessages(session.user, id.value).catch(() => null)
+  if (list && list.length !== msgs.value.length) { msgs.value = list; scroll() }
 }
+function scroll() { nextTick(() => { last.value = msgs.value.length ? 'm' + msgs.value[msgs.value.length - 1].id : '' }) }
 
-// 演示：消息只存在本地。接后端后改成 WebSocket 或云开发实时数据库
-function send() {
+onLoad(async (q) => {
+  id.value = Number(q.id)
+  if (!session.user) return uni.redirectTo({ url: '/pages/login/login' })
+  o.value = await run(getOrder(session.user, id.value))
+  await refresh()
+})
+// 演示用轮询；真实环境换成 WebSocket 或云开发实时数据推送
+onShow(() => { timer = setInterval(refresh, 3000) })
+onHide(() => clearInterval(timer))
+onUnload(() => clearInterval(timer))
+
+async function send() {
   const t = draft.value.trim()
   if (!t) return
-  sendMessage(orderId.value, t)
+  const m = await run(sendMessage(session.user, id.value, t))
+  if (!m) return
   draft.value = ''
-  scrollBottom()
+  msgs.value = [...msgs.value, m]
+  scroll()
 }
 </script>
 
 <style scoped>
 .page { height: calc(100vh - var(--window-top)); display: flex; flex-direction: column; }
-.head { background: #FFFFFF; padding: 20rpx 32rpx; border-bottom: 2rpx solid #DCE6F3; }
-.order-bar { display: flex; align-items: center; gap: 20rpx; background: #F4F8FF; border-radius: 24rpx; padding: 16rpx 20rpx; }
-.thumb { width: 80rpx; height: 80rpx; border-radius: 16rpx; flex-shrink: 0; }
-.order-text { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
-.order-name { font-size: 26rpx; font-weight: 600; }
-.order-no { font-size: 22rpx; }
-.order-status { font-size: 24rpx; font-weight: 700; color: #1A6FE0; }
-.msgs { flex: 1; min-height: 0; padding: 32rpx; box-sizing: border-box; }
-.sys { margin: 0 auto 24rpx; width: fit-content; font-size: 22rpx; color: #4A5D7A; background: #DCE8F8; border-radius: 20rpx; padding: 6rpx 20rpx; }
-.row { display: flex; gap: 16rpx; align-items: flex-start; margin-bottom: 24rpx; }
-.row.me { justify-content: flex-end; }
-.avatar { width: 68rpx; height: 68rpx; border-radius: 50%; background: #D6E6FC; flex-shrink: 0; }
-.bubble { max-width: 480rpx; padding: 20rpx 24rpx; font-size: 28rpx; line-height: 1.5; border-radius: 28rpx; border-top-left-radius: 8rpx; background: #FFFFFF; word-break: break-all; }
-.row.me .bubble { background: #1A6FE0; color: #FFFFFF; border-top-left-radius: 28rpx; border-top-right-radius: 8rpx; }
-.composer { background: #FFFFFF; border-top: 2rpx solid #DCE6F3; padding: 20rpx 32rpx calc(20rpx + env(safe-area-inset-bottom)); display: flex; gap: 16rpx; align-items: center; }
-.input { flex: 1; height: 84rpx; border: 2rpx solid #CFE0F7; border-radius: 42rpx; padding: 0 28rpx; font-size: 28rpx; background: #F7FAFF; }
-.send { height: 84rpx; padding: 0 36rpx; font-size: 28rpx; }
+.obar { display: flex; align-items: center; gap: 16rpx; padding: 20rpx 24rpx; background: #FFFFFF; border-bottom: 2rpx solid #F0F0F0; }
+.th { width: 72rpx; height: 72rpx; border-radius: 10rpx; flex-shrink: 0; font-size: 18rpx; }
+.ot { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4rpx; }
+.on { font-size: 26rpx; font-weight: 600; }
+.ono { font-size: 22rpx; }
+.msgs { flex: 1; min-height: 0; padding: 24rpx; box-sizing: border-box; }
+.sys { margin: 0 auto 24rpx; width: fit-content; font-size: 22rpx; color: #8C8C8C; background: #EBEBEB; border-radius: 8rpx; padding: 6rpx 16rpx; }
+.mrow { display: flex; gap: 16rpx; margin-bottom: 24rpx; }
+.mrow.me { justify-content: flex-end; }
+.av { width: 64rpx; height: 64rpx; border-radius: 50%; background: #D9D9D9; color: #595959; font-size: 24rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mcol { display: flex; flex-direction: column; gap: 6rpx; max-width: 500rpx; }
+.who { font-size: 20rpx; }
+.bubble { padding: 18rpx 22rpx; font-size: 28rpx; line-height: 1.5; background: #FFFFFF; border-radius: 16rpx; word-break: break-all; }
+.mrow.me .bubble { background: #1F1F1F; color: #FFFFFF; }
+.composer { display: flex; gap: 16rpx; align-items: center; padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom)); background: #FFFFFF; border-top: 2rpx solid #F0F0F0; }
+.box { flex: 1; height: 76rpx; }
+.send { height: 76rpx; }
 </style>

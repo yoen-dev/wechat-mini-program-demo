@@ -1,129 +1,133 @@
 <template>
   <view v-if="p" class="page">
-    <view class="cover hero">[封面图]</view>
+    <view class="cover hero">封面图</view>
 
-    <view class="card info">
-      <view class="row-baseline">
-        <text class="price big">¥{{ p.price }}</text>
-        <text class="tag">{{ p.tag }}</text>
-      </view>
-      <text class="title">{{ p.name }}</text>
-      <text class="muted desc">{{ p.desc }}。全程语音沟通，装备全归老板。</text>
-      <view class="muted stats">
-        <text>已售 [数量]</text><text>好评率 [比例]</text><text>平均 [时长] 接单</text>
+    <view class="card block first">
+      <text class="name">{{ p.name }}</text>
+      <view class="tags"><text class="tag" v-for="t in p.tags" :key="t">{{ t }}</text></view>
+      <view class="row price-row"><text class="price big">¥{{ total }}</text><text class="muted unit"> / {{ spec.name }}</text></view>
+    </view>
+
+    <view class="card block">
+      <text class="sec-title">服务说明</text>
+      <view class="point" v-for="x in p.points" :key="x"><text class="dot">•</text><text class="sub">{{ x }}</text></view>
+    </view>
+
+    <view class="card block">
+      <text class="sec-title">选择规格</text>
+      <view class="choice spec between" v-for="s in SPECS" :key="s.name" :class="{ on: spec.name === s.name }" @tap="spec = s">
+        <text>{{ s.name }}</text><text class="price">¥{{ specPrice(p.price, s) }}</text>
       </view>
     </view>
 
     <view class="card block">
-      <text class="block-title">下单方式</text>
+      <text class="sec-title">下单方式</text>
       <view class="modes">
-        <view class="mode" :class="{ on: mode === 'dispatch' }" @tap="mode = 'dispatch'">
-          <text class="mode-name">客服派单</text>
-          <text class="mode-sub">最快匹配护航</text>
+        <view class="choice mode" :class="{ on: mode === 'dispatch' }" @tap="mode = 'dispatch'">
+          <text class="mt">客服派单</text><text class="muted md">最快匹配，推荐</text>
         </view>
-        <view class="mode" :class="{ on: mode === 'assign' }" @tap="mode = 'assign'">
-          <text class="mode-name">指定护航</text>
-          <text class="mode-sub">选你想要的人</text>
+        <view class="choice mode" :class="{ on: mode === 'assign' }" @tap="mode = 'assign'">
+          <text class="mt">指定护航</text><text class="muted md">选你想要的人</text>
         </view>
       </view>
       <view v-if="mode === 'assign'" class="escorts">
-        <view v-for="e in escorts" :key="e.id" class="mode escort" :class="{ on: escortId === e.id }" @tap="escortId = e.id">
-          <view class="avatar"></view>
-          <text class="escort-name">{{ e.name }}</text>
-          <text class="muted escort-meta">接单 {{ e.orders }}</text>
+        <view class="choice esc" v-for="e in escorts" :key="e.id" :class="{ on: escortId === e.id }" @tap="escortId = e.id">
+          <view class="avatar"></view><text class="en ellipsis">{{ e.name }}</text>
         </view>
       </view>
-      <text v-else class="muted hint">付款后客服会在 [时长] 内为你安排合适的护航，可在订单沟通里查看进度。</text>
     </view>
 
     <view class="card block">
+      <text class="sec-title">下单信息</text>
       <text class="label">游戏昵称 / ID</text>
-      <input class="field" v-model="gameId" placeholder="方便护航加你组队" />
+      <input class="input" v-model="gameId" placeholder="护航会按这个拉你进队" />
       <text class="label">备注（选填）</text>
-      <input class="field" v-model="note" placeholder="如：想打航天基地" />
+      <input class="input" v-model="note" placeholder="如：晚上 9 点后" />
     </view>
 
     <view class="bar">
-      <view class="bar-service" @tap="goService">
-        <text class="bar-icon">☎</text>
-        <text>客服</text>
-      </view>
-      <view class="bar-total">
-        <text class="muted bar-label">合计</text>
-        <text class="price bar-price">¥{{ p.price }}</text>
-      </view>
-      <view class="btn-primary bar-btn" @tap="submit">立即下单</view>
+      <view class="bar-cs" @tap="goService"><text>客服</text></view>
+      <view class="bar-total"><text class="muted">合计 </text><text class="price">¥{{ total }}</text></view>
+      <button class="btn buy" :loading="busy" @tap="submit">立即下单</button>
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { getProduct, escorts, placeOrder } from '@/store/index.js'
+import { getProduct, SPECS, specPrice } from '@/api/products.js'
+import { listEscorts } from '@/api/staff.js'
+import { createOrder, payOrder } from '@/api/orders.js'
+import { session, needUserLogin } from '@/store/session.js'
+import { run, toast, confirm } from '@/utils.js'
 
 const p = ref(null)
+const spec = ref(SPECS[0])
 const mode = ref('dispatch')
-const escortId = ref(escorts[0].id)
+const escorts = ref([])
+const escortId = ref(null)
 const gameId = ref('')
 const note = ref('')
+const busy = ref(false)
 
-onLoad((q) => {
-  p.value = getProduct(q.id) || getProduct(1)
+const total = computed(() => (p.value ? specPrice(p.value.price, spec.value) : 0))
+
+onLoad(async (q) => {
+  p.value = await run(getProduct(q.id))
+  if (!p.value) return setTimeout(() => uni.navigateBack(), 800)
   uni.setNavigationBarTitle({ title: p.value.name })
+  escorts.value = (await run(listEscorts())) || []
+  escortId.value = escorts.value[0] && escorts.value[0].id
 })
 
-function goService() {
-  uni.switchTab({ url: '/pages/service/service' })
-}
+const goService = () => uni.switchTab({ url: '/pages/service/service' })
 
-function submit() {
-  if (!gameId.value.trim()) {
-    uni.showToast({ title: '请填写游戏昵称 / ID', icon: 'none' })
-    return
+async function submit() {
+  if (!needUserLogin()) return
+  if (!gameId.value.trim()) return toast('请填写游戏昵称 / ID')
+  busy.value = true
+  const o = await run(createOrder(session.user, {
+    product: p.value, spec: spec.value.name, amount: total.value, mode: mode.value, escortId: escortId.value, gameId: gameId.value, note: note.value
+  }))
+  if (!o) return (busy.value = false)
+  // 真实环境：这里调用 uni.requestPayment 拉起微信支付
+  const ok = await confirm(`${p.value.name} · ${spec.value.name}\n应付 ¥${total.value}`, '模拟微信支付')
+  if (ok) {
+    await run(payOrder(session.user, o.id))
+    toast('支付成功', 'success')
+  } else {
+    toast('订单已保存，可在订单里继续支付')
   }
-  // 演示：直接生成订单。接后端后这里改成 创建订单 → 调起微信支付 → 支付成功再跳转
-  uni.showModal({
-    title: '确认下单',
-    content: `${p.value.name} · ¥${p.value.price}\n${mode.value === 'assign' ? '指定护航' : '客服派单'}`,
-    confirmText: '模拟支付',
-    success: (r) => {
-      if (!r.confirm) return
-      placeOrder({ productId: p.value.id, mode: mode.value, escortId: escortId.value, gameId: gameId.value.trim(), note: note.value.trim() })
-      uni.showToast({ title: '下单成功', icon: 'success' })
-      setTimeout(() => uni.switchTab({ url: '/pages/orders/orders' }), 600)
-    }
-  })
+  busy.value = false
+  setTimeout(() => uni.redirectTo({ url: `/pages/order/order?id=${o.id}` }), 500)
 }
 </script>
 
 <style scoped>
-.page { padding-bottom: 180rpx; display: flex; flex-direction: column; gap: 24rpx; }
-.hero { height: 440rpx; font-size: 26rpx; }
-.info { margin: -72rpx 32rpx 0; position: relative; padding: 32rpx; display: flex; flex-direction: column; gap: 16rpx; }
-.row-baseline { display: flex; align-items: baseline; gap: 16rpx; }
-.big { font-size: 52rpx; }
-.title { font-size: 36rpx; font-weight: 700; }
-.desc { font-size: 26rpx; line-height: 1.6; }
-.stats { display: flex; gap: 28rpx; font-size: 24rpx; }
-.block { margin: 0 32rpx; padding: 32rpx; display: flex; flex-direction: column; gap: 20rpx; }
-.block-title { font-size: 30rpx; font-weight: 700; }
-.modes, .escorts { display: flex; gap: 20rpx; }
-.mode { flex: 1; padding: 20rpx; border-radius: 24rpx; background: #F7FAFF; border: 3rpx solid #DCE6F3; display: flex; flex-direction: column; align-items: center; gap: 4rpx; }
-.mode.on { background: #E3EEFF; border-color: #1A6FE0; color: #1A6FE0; }
-.mode-name { font-size: 28rpx; font-weight: 700; }
-.mode-sub { font-size: 22rpx; }
-.avatar { width: 80rpx; height: 80rpx; border-radius: 50%; background: #D6E6FC; margin-bottom: 8rpx; }
-.escort-name { font-size: 26rpx; font-weight: 600; }
-.escort-meta { font-size: 22rpx; }
-.hint { font-size: 24rpx; line-height: 1.6; }
-.label { font-size: 26rpx; font-weight: 600; }
-.field { height: 88rpx; border: 2rpx solid #CFE0F7; border-radius: 20rpx; padding: 0 24rpx; font-size: 28rpx; background: #F7FAFF; }
-.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 2rpx solid #DCE6F3; display: flex; align-items: center; gap: 24rpx; padding: 20rpx 32rpx calc(20rpx + env(safe-area-inset-bottom)); }
-.bar-service { display: flex; flex-direction: column; align-items: center; font-size: 22rpx; color: #5B6B82; }
-.bar-icon { font-size: 36rpx; }
-.bar-total { flex: 1; display: flex; flex-direction: column; }
-.bar-label { font-size: 22rpx; }
-.bar-price { font-size: 40rpx; }
-.bar-btn { height: 88rpx; padding: 0 56rpx; font-size: 30rpx; }
+.page { padding-bottom: 180rpx; }
+.hero { height: 400rpx; font-size: 26rpx; }
+.block { margin: 20rpx 24rpx 0; padding: 28rpx; }
+.first { margin-top: -40rpx; position: relative; }
+.name { display: block; font-size: 38rpx; font-weight: 700; }
+.tags { display: flex; flex-wrap: wrap; gap: 10rpx; margin-top: 16rpx; }
+.price-row { margin-top: 20rpx; align-items: baseline; }
+.big { font-size: 48rpx; }
+.unit { font-size: 24rpx; }
+.point { display: flex; gap: 12rpx; margin-top: 16rpx; font-size: 26rpx; line-height: 1.6; }
+.dot { color: #8C8C8C; }
+.spec { margin-top: 16rpx; font-size: 28rpx; }
+.modes { display: flex; gap: 16rpx; margin-top: 16rpx; }
+.mode { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
+.mt { font-size: 28rpx; font-weight: 600; }
+.md { font-size: 22rpx; }
+.escorts { display: flex; gap: 16rpx; margin-top: 16rpx; }
+.esc { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10rpx; padding: 20rpx 8rpx; min-width: 0; }
+.avatar { width: 72rpx; height: 72rpx; border-radius: 50%; background: #E8E8E8; }
+.en { font-size: 24rpx; max-width: 100%; }
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 2rpx solid #F0F0F0; display: flex; align-items: center; gap: 24rpx; padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom)); }
+.bar-cs { font-size: 24rpx; color: #595959; padding: 0 8rpx; }
+.bar-total { flex: 1; font-size: 26rpx; }
+.bar-total .price { font-size: 36rpx; }
+.buy { width: 260rpx; margin: 0; }
 </style>
