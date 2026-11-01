@@ -1,0 +1,30 @@
+{
+  "pages": [
+    { "path": "pages/index/index", "style": { "navigationBarTitleText": "[品牌名]" } },
+    { "path": "pages/category/category", "style": { "navigationBarTitleText": "分类" } },
+    { "path": "pages/orders/orders", "style": { "navigationBarTitleText": "我的订单" } },
+    { "path": "pages/service/service", "style": { "navigationBarTitleText": "客服" } },
+    { "path": "pages/me/me", "style": { "navigationBarTitleText": "个人中心" } },
+    { "path": "pages/detail/detail", "style": { "navigationBarTitleText": "单子详情" } },
+    { "path": "pages/chat/chat", "style": { "navigationBarTitleText": "订单沟通" } }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "[品牌名]",
+    "navigationBarBackgroundColor": "#EEF5FF",
+    "backgroundColor": "#EEF5FF"
+  },
+  "tabBar": {
+    "color": "#5B6B82",
+    "selectedColor": "#1A6FE0",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页", "iconPath": "static/tab/home.png", "selectedIconPath": "static/tab/home-on.png" },
+      { "pagePath": "pages/category/category", "text": "分类", "iconPath": "static/tab/cat.png", "selectedIconPath": "static/tab/cat-on.png" },
+      { "pagePath": "pages/orders/orders", "text": "订单", "iconPath": "static/tab/orders.png", "selectedIconPath": "static/tab/orders-on.png" },
+      { "pagePath": "pages/service/service", "text": "客服", "iconPath": "static/tab/service.png", "selectedIconPath": "static/tab/service-on.png" },
+      { "pagePath": "pages/me/me", "text": "我的", "iconPath": "static/tab/me.png", "selectedIconPath": "static/tab/me-on.png" }
+    ]
+  }
+}
