@@ -4,12 +4,8 @@
       <text class="muted">搜索单子，如 保底单</text>
     </view>
 
-    <view class="card banner">
-      <text class="b-title">三角洲护航 · 稳定出金</text>
-      <view class="promise">
-        <text>24h 客服</text><text>·</text><text>不卡保底</text><text>·</text><text>售后随时升级</text>
-      </view>
-    </view>
+    <!-- 轮播图：在「管理后台 → 轮播图」里增删和排序 -->
+    <view class="banner"><BannerSwiper :list="banners" /></view>
 
     <view class="card steps">
       <view class="step" v-for="(s, i) in steps" :key="s.t">
@@ -49,15 +45,19 @@
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { listProducts, CATEGORIES } from '@/api/products.js'
+import { listBanners } from '@/api/banners.js'
+import BannerSwiper from '@/components/BannerSwiper.vue'
 import { session } from '@/store/session.js'
 import { run } from '@/utils.js'
 
 const list = ref([])
+const banners = ref([])
 const steps = [{ t: '选单子', d: '保底 / 清图' }, { t: '填 ID 付款', d: '派单或指定' }, { t: '进队开打', d: '护航拉你' }]
 
 onShow(async () => {
   // 员工误入用户端时送回工作台
   if (session.user && session.user.role !== 'user') return uni.reLaunch({ url: `/pages/staff/${session.user.role}` })
+  banners.value = (await run(listBanners())) || []
   list.value = (await run(listProducts())) || []
 })
 
@@ -72,9 +72,7 @@ const open = (id) => uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
 
 <style scoped>
 .search { height: 76rpx; background: #FFFFFF; border-radius: 38rpx; padding: 0 32rpx; display: flex; align-items: center; font-size: 26rpx; }
-.banner { margin-top: 24rpx; padding: 36rpx 32rpx; background: #1F1F1F; color: #FFFFFF; }
-.b-title { font-size: 38rpx; font-weight: 700; }
-.promise { display: flex; gap: 12rpx; margin-top: 16rpx; font-size: 24rpx; color: #BFBFBF; }
+.banner { margin-top: 24rpx; }
 .steps { margin-top: 20rpx; display: flex; padding: 24rpx 0; }
 .step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6rpx; }
 .step + .step { border-left: 2rpx solid #F0F0F0; }

@@ -47,6 +47,24 @@
         </view>
       </view>
 
+      <!-- 轮播图 -->
+      <view v-if="tab === '轮播图'" class="sec">
+        <view class="btn add" :class="{ disabled: banners.length >= MAX_BANNERS }" @tap="addImg">＋ 添加图片（{{ banners.length }}/{{ MAX_BANNERS }}）</view>
+        <text class="muted note top">显示在用户首页搜索框下方，按这里的顺序轮播。推荐尺寸 1080 × 450，其他比例会居中裁切。</text>
+        <view class="card brow" v-for="(b, i) in banners" :key="b.id">
+          <image class="bthumb" :src="b.url" mode="aspectFill" @tap="previewBanner(i)" />
+          <view class="bt">
+            <text class="pn ellipsis" @tap="rename(b)">{{ i + 1 }}. {{ b.title }}</text>
+            <view class="bops">
+              <view class="btn sm ghost" :class="{ disabled: i === 0 }" @tap="move(b, -1)">上移</view>
+              <view class="btn sm ghost" :class="{ disabled: i === banners.length - 1 }" @tap="move(b, 1)">下移</view>
+              <view class="btn sm danger" @tap="delImg(b)">删除</view>
+            </view>
+          </view>
+        </view>
+        <Empty v-if="!banners.length" text="还没有图片，首页将不显示轮播" />
+      </view>
+
       <!-- 员工 -->
       <view v-if="tab === '员工'" class="sec">
         <view class="btn add" @tap="newStaff">＋ 新建员工账号</view>
@@ -71,13 +89,15 @@ import { listProducts, toggleSale } from '@/api/products.js'
 import { listStaff, resetPassword, toggleStaff, ROLE_NAME } from '@/api/staff.js'
 import { session, guard } from '@/store/session.js'
 import { actionsFor, doAction } from '@/orderActions.js'
-import { run, toast, confirm } from '@/utils.js'
+import { run, toast, confirm, pickImage } from '@/utils.js'
+import { listBanners, addBanner, removeBanner, moveBanner, renameBanner, MAX_BANNERS } from '@/api/banners.js'
 import StaffHead from '@/components/StaffHead.vue'
 import OrderCard from '@/components/OrderCard.vue'
 import Empty from '@/components/Empty.vue'
 
 const me = computed(() => session.user)
-const tabs = ['概览', '订单', '单子', '员工']
+const tabs = ['概览', '订单', '单子', '轮播图', '员工']
+const banners = ref([])
 const tab = ref('概览')
 const stats = ref(null)
 const orders = ref([])
@@ -92,6 +112,7 @@ async function load() {
   if (tab.value === '订单') orders.value = (await run(listOrders(me.value, { scope: 'all' }))) || []
   if (tab.value === '单子') products.value = (await run(listProducts({ includeOff: true }))) || []
   if (tab.value === '员工') staff.value = (await run(listStaff(me.value))) || []
+  if (tab.value === '轮播图') banners.value = (await run(listBanners())) || []
 }
 function switchTab(t) { tab.value = t; load() }
 onShow(load)
@@ -113,6 +134,26 @@ async function toggleUser(u) {
   if (u.status === 'active' && !(await confirm(`停用后 ${u.name} 将无法登录，确定吗？`))) return
   if (await run(toggleStaff(me.value, u.id))) load()
 }
+
+// ---- 轮播图 ----
+async function addImg() {
+  if (banners.value.length >= MAX_BANNERS) return toast(`最多 ${MAX_BANNERS} 张`)
+  const src = await pickImage()
+  if (!src) return
+  if (await run(addBanner(me.value, { src }))) { toast('已添加', 'success'); load() }
+}
+async function delImg(b) {
+  if (!(await confirm(`删除「${b.title}」？`))) return
+  if (await run(removeBanner(me.value, b.id))) load()
+}
+async function move(b, dir) { if (await run(moveBanner(me.value, b.id, dir))) load() }
+function rename(b) {
+  uni.showModal({
+    title: '图片名称', editable: true, content: b.title, placeholderText: '仅后台显示，方便区分',
+    success: async (r) => { if (r.confirm && (await run(renameBanner(me.value, b.id, r.content)))) load() }
+  })
+}
+const previewBanner = (i) => uni.previewImage({ urls: banners.value.map((x) => x.url), current: i })
 </script>
 
 <style scoped>
@@ -133,4 +174,10 @@ async function toggleUser(u) {
 .pn { font-size: 28rpx; font-weight: 600; }
 .pm { font-size: 22rpx; }
 .off { background: #FFF1F0; color: #CF1322; }
+.note.top { margin: 0 8rpx 20rpx; }
+.brow { display: flex; gap: 20rpx; padding: 20rpx; margin-bottom: 16rpx; }
+.bthumb { width: 240rpx; height: 100rpx; border-radius: 10rpx; background: #E8E8E8; flex-shrink: 0; }
+.bt { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 12rpx; }
+.bops { display: flex; gap: 10rpx; }
+.bops .btn { padding: 0 18rpx; }
 </style>
