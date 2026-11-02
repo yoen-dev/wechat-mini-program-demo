@@ -79,7 +79,8 @@ onUnmounted(() => clearInterval(timer))
 const demoAccounts = [
   { label: '管理员', account: 'admin', password: 'admin123' },
   { label: '客服', account: 'kefu01', password: '123456' },
-  { label: '护航', account: 'hh01', password: '123456' }
+  { label: '护航', account: 'hh01', password: '123456' },
+  { label: '公司负责人', account: 'boss', password: 'boss123' }
 ]
 
 const readAgree = (type) => uni.navigateTo({ url: `/pages/user/agreement?type=${type}` })
