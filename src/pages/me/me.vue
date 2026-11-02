@@ -8,7 +8,7 @@
       </view>
       <view class="pt" v-else>
         <text class="pn">登录 / 注册</text>
-        <text class="muted">微信一键登录</text>
+        <text class="muted">登录后查看订单和余额</text>
       </view>
       <text class="arrow" v-if="!logged">›</text>
     </view>
@@ -31,7 +31,6 @@
     </view>
 
     <view class="card menu">
-      <view class="list-row" @tap="staffLogin"><text>员工登录</text><text class="arrow">›</text></view>
       <view class="list-row" v-if="logged" @tap="logout"><text>退出登录</text><text class="arrow">›</text></view>
       <view class="list-row" @tap="reset"><text class="muted">重置演示数据</text><text class="arrow">›</text></view>
     </view>
@@ -46,7 +45,6 @@ import { maskPhone, toast, confirm } from '@/utils.js'
 
 const logged = computed(() => session.user && session.user.role === 'user')
 const login = () => uni.navigateTo({ url: '/pages/login/login' })
-const staffLogin = () => uni.navigateTo({ url: '/pages/login/login?tab=staff' })
 const toService = () => uni.switchTab({ url: '/pages/service/service' })
 const toOrders = () => uni.switchTab({ url: '/pages/orders/orders' })
 const soon = () => toast('敬请期待')

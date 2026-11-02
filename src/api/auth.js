@@ -55,7 +55,7 @@ export function bindPhone(userId, phone, code) {
   return respond(publicUser(u))
 }
 
-/** 员工账号密码登录 */
+/** 账号密码登录（账号只能由管理员在后台创建，登录后按账号身份进入对应界面） */
 export function staffLogin(account, password) {
   const d = db()
   const u = d.users.find((x) => x.role !== 'user' && x.account === account.trim())
@@ -76,4 +76,19 @@ export function changePassword(userId, oldPwd, newPwd) {
 export function getUser(id) {
   const u = db().users.find((x) => x.id === id)
   return u ? respond(publicUser(u)) : fail('用户不存在')
+}
+
+/** 手机号 + 验证码登录：已注册直接登录，没注册自动建号 */
+export function phoneLogin(phone, code) {
+  if (!/^1\d{10}$/.test(phone)) return fail('请输入正确的手机号')
+  if (code !== DEMO_SMS_CODE) return fail('验证码错误')
+  const d = db()
+  let u = d.users.find((x) => x.phone === phone)
+  if (!u) {
+    u = { id: nextId('user'), role: 'user', name: '用户' + phone.slice(-4), phone, status: 'active', createdAt: Date.now() }
+    d.users.push(u)
+    save()
+  }
+  if (u.status !== 'active') return fail('账号已被停用，请联系客服')
+  return respond(publicUser(u))
 }

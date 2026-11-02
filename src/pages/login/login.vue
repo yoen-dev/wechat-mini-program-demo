@@ -7,24 +7,36 @@
     </view>
 
     <view class="seg tabs">
-      <view class="seg-item" :class="{ on: tab === 'user' }" @tap="tab = 'user'">用户登录</view>
-      <view class="seg-item" :class="{ on: tab === 'staff' }" @tap="tab = 'staff'">员工登录</view>
+      <view v-for="t in tabs" :key="t.key" class="seg-item" :class="{ on: tab === t.key }" @tap="tab = t.key">{{ t.name }}</view>
     </view>
 
-    <!-- 用户：微信一键登录，首次需绑定手机号 -->
-    <view v-if="tab === 'user'" class="panel">
-      <button class="btn wx" :loading="loading" @tap="onWxLogin">微信一键登录</button>
+    <!-- 微信登录：首次需要绑定手机号 -->
+    <view v-if="tab === 'wx'" class="card panel">
+      <button class="btn wx" :loading="loading" @tap="onWxLogin()">微信一键登录</button>
       <text class="muted tip">首次登录需要绑定手机号</text>
     </view>
 
-    <!-- 员工：账号由管理员发放 -->
-    <view v-else class="panel">
+    <!-- 手机号 + 验证码：没注册过的自动注册 -->
+    <view v-else-if="tab === 'phone'" class="card panel">
+      <text class="label">手机号</text>
+      <input class="input" v-model="phone" type="number" maxlength="11" placeholder="请输入手机号" />
+      <text class="label">验证码</text>
+      <view class="code-row">
+        <input class="input code" v-model="code" type="number" maxlength="6" placeholder="6 位验证码" />
+        <button class="btn light get" :disabled="count > 0" @tap="send">{{ count > 0 ? count + 's' : '获取验证码' }}</button>
+      </view>
+      <button class="btn submit" :loading="loading" @tap="onPhoneLogin">登录</button>
+      <text class="muted tip">未注册的手机号验证后自动注册</text>
+    </view>
+
+    <!-- 账号密码：账号只能由管理员在后台发放，登录后按身份进入对应界面 -->
+    <view v-else class="card panel">
       <text class="label">账号</text>
-      <input class="input" v-model="account" placeholder="请输入员工账号" />
+      <input class="input" v-model="account" placeholder="请输入账号" />
       <text class="label">密码</text>
-      <input class="input" v-model="password" password placeholder="请输入密码" confirm-type="done" @confirm="onStaffLogin" />
-      <button class="btn submit" :loading="loading" @tap="onStaffLogin">登录</button>
-      <text class="muted tip">账号由管理员发放，忘记密码请联系管理员重置</text>
+      <input class="input" v-model="password" password placeholder="请输入密码" confirm-type="done" @confirm="onPwdLogin" />
+      <button class="btn submit" :loading="loading" @tap="onPwdLogin">登录</button>
+      <text class="muted tip">账号由平台发放，忘记密码请联系管理员</text>
     </view>
 
     <view class="agree" @tap="agreed = !agreed">
@@ -36,9 +48,9 @@
     <view class="card demo">
       <text class="demo-title">演示账号（点击填入）</text>
       <view class="demo-row" @tap="demoUser">
-        <text>示例老板</text><text class="muted">已绑定手机，直接登录</text>
+        <text>示例老板</text><text class="muted">微信登录，已绑定手机</text>
       </view>
-      <view class="demo-row" v-for="a in demoStaff" :key="a.account" @tap="fill(a)">
+      <view class="demo-row" v-for="a in demoAccounts" :key="a.account" @tap="fill(a)">
         <text>{{ a.label }}</text><text class="muted">{{ a.account }} / {{ a.password }}</text>
       </view>
       <text class="muted demo-note">短信验证码固定为 123456</text>
@@ -47,20 +59,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
-import { wxLogin, staffLogin } from '@/api/auth.js'
+import { ref, onUnmounted } from 'vue'
+import { wxLogin, staffLogin, phoneLogin, sendSmsCode } from '@/api/auth.js'
 import { setSession, goHome } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 
-const tab = ref('user')
+const tabs = [{ key: 'wx', name: '微信登录' }, { key: 'phone', name: '手机号登录' }, { key: 'pwd', name: '账号密码' }]
+const tab = ref('wx')
+const phone = ref('')
+const code = ref('')
+const count = ref(0)
 const account = ref('')
 const password = ref('')
 const agreed = ref(false)
 const loading = ref(false)
-onLoad((q) => { if (q.tab === 'staff') tab.value = 'staff' })
+let timer = null
+onUnmounted(() => clearInterval(timer))
 
-const demoStaff = [
+const demoAccounts = [
   { label: '管理员', account: 'admin', password: 'admin123' },
   { label: '客服', account: 'kefu01', password: '123456' },
   { label: '护航', account: 'hh01', password: '123456' }
@@ -71,9 +87,12 @@ function checkAgree() {
   return agreed.value
 }
 
-function backOrHome(user) {
-  if (getCurrentPages().length > 1) uni.navigateBack()
-  else goHome(user)
+/** 登录成功：用户回到刚才的页面，员工直接进自己的工作台 */
+function finish(u) {
+  setSession(u)
+  if (u.role !== 'user') return goHome(u)
+  toast('登录成功', 'success')
+  setTimeout(() => (getCurrentPages().length > 1 ? uni.navigateBack() : goHome(u)), 500)
 }
 
 async function onWxLogin(opts = {}) {
@@ -83,43 +102,60 @@ async function onWxLogin(opts = {}) {
   const r = await run(wxLogin(opts))
   loading.value = false
   if (!r) return
-  setSession(r.user)
-  if (r.needPhone) uni.redirectTo({ url: '/pages/login/bind-phone' })
-  else { toast('登录成功', 'success'); setTimeout(() => backOrHome(r.user), 500) }
+  if (r.needPhone) { setSession(r.user); return uni.redirectTo({ url: '/pages/login/bind-phone' }) }
+  finish(r.user)
 }
 
-async function onStaffLogin() {
+async function send() {
+  const r = await run(sendSmsCode(phone.value))
+  if (!r) return
+  toast(`验证码已发送（演示：${r.demoCode}）`)
+  count.value = 60
+  timer = setInterval(() => { count.value--; if (count.value <= 0) clearInterval(timer) }, 1000)
+}
+
+async function onPhoneLogin() {
+  if (!checkAgree()) return
+  if (code.value.length !== 6) return toast('请输入 6 位验证码')
+  loading.value = true
+  const u = await run(phoneLogin(phone.value, code.value))
+  loading.value = false
+  if (u) finish(u)
+}
+
+async function onPwdLogin() {
   if (!checkAgree()) return
   if (!account.value || !password.value) return toast('请输入账号和密码')
   loading.value = true
   const u = await run(staffLogin(account.value, password.value))
   loading.value = false
-  if (!u) return
-  setSession(u)
-  goHome(u)
+  if (u) finish(u)
 }
 
 function fill(a) {
-  tab.value = 'staff'
+  tab.value = 'pwd'
   account.value = a.account
   password.value = a.password
   agreed.value = true
 }
 function demoUser() {
   agreed.value = true
-  tab.value = 'user'
+  tab.value = 'wx'
   onWxLogin({ openid: 'seed-openid' })
 }
 </script>
 
 <style scoped>
-.page { padding: 48rpx 40rpx 60rpx; }
-.brand { display: flex; flex-direction: column; align-items: center; gap: 12rpx; margin: 40rpx 0 56rpx; }
+.page { padding: 40rpx 40rpx 60rpx; }
+.brand { display: flex; flex-direction: column; align-items: center; gap: 12rpx; margin: 32rpx 0 48rpx; }
 .logo { width: 128rpx; height: 128rpx; border-radius: 28rpx; background: #1F1F1F; color: #FFFFFF; font-size: 24rpx; display: flex; align-items: center; justify-content: center; }
 .title { font-size: 40rpx; font-weight: 700; margin-top: 8rpx; }
-.tabs { margin-bottom: 32rpx; }
-.panel { background: #FFFFFF; border-radius: 20rpx; padding: 32rpx; }
-.wx { background: #07C160; margin-top: 8rpx; }
+.tabs { margin-bottom: 24rpx; }
+.panel { padding: 8rpx 32rpx 32rpx; }
+.wx { background: #07C160; margin-top: 24rpx; }
+.code-row { display: flex; gap: 16rpx; }
+.code { flex: 1; }
+.get { width: 200rpx; height: 88rpx; font-size: 26rpx; margin: 0; }
 .submit { margin-top: 40rpx; }
 .tip { display: block; text-align: center; font-size: 24rpx; margin-top: 24rpx; }
 .agree { display: flex; align-items: center; justify-content: center; gap: 12rpx; margin-top: 32rpx; font-size: 24rpx; }
