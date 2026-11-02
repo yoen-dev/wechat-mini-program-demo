@@ -23,10 +23,11 @@
     </view>
 
     <view class="card menu">
-      <view class="list-row" @tap="soon"><text>成为护航</text><text class="arrow">›</text></view>
-      <view class="list-row" @tap="toService"><text>投诉 / 售后</text><text class="arrow">›</text></view>
+      <view class="list-row" @tap="goLogged('/pages/user/apply')"><text>成为护航</text><text class="arrow">›</text></view>
+      <view class="list-row" @tap="goLogged('/pages/user/tickets')"><text>投诉 / 售后</text><text class="arrow">›</text></view>
       <view class="list-row" @tap="toService"><text>帮助中心</text><text class="arrow">›</text></view>
-      <view class="list-row" @tap="soon"><text>相关协议</text><text class="arrow">›</text></view>
+      <view class="list-row" @tap="go('/pages/user/agreement?type=user')"><text>用户协议</text><text class="arrow">›</text></view>
+      <view class="list-row" @tap="go('/pages/user/agreement?type=privacy')"><text>隐私政策</text><text class="arrow">›</text></view>
       <view class="list-row"><text class="muted">陪玩</text><text class="muted">即将上线</text></view>
     </view>
 
@@ -39,7 +40,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { session, logout } from '@/store/session.js'
+import { session, logout, needUserLogin } from '@/store/session.js'
 import { resetDb } from '@/api/db.js'
 import { maskPhone, toast, confirm } from '@/utils.js'
 
@@ -48,8 +49,11 @@ const login = () => uni.navigateTo({ url: '/pages/login/login' })
 const toService = () => uni.switchTab({ url: '/pages/service/service' })
 const toOrders = () => uni.switchTab({ url: '/pages/orders/orders' })
 const soon = () => toast('敬请期待')
+const go = (url) => uni.navigateTo({ url })
+const goLogged = (url) => needUserLogin() && go(url)
 const quick = [
-  { t: '我的订单', go: toOrders }, { t: '优惠券', go: soon }, { t: '收藏', go: soon }, { t: '我的评价', go: soon }
+  { t: '我的订单', go: toOrders }, { t: '优惠券', go: () => goLogged('/pages/user/coupons') },
+  { t: '售后记录', go: () => goLogged('/pages/user/tickets') }, { t: '收藏', go: soon }
 ]
 async function reset() {
   if (!(await confirm('清空本机所有演示订单和新建账号，恢复初始数据？'))) return

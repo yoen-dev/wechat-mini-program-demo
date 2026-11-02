@@ -25,7 +25,7 @@
 import { reactive, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { getProduct, saveProduct, CATEGORIES } from '@/api/products.js'
-import { guard } from '@/store/session.js'
+import { session, guard } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 
 const f = reactive({ id: null, name: '', price: '', desc: '', cats: [], tagsText: '', pointsText: '' })
@@ -46,7 +46,7 @@ function toggleCat(c) {
 
 async function submit() {
   busy.value = true
-  const ok = await run(saveProduct({
+  const ok = await run(saveProduct(session.user, {
     id: f.id, name: f.name, price: f.price, desc: f.desc, cats: f.cats,
     tags: f.tagsText.split(/\s+/).filter(Boolean), points: f.pointsText.split('\n').map((s) => s.trim()).filter(Boolean)
   }))

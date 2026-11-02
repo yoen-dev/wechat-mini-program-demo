@@ -1,6 +1,6 @@
 // 首页轮播图接口（模拟）
 // 真实环境：图片上传到云存储 / 对象存储，这里只存图片地址和顺序。
-import { db, save, nextId, respond, fail } from './db.js'
+import { db, save, nextId, respond, fail, audit } from './db.js'
 import rights from '@/static/banner/rights.jpg'
 import aftersale from '@/static/banner/aftersale.jpg'
 
@@ -34,8 +34,8 @@ export function addBanner(actor, { src, title }) {
   if (!src) return fail('请选择图片')
   const l = list()
   if (l.length >= MAX_BANNERS) return fail(`最多 ${MAX_BANNERS} 张`)
-  if (!db().seq.banner) db().seq.banner = 10
   l.push({ id: nextId('banner'), title: (title || '').trim() || `图片 ${l.length + 1}`, src })
+  audit(actor, '添加轮播图', l[l.length - 1].title)
   save()
   return respond({ ok: true })
 }
@@ -45,6 +45,7 @@ export function removeBanner(actor, id) {
   const l = list()
   const i = l.findIndex((b) => b.id === id)
   if (i < 0) return fail('图片不存在')
+  audit(actor, '删除轮播图', l[i].title)
   l.splice(i, 1)
   save()
   return respond({ ok: true })

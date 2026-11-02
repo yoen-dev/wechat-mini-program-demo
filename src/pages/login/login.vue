@@ -41,7 +41,7 @@
 
     <view class="agree" @tap="agreed = !agreed">
       <view class="check" :class="{ on: agreed }">{{ agreed ? '✓' : '' }}</view>
-      <text class="muted">我已阅读并同意《用户协议》和《隐私政策》</text>
+      <text class="muted">我已阅读并同意<text class="lk" @tap.stop="readAgree('user')">《用户协议》</text>和<text class="lk" @tap.stop="readAgree('privacy')">《隐私政策》</text></text>
     </view>
 
     <!-- 演示用：上线前删除 -->
@@ -82,6 +82,7 @@ const demoAccounts = [
   { label: '护航', account: 'hh01', password: '123456' }
 ]
 
+const readAgree = (type) => uni.navigateTo({ url: `/pages/user/agreement?type=${type}` })
 function checkAgree() {
   if (!agreed.value) toast('请先阅读并同意用户协议和隐私政策')
   return agreed.value
@@ -161,6 +162,7 @@ function demoUser() {
 .agree { display: flex; align-items: center; justify-content: center; gap: 12rpx; margin-top: 32rpx; font-size: 24rpx; }
 .check { width: 32rpx; height: 32rpx; border-radius: 50%; border: 2rpx solid #BFBFBF; font-size: 20rpx; display: flex; align-items: center; justify-content: center; color: #FFFFFF; }
 .check.on { background: #1F1F1F; border-color: #1F1F1F; }
+.lk { color: #0958D9; }
 .demo { margin-top: 48rpx; padding: 24rpx 28rpx; border: 2rpx dashed #D9D9D9; background: #FAFAFA; }
 .demo-title { font-size: 24rpx; font-weight: 600; }
 .demo-row { display: flex; justify-content: space-between; padding: 16rpx 0; font-size: 26rpx; border-bottom: 2rpx solid #F0F0F0; }

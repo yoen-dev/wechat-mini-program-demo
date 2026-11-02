@@ -4,6 +4,7 @@
       <view class="list-row" @tap="goOrders"><text>订单沟通</text><text class="arrow">›</text></view>
       <!-- 小程序内 open-type="contact" 会打开微信官方客服会话 -->
       <button class="list-row plain" open-type="contact" @tap="onContact"><text>联系客服</text><text class="muted">24 小时在线 ›</text></button>
+      <view class="list-row" @tap="goTickets"><text>投诉 / 售后</text><text class="arrow">›</text></view>
     </view>
 
     <text class="sec-title sec">常见问题</text>
@@ -18,16 +19,16 @@
 
 <script setup>
 import { ref } from 'vue'
-import { toast } from '@/utils.js'
+import { onShow } from '@dcloudio/uni-app'
+import { getSettings } from '@/api/finance.js'
+import { needUserLogin } from '@/store/session.js'
+import { toast, run } from '@/utils.js'
 
 const open = ref(-1)
-const faqs = [
-  { q: '怎么下单？', a: '1. 选单子和规格\n2. 选择客服派单或指定护航，填写游戏昵称 / ID\n3. 支付后护航会在「订单沟通」里联系你并拉你进队' },
-  { q: '客服派单和指定护航有什么区别？', a: '客服派单：付款后由客服安排合适的护航，速度最快。\n指定护航：你自己选护航，需要等对方接单；如果对方暂时没空，会转为客服派单。' },
-  { q: '可以退款吗？', a: '护航开始前可以在订单里申请退款，客服审核后原路退回；护航进行中有问题请联系客服处理。具体以 [售后条款] 为准。' },
-  { q: '保底是什么意思？', a: '保底单打不到约定的哈夫币数量，护航会继续带你直到达标，不额外收费。' }
-]
+const faqs = ref([])
+onShow(async () => { const st = await run(getSettings()); faqs.value = st ? st.faqs : [] })
 const goOrders = () => uni.switchTab({ url: '/pages/orders/orders' })
+const goTickets = () => needUserLogin() && uni.navigateTo({ url: '/pages/user/tickets' })
 function onContact() {
   // #ifdef H5
   toast('网页预览版不支持，小程序里会打开微信客服')

@@ -1,5 +1,5 @@
 // 单子（商品）接口（模拟）
-import { db, save, nextId, respond, fail } from './db.js'
+import { db, save, nextId, respond, fail, audit, isAdmin } from './db.js'
 
 export const CATEGORIES = ['保底单', '清图单', '特惠', '明星护航']
 
@@ -25,7 +25,8 @@ export function getProduct(id) {
 }
 
 /** 新建或保存单子（管理员） */
-export function saveProduct(input) {
+export function saveProduct(actor, input) {
+  if (!isAdmin(actor)) return fail('无权限')
   const d = db()
   const price = Number(input.price)
   if (!input.name || !input.name.trim()) return fail('请填写名称')
@@ -37,18 +38,23 @@ export function saveProduct(input) {
   if (input.id) {
     const p = d.products.find((x) => x.id === input.id)
     if (!p) return fail('单子不存在')
+    if (p.price !== price) audit(actor, '修改价格', `${p.name} ¥${p.price} → ¥${price}`)
+    else audit(actor, '编辑单子', data.name)
     Object.assign(p, data)
   } else {
     d.products.push({ id: nextId('product'), onSale: true, sort: d.products.length + 1, ...data })
+    audit(actor, '新建单子', `${data.name} ¥${price}`)
   }
   save()
   return respond({ ok: true })
 }
 
-export function toggleSale(id) {
+export function toggleSale(actor, id) {
+  if (!isAdmin(actor)) return fail('无权限')
   const p = db().products.find((x) => x.id === id)
   if (!p) return fail('单子不存在')
   p.onSale = !p.onSale
+  audit(actor, p.onSale ? '上架单子' : '下架单子', p.name)
   save()
   return respond(p)
 }

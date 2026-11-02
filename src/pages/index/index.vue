@@ -4,6 +4,8 @@
       <text class="muted">搜索单子，如 保底单</text>
     </view>
 
+    <view v-if="notice" class="notice"><text class="nt">公告</text><text class="ellipsis nx">{{ notice }}</text></view>
+
     <!-- 轮播图：在「管理后台 → 轮播图」里增删和排序 -->
     <view class="banner"><BannerSwiper :list="banners" /></view>
 
@@ -46,18 +48,22 @@ import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { listProducts, CATEGORIES } from '@/api/products.js'
 import { listBanners } from '@/api/banners.js'
+import { getSettings } from '@/api/finance.js'
 import BannerSwiper from '@/components/BannerSwiper.vue'
 import { session } from '@/store/session.js'
 import { run } from '@/utils.js'
 
 const list = ref([])
 const banners = ref([])
+const notice = ref('')
 const steps = [{ t: '选单子', d: '保底 / 清图' }, { t: '填 ID 付款', d: '派单或指定' }, { t: '进队开打', d: '护航拉你' }]
 
 onShow(async () => {
   // 员工误入用户端时送回工作台
   if (session.user && session.user.role !== 'user') return uni.reLaunch({ url: `/pages/staff/${session.user.role}` })
   banners.value = (await run(listBanners())) || []
+  const st = await run(getSettings())
+  notice.value = st ? st.notice : ''
   list.value = (await run(listProducts())) || []
 })
 
@@ -73,6 +79,9 @@ const open = (id) => uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
 <style scoped>
 .search { height: 76rpx; background: #FFFFFF; border-radius: 38rpx; padding: 0 32rpx; display: flex; align-items: center; font-size: 26rpx; }
 .banner { margin-top: 24rpx; }
+.notice { display: flex; align-items: center; gap: 16rpx; margin-top: 20rpx; padding: 16rpx 24rpx; background: #FFFFFF; border-radius: 16rpx; font-size: 24rpx; }
+.nt { flex-shrink: 0; font-size: 20rpx; font-weight: 700; color: #FFFFFF; background: #1F1F1F; padding: 2rpx 10rpx; border-radius: 6rpx; }
+.nx { flex: 1; min-width: 0; }
 .steps { margin-top: 20rpx; display: flex; padding: 24rpx 0; }
 .step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6rpx; }
 .step + .step { border-left: 2rpx solid #F0F0F0; }

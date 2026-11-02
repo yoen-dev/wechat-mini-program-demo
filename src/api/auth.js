@@ -29,6 +29,8 @@ export function wxLogin({ openid, nickname } = {}) {
     save()
   }
   if (u.status !== 'active') return fail('账号已被停用，请联系客服')
+  u.lastActiveAt = Date.now()
+  save()
   return respond({ user: publicUser(u), needPhone: !u.phone })
 }
 
@@ -58,7 +60,7 @@ export function bindPhone(userId, phone, code) {
 /** 账号密码登录（账号只能由管理员在后台创建，登录后按账号身份进入对应界面） */
 export function staffLogin(account, password) {
   const d = db()
-  const u = d.users.find((x) => x.role !== 'user' && x.account === account.trim())
+  const u = d.users.find((x) => x.role !== 'user' && x.account === account.trim())  // 护航 / 客服 / 管理员 / 负责人
   if (!u || u.password !== password) return fail('账号或密码错误')
   if (u.status !== 'active') return fail('账号已停用，请联系管理员')
   return respond(publicUser(u))
@@ -90,5 +92,7 @@ export function phoneLogin(phone, code) {
     save()
   }
   if (u.status !== 'active') return fail('账号已被停用，请联系客服')
+  u.lastActiveAt = Date.now()
+  save()
   return respond(publicUser(u))
 }

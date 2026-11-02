@@ -15,7 +15,7 @@
       <input class="input" v-model="f.password" placeholder="至少 6 位" />
     </view>
     <button class="btn save" :loading="busy" @tap="submit">创建账号</button>
-    <text class="muted note">创建后把账号和初始密码发给对方，对方在「我的 → 员工登录」里登录，登录后可在「账号设置」修改密码。</text>
+    <text class="muted note">创建后把账号和初始密码发给对方，对方在登录页选「账号密码」登录，会自动进入对应界面，登录后可在「账号设置」修改密码。</text>
   </view>
 </template>
 
@@ -29,7 +29,8 @@ import { run } from '@/utils.js'
 const roles = [
   { key: 'escort', name: '护航', desc: '接单、打单' },
   { key: 'cs', name: '客服', desc: '派单、退款' },
-  { key: 'admin', name: '管理员', desc: '全部权限' }
+  { key: 'admin', name: '管理员', desc: '全部权限' },
+  { key: 'owner', name: '负责人', desc: '只看数据' }
 ]
 const f = reactive({ role: 'escort', name: '', account: '', password: '' })
 const busy = ref(false)
@@ -50,8 +51,8 @@ async function submit() {
 
 <style scoped>
 .form { padding: 8rpx 28rpx 32rpx; }
-.roles { display: flex; gap: 12rpx; }
-.role { flex: 1; display: flex; flex-direction: column; gap: 4rpx; padding: 18rpx 16rpx; }
+.roles { display: flex; flex-wrap: wrap; gap: 12rpx; }
+.role { width: calc(50% - 6rpx); box-sizing: border-box; display: flex; flex-direction: column; gap: 4rpx; padding: 18rpx 16rpx; }
 .rn { font-size: 28rpx; font-weight: 600; }
 .rd { font-size: 20rpx; }
 .save { margin-top: 32rpx; }

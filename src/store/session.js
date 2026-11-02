@@ -8,7 +8,8 @@ export const HOME = {
   user: '/pages/index/index',
   escort: '/pages/staff/escort',
   cs: '/pages/staff/cs',
-  admin: '/pages/staff/admin'
+  admin: '/pages/staff/admin',
+  owner: '/pages/staff/owner'
 }
 
 export function setSession(user) {
