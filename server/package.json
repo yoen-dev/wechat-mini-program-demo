@@ -1,0 +1,33 @@
+{
+  "name": "escort-server",
+  "version": "1.0.0",
+  "description": "三角洲护航小程序后端（Node.js + Express + MySQL）",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "private": true,
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "migrate": "knex --knexfile src/db/knexfile.js migrate:latest",
+    "seed:init": "node src/db/seed.js init",
+    "seed:demo": "node src/db/seed.js demo",
+    "test": "node --test --test-concurrency=1 test/"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.3",
+    "helmet": "^7.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "knex": "^3.3.0",
+    "multer": "^1.4.4",
+    "mysql2": "^3.24.6"
+  },
+  "devDependencies": {
+    "supertest": "^7.3.1"
+  }
+}
