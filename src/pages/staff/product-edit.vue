@@ -1,3 +1,6 @@
+<!--
+  【管理员】新建 / 编辑单子：名称、价格、分类、标签、简介、服务说明。改价会记入操作日志。
+-->
 <template>
   <view class="wrap">
     <view class="card form">
@@ -28,9 +31,12 @@ import { getProduct, saveProduct, CATEGORIES } from '@api/products.js'
 import { session, guard } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 
+// 表单内容
 const f = reactive({ id: null, name: '', price: '', desc: '', cats: [], tagsText: '', pointsText: '' })
+// 提交中，防止重复点击
 const busy = ref(false)
 
+// 页面打开时读取网址参数并加载数据
 onLoad(async (q) => {
   if (!guard(['admin'])) return
   if (!q.id) return uni.setNavigationBarTitle({ title: '新建单子' })
@@ -38,12 +44,14 @@ onLoad(async (q) => {
   if (p) Object.assign(f, { id: p.id, name: p.name, price: String(p.price), desc: p.desc, cats: [...p.cats], tagsText: p.tags.join(' '), pointsText: p.points.join('\n') })
 })
 
+// 勾选 / 取消分类
 function toggleCat(c) {
   const i = f.cats.indexOf(c)
   if (i >= 0) f.cats.splice(i, 1)
   else f.cats.push(c)
 }
 
+// 保存
 async function submit() {
   busy.value = true
   const ok = await run(saveProduct(session.user, {

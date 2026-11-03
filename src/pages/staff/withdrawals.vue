@@ -1,3 +1,6 @@
+<!--
+  【管理员】提现审批：护航申请提现 → 管理员线下打款后点「已打款」，或驳回。
+-->
 <template>
   <view class="wrap">
     <view class="seg">
@@ -30,15 +33,22 @@ import { run, fmtTime, confirm, toast } from '@/utils.js'
 import Empty from '@/components/Empty.vue'
 
 const tabs = ['待审核', '已处理']
+// 当前选中的标签页
 const tab = ref('待审核')
+// 列表数据
 const list = ref([])
+// 待审核数量
 const pending = computed(() => list.value.filter((w) => w.status === '待审核').length)
+// 当前标签页要显示的列表
 const shown = computed(() => list.value.filter((w) => (tab.value === '待审核' ? w.status === '待审核' : w.status !== '待审核')))
+// 加载页面数据
 async function load() {
   if (!guard(['admin'])) return
   list.value = (await run(listWithdrawals(session.user))) || []
 }
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
+// 标记已打款 / 驳回
 async function handle(w, ok) {
   if (ok) {
     if (!(await confirm(`确认已经给 ${w.escortName} 转账 ¥${w.amount}？`))) return

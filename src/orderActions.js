@@ -6,6 +6,10 @@ import { getWallet } from '@api/wallet.js'
 import { run, toast, confirm } from '@/utils.js'
 import { IS_MOCK } from '@/api/constants.js'
 
+/**
+ * 按「当前身份 a」和「订单状态」算出订单上应该显示哪些按钮
+ * 返回 [{ key: 操作代号, label: 按钮文字, ghost: 是否为次要按钮 }]，key 对应下面 doAction 里的分支
+ */
 export function actionsFor(o, a) {
   if (!o || !a) return []
   const s = o.status
@@ -36,6 +40,7 @@ export function actionsFor(o, a) {
   return list
 }
 
+// 弹出带输入框的确认框（填退款原因等），取消返回 null
 function ask(title, placeholder) {
   return new Promise((resolve) => uni.showModal({
     title, editable: true, placeholderText: placeholder,
@@ -118,6 +123,7 @@ export async function doAction(key, o, a) {
   return null
 }
 
+// 操作成功时提示一下
 function done(r, msg) {
   if (r) toast(msg, 'success')
   return r

@@ -1,3 +1,6 @@
+<!--
+  【客服 / 管理员】护航报名审核：通过后自动开通护航账号并显示初始密码，转告对方登录后修改。
+-->
 <template>
   <view class="wrap">
     <text class="muted top">老板在「我的 → 成为护航」提交报名。通过后自动生成护航账号和初始密码，请转告对方登录后修改。</text>
@@ -30,13 +33,17 @@ import { session, guard } from '@/store/session.js'
 import { run, fmtTime, confirm } from '@/utils.js'
 import Empty from '@/components/Empty.vue'
 
+// 列表数据
 const list = ref([])
+// 加载页面数据
 async function load() {
   if (!guard(['cs', 'admin'])) return
   list.value = (await run(listApplications(session.user))) || []
 }
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
 
+// 通过 / 拒绝报名
 async function handle(a, approve) {
   if (approve) {
     if (!(await confirm(`通过 ${a.name} 的报名，并为他开通护航账号？`))) return

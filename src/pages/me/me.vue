@@ -1,3 +1,6 @@
+<!--
+  【老板】「我的」页：头像和余额、订单 / 优惠券 / 售后快捷入口、充值、成为护航、协议、退出登录。
+-->
 <template>
   <view class="wrap">
     <view class="card profile" @tap="!logged && login()">
@@ -48,23 +51,33 @@ import { resetDb } from '@api/db.js'
 import { IS_MOCK } from '@/api/constants.js'
 import { maskPhone, toast, confirm } from '@/utils.js'
 
+// 是否已用老板身份登录
 const logged = computed(() => session.user && session.user.role === 'user')
+// 余额（显示用，两位小数）
 const balance = ref('0.00')
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(async () => {
   if (!logged.value) { balance.value = '0.00'; return }
   const w = await getWallet(session.user).catch(() => null)
   balance.value = w ? w.balance.toFixed(2) : '0.00'
 })
+// 去登录
 const login = () => uni.navigateTo({ url: '/pages/login/login' })
+// 切到客服页
 const toService = () => uni.switchTab({ url: '/pages/service/service' })
+// 切到订单页
 const toOrders = () => uni.switchTab({ url: '/pages/orders/orders' })
+// 还没做的功能
 const soon = () => toast('敬请期待')
+// 跳转到对应页面
 const go = (url) => uni.navigateTo({ url })
+// 需要登录的入口：没登录先去登录
 const goLogged = (url) => needUserLogin() && go(url)
 const quick = [
   { t: '我的订单', go: toOrders }, { t: '优惠券', go: () => goLogged('/pages/user/coupons') },
   { t: '售后记录', go: () => goLogged('/pages/user/tickets') }, { t: '收藏', go: soon }
 ]
+// 重置演示数据（只有网页演示版有）
 async function reset() {
   if (!(await confirm('清空本机所有演示订单和新建账号，恢复初始数据？'))) return
   resetDb()

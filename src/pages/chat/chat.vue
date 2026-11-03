@@ -1,3 +1,6 @@
+<!--
+  【老板 / 护航 / 客服】订单沟通：同一个订单里老板、护航、客服互发消息。每 3 秒自动拉取新消息。
+-->
 <template>
   <view class="page">
     <view v-if="o" class="obar">
@@ -33,20 +36,29 @@ import { session } from '@/store/session.js'
 import { run } from '@/utils.js'
 import StatusTag from '@/components/StatusTag.vue'
 
+// 订单号
 const id = ref(null)
+// 订单信息
 const o = ref(null)
+// 消息列表
 const msgs = ref([])
+// 输入框里的内容
 const draft = ref('')
+// 最后一条消息，用来判断要不要滚到底部
 const last = ref('')
+// 当前登录的员工
 const me = session.user || {}
 let timer = null
 
+// 拉取最新消息
 async function refresh() {
   const list = await listMessages(session.user, id.value).catch(() => null)
   if (list && list.length !== msgs.value.length) { msgs.value = list; scroll() }
 }
+// 滚到最底部
 function scroll() { nextTick(() => { last.value = msgs.value.length ? 'm' + msgs.value[msgs.value.length - 1].id : '' }) }
 
+// 页面打开时读取网址参数并加载数据
 onLoad(async (q) => {
   id.value = Number(q.id)
   if (!session.user) return uni.redirectTo({ url: '/pages/login/login' })
@@ -55,9 +67,12 @@ onLoad(async (q) => {
 })
 // 演示用轮询；真实环境换成 WebSocket 或云开发实时数据推送
 onShow(() => { timer = setInterval(refresh, 3000) })
+// 页面切到后台时停止轮询
 onHide(() => clearInterval(timer))
+// 页面关闭时停止轮询
 onUnload(() => clearInterval(timer))
 
+// 发送消息
 async function send() {
   const t = draft.value.trim()
   if (!t) return

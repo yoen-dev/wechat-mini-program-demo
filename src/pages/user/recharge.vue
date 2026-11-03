@@ -1,3 +1,6 @@
+<!--
+  【老板】余额充值：选充值档位（充多少送多少由管理员设置）、微信支付、余额明细。
+-->
 <template>
   <view class="wrap">
     <view class="card head">
@@ -37,11 +40,16 @@ import { run, toast, confirm, fmtTime } from '@/utils.js'
 import { IS_MOCK } from '@/api/constants.js'
 import Empty from '@/components/Empty.vue'
 
+// 余额和明细
 const wallet = ref({ balance: 0, logs: [] })
+// 充值档位
 const tiers = ref([])
+// 选中的档位
 const pick = ref(0)
+// 提交中，防止重复点击
 const busy = ref(false)
 
+// 加载页面数据
 async function load() {
   if (!needUserLogin()) return
   tiers.value = (await run(getTiers())) || []
@@ -49,8 +57,10 @@ async function load() {
   if (tiers.value.length > 2 && pick.value === 0) pick.value = 2
   wallet.value = (await run(getWallet(session.user))) || wallet.value
 }
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
 
+// 充值：真实环境调起微信支付，到账后刷新余额
 async function submit() {
   const t = tiers.value[pick.value]
   if (!t) return

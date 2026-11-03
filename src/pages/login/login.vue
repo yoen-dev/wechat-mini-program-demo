@@ -1,3 +1,6 @@
+<!--
+  登录页（所有身份共用）：微信登录、手机号登录（老板）、账号密码登录（员工，账号由管理员发放）。登录后按身份自动进入对应首页。
+-->
 <template>
   <view class="page">
     <view class="brand">
@@ -68,15 +71,24 @@ import { API_MODE } from '@/api/constants.js'
 const showDemo = API_MODE !== 'cloud'
 
 const tabs = [{ key: 'wx', name: '微信登录' }, { key: 'phone', name: '手机号登录' }, { key: 'pwd', name: '账号密码' }]
+// 当前登录方式
 const tab = ref('wx')
+// 手机号
 const phone = ref('')
+// 验证码
 const code = ref('')
+// 重新发送倒计时
 const count = ref(0)
+// 员工账号
 const account = ref('')
+// 员工密码
 const password = ref('')
+// 是否勾选同意协议
 const agreed = ref(false)
+// 登录中
 const loading = ref(false)
 let timer = null
+// 离开页面时清掉定时器
 onUnmounted(() => clearInterval(timer))
 
 const demoAccounts = [
@@ -86,7 +98,9 @@ const demoAccounts = [
   { label: '公司负责人', account: 'boss', password: 'boss123' }
 ]
 
+// 打开用户协议 / 隐私政策
 const readAgree = (type) => uni.navigateTo({ url: `/pages/user/agreement?type=${type}` })
+// 没勾选协议时提示
 function checkAgree() {
   if (!agreed.value) toast('请先阅读并同意用户协议和隐私政策')
   return agreed.value
@@ -100,6 +114,7 @@ function finish(u) {
   setTimeout(() => (getCurrentPages().length > 1 ? uni.navigateBack() : goHome(u)), 500)
 }
 
+// 微信登录：第一次登录的需要去绑定手机号
 async function onWxLogin(opts = {}) {
   if (!checkAgree()) return
   loading.value = true
@@ -111,6 +126,7 @@ async function onWxLogin(opts = {}) {
   finish(r.user)
 }
 
+// 发送短信验证码
 async function send() {
   const r = await run(sendSmsCode(phone.value))
   if (!r) return
@@ -119,6 +135,7 @@ async function send() {
   timer = setInterval(() => { count.value--; if (count.value <= 0) clearInterval(timer) }, 1000)
 }
 
+// 手机号 + 验证码登录
 async function onPhoneLogin() {
   if (!checkAgree()) return
   if (code.value.length !== 6) return toast('请输入 6 位验证码')
@@ -128,6 +145,7 @@ async function onPhoneLogin() {
   if (u) finish(u)
 }
 
+// 员工账号密码登录
 async function onPwdLogin() {
   if (!checkAgree()) return
   if (!account.value || !password.value) return toast('请输入账号和密码')
@@ -137,12 +155,14 @@ async function onPwdLogin() {
   if (u) finish(u)
 }
 
+// 点演示账号自动填入
 function fill(a) {
   tab.value = 'pwd'
   account.value = a.account
   password.value = a.password
   agreed.value = true
 }
+// 用演示老板账号登录
 function demoUser() {
   agreed.value = true
   tab.value = 'wx'

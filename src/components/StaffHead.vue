@@ -1,3 +1,6 @@
+<!--
+  员工工作台顶部的个人信息条：头像、名字、身份，右侧「账号设置」。
+-->
 <template>
   <view class="sh">
     <view class="av">{{ user.name.slice(0, 1) }}</view>
@@ -12,6 +15,7 @@
 <script setup>
 import { ROLE_NAME } from '@api/staff.js'
 defineProps({ user: Object })
+// 进入账号设置（改密码、护航资料）
 const toProfile = () => uni.navigateTo({ url: '/pages/staff/profile' })
 </script>
 

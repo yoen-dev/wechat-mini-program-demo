@@ -1,3 +1,6 @@
+<!--
+  【管理员】新建员工账号：选身份（护航 / 客服 / 管理员 / 负责人）、名字、登录账号、初始密码。
+-->
 <template>
   <view class="wrap">
     <view class="card form">
@@ -32,10 +35,14 @@ const roles = [
   { key: 'admin', name: '管理员', desc: '全部权限' },
   { key: 'owner', name: '负责人', desc: '只看数据' }
 ]
+// 表单内容
 const f = reactive({ role: 'escort', name: '', account: '', password: '' })
+// 提交中，防止重复点击
 const busy = ref(false)
+// 页面打开时读取网址参数并加载数据
 onLoad(() => guard(['admin']))
 
+// 创建账号，成功后弹窗显示账号密码方便转告
 async function submit() {
   busy.value = true
   const u = await run(createStaff(session.user, { ...f }))

@@ -1,3 +1,6 @@
+<!--
+  【老板】绑定手机号：微信首次登录后必须绑定手机号（短信验证码）才能下单。
+-->
 <template>
   <view class="page">
     <text class="title">绑定手机号</text>
@@ -23,12 +26,17 @@ import { sendSmsCode, bindPhone } from '@api/auth.js'
 import { session, setSession, goHome } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 
+// 手机号
 const phone = ref('')
+// 验证码
 const code = ref('')
+// 重新发送倒计时（秒）
 const count = ref(0)
+// 提交中
 const loading = ref(false)
 let timer = null
 
+// 发送验证码，开始 60 秒倒计时
 async function send() {
   const r = await run(sendSmsCode(phone.value))
   if (!r) return
@@ -37,6 +45,7 @@ async function send() {
   timer = setInterval(() => { count.value--; if (count.value <= 0) clearInterval(timer) }, 1000)
 }
 
+// 提交绑定，成功后回到之前的页面
 async function submit() {
   if (!session.user) return uni.redirectTo({ url: '/pages/login/login' })
   if (code.value.length !== 6) return toast('请输入 6 位验证码')
@@ -49,6 +58,7 @@ async function submit() {
   setTimeout(() => (getCurrentPages().length > 1 ? uni.navigateBack() : goHome(u)), 600)
 }
 
+// 离开页面时清掉定时器
 onUnmounted(() => clearInterval(timer))
 </script>
 

@@ -1,3 +1,6 @@
+<!--
+  订单状态标签：不同状态显示不同颜色（待付款橙色、已完成绿色等）。
+-->
 <template>
   <text class="status" :style="style">{{ status }}</text>
 </template>
@@ -17,6 +20,7 @@ const MAP = {
   已退款: ['#F5F5F5', '#8C8C8C'],
   已取消: ['#F5F5F5', '#8C8C8C']
 }
+// 按状态取颜色
 const style = computed(() => {
   const [bg, fg] = MAP[props.status] || ['#F5F5F5', '#595959']
   return `background:${bg};color:${fg}`

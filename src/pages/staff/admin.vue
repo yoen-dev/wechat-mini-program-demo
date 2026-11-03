@@ -1,3 +1,6 @@
+<!--
+  【管理员】管理后台首页：今日数据、待办数、全部管理功能入口（管理员拥有所有权限）。
+-->
 <template>
   <view v-if="me">
     <StaffHead :user="me" />
@@ -31,7 +34,9 @@ import { run } from '@/utils.js'
 import StaffHead from '@/components/StaffHead.vue'
 import ModuleGrid from '@/components/ModuleGrid.vue'
 
+// 当前登录的员工
 const me = computed(() => session.user)
+// 待办数和今日数据
 const todo = ref({})
 
 // 管理员 = 大后台：客服的全部功能 + 运营、财务、系统设置
@@ -41,6 +46,7 @@ const todoItems = computed(() => [
   { title: '售后工单', icon: '单', url: '/pages/staff/tickets', badge: todo.value.tickets },
   { title: '提现审批', icon: '提', url: '/pages/staff/withdrawals', badge: todo.value.withdrawals }
 ])
+// 管理功能入口
 const serviceItems = computed(() => [
   { title: '全部订单', icon: '订', url: '/pages/staff/cs?tab=all' },
   { title: '护航报名', icon: '报', url: '/pages/staff/applications', badge: todo.value.applications },
@@ -61,11 +67,14 @@ const sysItems = [
   { title: '操作日志', icon: '志', url: '/pages/staff/logs' }
 ]
 
+// 加载页面数据
 async function load() {
   if (!guard(['admin'])) return
   todo.value = (await run(getTodo(me.value))) || {}
 }
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
+// 下拉刷新
 onPullDownRefresh(async () => { await load(); uni.stopPullDownRefresh() })
 </script>
 

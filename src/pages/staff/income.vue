@@ -1,3 +1,6 @@
+<!--
+  【护航】我的收入：总收入、本月、可提现、待确认中的金额，收入明细和提现记录，申请提现。
+-->
 <template>
   <view class="wrap" v-if="inc">
     <view class="card head">
@@ -51,15 +54,22 @@ import { session, guard } from '@/store/session.js'
 import { run, toast, fmtTime, confirm } from '@/utils.js'
 import Empty from '@/components/Empty.vue'
 
+// 收入数据
 const inc = ref(null)
+// 提现金额输入框
 const amount = ref('')
+// 当前选中的标签页
 const tab = ref('rec')
+// 分成比例（百分比显示）
 const ratePct = computed(() => (inc.value ? Math.round(inc.value.rate * 100) : 0))
+// 加载页面数据
 async function load() {
   if (!guard(['escort'])) return
   inc.value = await run(getIncome(session.user))
 }
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
+// 申请提现（管理员线下打款后标记）
 async function apply() {
   if (!(await confirm(`申请提现 ¥${amount.value}？`))) return
   if (await run(requestWithdraw(session.user, amount.value))) { toast('已提交，等待审核', 'success'); amount.value = ''; tab.value = 'wd'; load() }

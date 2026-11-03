@@ -1,6 +1,8 @@
+// 页面通用小工具：提示、确认框、时间格式化、手机号打码、选图上传
 import { IS_MOCK } from '@/api/constants.js'
 import { uploadImage } from '@/api/remote/request.js'
 
+// 弹出一条文字提示（默认不带图标）
 export const toast = (title, icon = 'none') => uni.showToast({ title, icon })
 
 /** 执行接口调用，失败自动提示，返回结果或 null */
@@ -13,6 +15,7 @@ export async function run(promise) {
   }
 }
 
+// 时间戳 → 「11-03 14:05」
 export function fmtTime(t) {
   if (!t) return ''
   const d = new Date(t)
@@ -20,10 +23,12 @@ export function fmtTime(t) {
   return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
 }
 
+// 弹确认框，用户点确定返回 true
 export function confirm(content, title = '提示') {
   return new Promise((resolve) => uni.showModal({ title, content, success: (r) => resolve(r.confirm) }))
 }
 
+// 手机号打码：138****0000
 export const maskPhone = (p) => (p ? p.slice(0, 3) + '****' + p.slice(7) : '')
 
 /**

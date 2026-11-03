@@ -1,3 +1,6 @@
+<!--
+  订单详情（老板、护航、客服、管理员共用）：状态说明、订单信息、战绩截图、评价、进度时间线，底部是当前身份能做的操作按钮。
+-->
 <template>
   <view v-if="o" class="page">
     <view class="card head">
@@ -65,12 +68,19 @@ import { actionsFor, doAction } from '@/orderActions.js'
 import { run, fmtTime } from '@/utils.js'
 import StatusTag from '@/components/StatusTag.vue'
 
+// 订单号
 const id = ref(null)
+// 订单信息
 const o = ref(null)
+// 多少小时后自动确认（显示提示用）
 const autoHours = ref(0)
+// 当前是不是客服 / 管理员
 const isStaff = computed(() => session.user && session.user.role !== 'user')
+// 底部按钮（规则在 orderActions.js）
 const actions = computed(() => actionsFor(o.value, session.user))
+// 进度时间线，新的在上
 const logs = computed(() => (o.value ? o.value.logs.slice().reverse() : []))
+// 评分星星
 const stars = computed(() => (o.value && o.value.rating ? '★'.repeat(o.value.rating.score) + '☆'.repeat(5 - o.value.rating.score) : ''))
 const HINT = {
   待付款: '请尽快完成支付', 待派单: '已支付，客服正在为你安排护航', 待接单: '已通知你指定的护航，等待接单',
@@ -78,17 +88,23 @@ const HINT = {
   待确认: '护航已提交完成，请核对战绩截图后确认', 已完成: '订单已完成，感谢支持',
   退款中: '退款申请已提交，等待客服处理', 已退款: '已退款，款项将原路返回', 已取消: '订单已取消'
 }
+// 顶部状态说明文字
 const hint = computed(() => (o.value ? HINT[o.value.status] : ''))
 
+// 加载订单
 async function load() {
   if (!session.user) return uni.redirectTo({ url: '/pages/login/login' })
   o.value = await run(getOrder(session.user, id.value))
   const s = await run(getSettings())
   autoHours.value = s ? s.autoConfirmHours : 0
 }
+// 页面打开时读取网址参数并加载数据
 onLoad((q) => { id.value = q.id })
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
+// 点图片全屏预览
 const preview = (i) => uni.previewImage({ urls: o.value.proofs, current: i })
+// 点订单上的操作按钮（按钮规则和执行逻辑统一在 src/orderActions.js）
 async function act(key) { const r = await doAction(key, o.value, session.user); if (r) o.value = r }
 </script>
 

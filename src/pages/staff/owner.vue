@@ -1,3 +1,6 @@
+<!--
+  【负责人 / 管理员】经营数据（只看不改）：实收、成交、退款、分成、毛利、每日趋势、储值、用户、单子排行、护航和客服表现。
+-->
 <template>
   <view v-if="me">
     <StaffHead v-if="me.role === 'owner'" :user="me" />
@@ -113,22 +116,34 @@ import { session, guard } from '@/store/session.js'
 import { run, fmtTime } from '@/utils.js'
 import StaffHead from '@/components/StaffHead.vue'
 
+// 当前登录的员工
 const me = computed(() => session.user)
 const ranges = [{ d: 1, name: '今天' }, { d: 7, name: '7 天' }, { d: 30, name: '30 天' }, { d: 90, name: '90 天' }]
+// 统计天数：1 / 7 / 30 / 90
 const days = ref(7)
+// 统计结果
 const a = ref(null)
+// 时间范围文字
 const rangeName = computed(() => (days.value === 1 ? '天' : days.value + ' 天'))
+// 趋势图最高的一天（算柱子高度用）
 const maxNet = computed(() => (a.value ? Math.max(1, ...a.value.trend.map((t) => t.net)) : 1))
+// 柱子高度
 const barH = (v) => Math.max(2, Math.round((v / maxNet.value) * 100)) + '%'
+// 天数多时只显示部分日期
 const showLabel = (i) => { const n = a.value.trend.length; const step = n <= 7 ? 1 : n <= 30 ? 5 : 15; return i % step === 0 || i === n - 1 }
+// 取绝对值（显示涨跌幅）
 const abs = (n) => Math.abs(n)
 
+// 加载页面数据
 async function load() {
   if (!guard(['owner', 'admin'])) return
   a.value = await run(getAnalytics(me.value, days.value))
 }
+// 切换时间范围
 function setDays(d) { days.value = d; load() }
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
+// 下拉刷新
 onPullDownRefresh(async () => { await load(); uni.stopPullDownRefresh() })
 </script>
 

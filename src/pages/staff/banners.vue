@@ -1,3 +1,6 @@
+<!--
+  【管理员】首页轮播图管理：添加图片（最多 9 张）、改标题、调整顺序、删除。
+-->
 <template>
   <view class="wrap">
     <view class="btn add" :class="{ disabled: list.length >= MAX_BANNERS }" @tap="addImg">＋ 添加图片（{{ list.length }}/{{ MAX_BANNERS }}）</view>
@@ -25,25 +28,33 @@ import { session, guard } from '@/store/session.js'
 import { run, toast, confirm, pickImage } from '@/utils.js'
 import Empty from '@/components/Empty.vue'
 
+// 列表数据
 const list = ref([])
+// 加载页面数据
 async function load() {
   if (!guard(['admin'])) return
   list.value = (await run(listBanners())) || []
 }
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
+// 选图上传并添加
 async function addImg() {
   if (list.value.length >= MAX_BANNERS) return toast(`最多 ${MAX_BANNERS} 张`)
   const src = await pickImage()
   if (src && (await run(addBanner(session.user, { src })))) { toast('已添加', 'success'); load() }
 }
+// 删除
 async function del(b) { if ((await confirm(`删除「${b.title}」？`)) && (await run(removeBanner(session.user, b.id)))) load() }
+// 上移 / 下移
 async function move(b, dir) { if (await run(moveBanner(session.user, b.id, dir))) load() }
+// 改标题
 function rename(b) {
   uni.showModal({
     title: '图片名称', editable: true, content: b.title, placeholderText: '仅后台显示，方便区分',
     success: async (r) => { if (r.confirm && (await run(renameBanner(session.user, b.id, r.content)))) load() }
   })
 }
+// 点图片全屏预览
 const preview = (i) => uni.previewImage({ urls: list.value.map((x) => x.url), current: i })
 </script>
 

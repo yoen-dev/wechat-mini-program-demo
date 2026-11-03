@@ -1,3 +1,6 @@
+<!--
+  【老板】评价订单：订单完成后给护航打 1-5 星并写评价。
+-->
 <template>
   <view v-if="o" class="wrap">
     <view class="card block">
@@ -26,14 +29,20 @@ import { session, needUserLogin } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 
 const LEVEL = ['请点击星星打分', '很差', '一般', '还行', '满意', '非常满意']
+// 订单信息
 const o = ref(null)
+// 评分
 const score = ref(5)
+// 评价内容
 const text = ref('')
+// 提交中，防止重复点击
 const busy = ref(false)
+// 页面打开时读取网址参数并加载数据
 onLoad(async (q) => {
   if (!needUserLogin()) return
   o.value = await run(getOrder(session.user, q.id))
 })
+// 提交评价
 async function submit() {
   busy.value = true
   const r = await run(rateOrder(session.user, o.value.id, score.value, text.value))
