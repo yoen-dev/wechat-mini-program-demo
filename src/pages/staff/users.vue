@@ -8,7 +8,7 @@
           <view class="row"><text class="un">{{ u.name }}</text><text v-if="u.status !== 'active'" class="tag ban">已拉黑</text></view>
           <text class="muted um">{{ maskPhone(u.phone) || '未绑定手机' }} · 注册 {{ fmtTime(u.createdAt) }}</text>
         </view>
-        <view class="us"><text class="price">¥{{ u.spent }}</text><text class="muted um">{{ u.orders }} 单</text></view>
+        <view class="us"><text class="price">¥{{ u.spent }}</text><text class="muted um">{{ u.orders }} 单 · 余额 ¥{{ u.balance }}</text></view>
       </view>
       <view v-if="openId === u.id" class="detail">
         <text class="muted um">最近下单：{{ u.lastOrderAt ? fmtTime(u.lastOrderAt) : '无' }}</text>

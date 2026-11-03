@@ -92,7 +92,7 @@ export function listCustomers(actor, keyword = '') {
     .map((u) => {
       const os = d.orders.filter((o) => o.userId === u.id && o.paidAt)
       const spent = os.filter((o) => o.status !== '已退款').reduce((s, o) => s + o.amount, 0)
-      return { id: u.id, name: u.name, phone: u.phone, status: u.status, createdAt: u.createdAt, orders: os.length, spent, lastOrderAt: os.length ? Math.max(...os.map((o) => o.paidAt)) : null }
+      return { id: u.id, name: u.name, phone: u.phone, status: u.status, createdAt: u.createdAt, orders: os.length, spent, balance: u.balance || 0, lastOrderAt: os.length ? Math.max(...os.map((o) => o.paidAt)) : null }
     })
     .sort((a, b) => b.spent - a.spent)
   return respond(list)

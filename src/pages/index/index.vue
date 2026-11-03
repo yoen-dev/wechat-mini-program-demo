@@ -1,5 +1,6 @@
 <template>
   <view class="wrap">
+    <RechargeTicker :list="recharges" />
     <view class="search" @tap="goCat('', true)">
       <text class="muted">搜索单子，如 保底单</text>
     </view>
@@ -50,12 +51,15 @@ import { listProducts, CATEGORIES } from '@/api/products.js'
 import { listBanners } from '@/api/banners.js'
 import { getSettings } from '@/api/finance.js'
 import BannerSwiper from '@/components/BannerSwiper.vue'
+import RechargeTicker from '@/components/RechargeTicker.vue'
+import { recentRecharges } from '@/api/wallet.js'
 import { session } from '@/store/session.js'
 import { run } from '@/utils.js'
 
 const list = ref([])
 const banners = ref([])
 const notice = ref('')
+const recharges = ref([])
 const steps = [{ t: '选单子', d: '保底 / 清图' }, { t: '填 ID 付款', d: '派单或指定' }, { t: '进队开打', d: '护航拉你' }]
 
 onShow(async () => {
@@ -65,6 +69,7 @@ onShow(async () => {
   const st = await run(getSettings())
   notice.value = st ? st.notice : ''
   list.value = (await run(listProducts())) || []
+  recharges.value = (await run(recentRecharges())) || []
 })
 
 function goCat(cat, focus = false) {

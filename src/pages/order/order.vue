@@ -22,6 +22,7 @@
     <view class="card block">
       <view class="between"><text class="name">{{ o.productName }}</text><text class="price amt">¥{{ o.amount }}</text></view>
       <view class="kv" v-if="o.discount"><text class="muted">优惠</text><text>{{ o.couponName }} −¥{{ o.discount }}（原价 ¥{{ o.original }}）</text></view>
+      <view class="kv" v-if="o.paidAt"><text class="muted">支付方式</text><text>{{ o.payMethod === 'balance' ? '余额支付' : '微信支付' }}</text></view>
       <view class="kv"><text class="muted">规格</text><text>{{ o.spec }}</text></view>
       <view class="kv"><text class="muted">下单方式</text><text>{{ o.mode === 'assign' ? '指定护航' : '客服派单' }}</text></view>
       <view class="kv"><text class="muted">护航</text><text>{{ o.escortName || '待分配' }}</text></view>

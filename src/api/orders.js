@@ -10,6 +10,7 @@
 //   待派单 / 待接单 / 已接单 ──老板申请退款──▶ 退款中 ──客服同意──▶ 已退款（拒绝则回到原状态）
 //   待付款 ──取消──▶ 已取消
 import { db, save, nextId, respond, fail, audit, isStaff, nameOf } from './db.js'
+import { deductBalance, refundBalance } from './wallet.js'
 
 export const STATUS = ['待付款', '待派单', '待接单', '已接单', '进行中', '待确认', '已完成', '退款中', '已退款', '已取消']
 export const REFUNDABLE = ['待派单', '待接单', '已接单']
@@ -102,12 +103,17 @@ export function createOrder(actor, { product, spec, amount, mode, escortId, game
   return respond(decorate(o))
 }
 
-/** 支付（演示：直接成功。真实环境：后端统一下单 → uni.requestPayment → 支付回调改状态） */
-export function payOrder(actor, id) {
+/**
+ * 支付。method: 'wechat'（微信支付，演示直接成功）| 'balance'（余额支付）
+ * 真实环境：微信支付走后端统一下单 → uni.requestPayment → 支付回调改状态；余额支付由后端扣款
+ */
+export function payOrder(actor, id, method = 'wechat') {
   const d = db()
   const o = find(id)
   if (!o || o.userId !== actor.id) return fail('订单不存在')
   if (o.status !== '待付款') return fail('订单状态已变化')
+  if (method === 'balance' && !deductBalance(actor.id, o.amount)) return fail('余额不足，请先充值或使用微信支付')
+  o.payMethod = method
   o.paidAt = Date.now()
   o.status = o.mode === 'assign' ? '待接单' : '待派单'
   if (o.couponId) {
@@ -147,8 +153,12 @@ export function handleRefund(actor, id, approve) {
   const o = find(id)
   if (!o || o.status !== '退款中') return fail('订单状态已变化')
   o.status = approve ? '已退款' : o.prevStatus
-  if (approve) o.refundedBy = actor.id
-  log(o, approve ? `${actor.name} 同意退款` : `${actor.name} 拒绝退款，订单继续`)
+  if (approve) {
+    o.refundedBy = actor.id
+    o.refundedAt = Date.now()
+    if (o.payMethod === 'balance') refundBalance(o.userId, o.amount)
+  }
+  log(o, approve ? `${actor.name} 同意退款${o.payMethod === 'balance' ? '，已退回余额' : '，原路退回'}` : `${actor.name} 拒绝退款，订单继续`)
   audit(actor, approve ? '同意退款' : '拒绝退款', `#${o.id} ¥${o.amount}`)
   save()
   return respond(decorate(o))

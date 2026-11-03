@@ -103,8 +103,19 @@ export function getAnalytics(actor, days = 7) {
     ticketsOpen: d.tickets.filter((x) => x.status !== '已解决').length
   }
 
+  // 储值：充值的钱是预收款，用户用余额下单时才算成交
+  const rc = d.recharges.filter((x) => inRange(x.createdAt))
+  const recharge = {
+    count: rc.length,
+    users: new Set(rc.map((x) => x.userId)).size,
+    pay: r2(rc.reduce((s, x) => s + x.pay, 0)),
+    bonus: r2(rc.reduce((s, x) => s + x.bonus, 0)),
+    balanceTotal: r2(customers.reduce((s, u) => s + (u.balance || 0), 0)),
+    balancePaid: r2(paid.filter((o) => o.payMethod === 'balance' && o.status !== '已退款').reduce((s, o) => s + o.amount, 0))
+  }
+
   return respond({
-    days, money: cur,
+    days, money: cur, recharge,
     vs: { gmv: change(cur.gmv, prev.gmv), net: change(cur.net, prev.net), orders: change(cur.orders, prev.orders) },
     trend, users, topSpenders, products, escorts, cs
   })

@@ -51,6 +51,7 @@ const opsItems = [
   { title: '单子管理', icon: '商', url: '/pages/staff/products' },
   { title: '轮播图', icon: '图', url: '/pages/staff/banners' },
   { title: '优惠券', icon: '券', url: '/pages/staff/coupons' },
+  { title: '储值充值', icon: '充', url: '/pages/staff/settings?part=recharge' },
   { title: '公告与问答', icon: '告', url: '/pages/staff/settings?part=content' }
 ]
 const sysItems = [

@@ -12,6 +12,7 @@
     { "path": "pages/login/login", "style": { "navigationBarTitleText": "登录" } },
     { "path": "pages/login/bind-phone", "style": { "navigationBarTitleText": "绑定手机号" } },
     { "path": "pages/user/coupons", "style": { "navigationBarTitleText": "优惠券" } },
+    { "path": "pages/user/recharge", "style": { "navigationBarTitleText": "余额充值" } },
     { "path": "pages/user/tickets", "style": { "navigationBarTitleText": "投诉 / 售后" } },
     { "path": "pages/user/apply", "style": { "navigationBarTitleText": "成为护航" } },
     { "path": "pages/user/agreement", "style": { "navigationBarTitleText": "协议" } },

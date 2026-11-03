@@ -48,6 +48,18 @@
     </view>
 
     <view class="card block">
+      <text class="sec-title">支付方式</text>
+      <view class="modes">
+        <view class="choice mode" :class="{ on: payWith === 'wechat' }" @tap="payWith = 'wechat'">
+          <text class="mt">微信支付</text><text class="muted md">　</text>
+        </view>
+        <view class="choice mode" :class="{ on: payWith === 'balance', off: !enough }" @tap="pickBalance">
+          <text class="mt">余额支付</text><text class="muted md">{{ balance === null ? '登录后可用' : '余额 ¥' + balance + (enough ? '' : '，去充值 ›') }}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="card block">
       <text class="sec-title">下单信息</text>
       <text class="label">游戏昵称 / ID</text>
       <input class="input" v-model="gameId" placeholder="护航会按这个拉你进队" />
@@ -65,10 +77,11 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import { getProduct, SPECS, specPrice } from '@/api/products.js'
 import { listEscorts } from '@/api/staff.js'
 import { usableCoupons } from '@/api/coupons.js'
+import { getWallet } from '@/api/wallet.js'
 import { createOrder, payOrder } from '@/api/orders.js'
 import { session, needUserLogin } from '@/store/session.js'
 import { run, toast, confirm } from '@/utils.js'
@@ -84,9 +97,23 @@ const busy = ref(false)
 const coupons = ref([])
 const coupon = ref(null)
 const couponTouched = ref(false)
+const payWith = ref('wechat')
+const balance = ref(null)
 
 const total = computed(() => (p.value ? specPrice(p.value.price, spec.value) : 0))
 const pay = computed(() => Math.max(0.01, total.value - (coupon.value ? coupon.value.amount : 0)))
+const enough = computed(() => balance.value !== null && balance.value >= pay.value)
+watch(enough, (v) => { if (!v && payWith.value === 'balance') payWith.value = 'wechat' })
+async function loadBalance() {
+  if (!session.user || session.user.role !== 'user') { balance.value = null; return }
+  const w = await getWallet(session.user).catch(() => null)
+  balance.value = w ? w.balance : null
+}
+function pickBalance() {
+  if (balance.value === null) return toast('登录后可用余额支付')
+  if (!enough.value) return uni.navigateTo({ url: '/pages/user/recharge' })
+  payWith.value = 'balance'
+}
 
 // 金额变化时重新算可用的券，默认选减得最多的一张
 async function refreshCoupons() {
@@ -116,6 +143,7 @@ onLoad(async (q) => {
   escortId.value = escorts.value[0] && escorts.value[0].id
   refreshCoupons()
 })
+onShow(loadBalance)
 
 const goService = () => uni.switchTab({ url: '/pages/service/service' })
 
@@ -128,10 +156,10 @@ async function submit() {
     couponId: coupon.value ? coupon.value.id : null
   }))
   if (!o) return (busy.value = false)
-  // 真实环境：这里调用 uni.requestPayment 拉起微信支付
-  const ok = await confirm(`${p.value.name} · ${spec.value.name}\n应付 ¥${o.amount}`, '模拟微信支付')
-  if (ok) {
-    await run(payOrder(session.user, o.id))
+  // 真实环境：微信支付调用 uni.requestPayment；余额支付由后端扣款
+  const byBalance = payWith.value === 'balance'
+  const ok = await confirm(`${p.value.name} · ${spec.value.name}\n${byBalance ? '余额支付' : '应付'} ¥${o.amount}`, byBalance ? '确认余额支付' : '模拟微信支付')
+  if (ok && (await run(payOrder(session.user, o.id, byBalance ? 'balance' : 'wechat')))) {
     toast('支付成功', 'success')
   } else {
     toast('订单已保存，可在订单里继续支付')
@@ -166,6 +194,7 @@ async function submit() {
 .none { font-size: 24rpx; }
 .online { position: absolute; right: 2rpx; bottom: 2rpx; width: 16rpx; height: 16rpx; border-radius: 50%; background: #52C41A; border: 3rpx solid #FFFFFF; }
 .coupon { align-items: center; }
+.mode.off { opacity: 0.6; }
 .cp-on { color: #CF1322; font-weight: 600; }
 .save { font-size: 22rpx; }
 .avatar { position: relative; width: 72rpx; height: 72rpx; border-radius: 50%; background: #E8E8E8; }

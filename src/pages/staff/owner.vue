@@ -33,6 +33,19 @@
           </view>
         </view>
 
+        <!-- 储值 -->
+        <view class="card block">
+          <text class="sec-title">储值充值</text>
+          <view class="ugrid">
+            <view><text class="uv">¥{{ a.recharge.pay }}</text><text class="muted ul">充值金额</text></view>
+            <view><text class="uv">¥{{ a.recharge.bonus }}</text><text class="muted ul">赠送金额</text></view>
+            <view><text class="uv">{{ a.recharge.count }}</text><text class="muted ul">充值笔数（{{ a.recharge.users }} 人）</text></view>
+            <view><text class="uv">¥{{ a.recharge.balancePaid }}</text><text class="muted ul">余额消费</text></view>
+            <view><text class="uv">¥{{ a.recharge.balanceTotal }}</text><text class="muted ul">用户余额总额</text></view>
+          </view>
+          <text class="muted foot">充值是预收款，用户用余额下单时才计入成交额；「用户余额总额」是还没用掉、将来可能要兑现或退还的钱。</text>
+        </view>
+
         <!-- 用户 -->
         <view class="card block">
           <text class="sec-title">用户</text>

@@ -2,6 +2,7 @@
 // 老板、护航、客服、管理员共用，保证各端规则一致。管理员拥有客服的全部操作。
 import * as api from '@/api/orders.js'
 import { listEscorts } from '@/api/staff.js'
+import { getWallet } from '@/api/wallet.js'
 import { run, toast, confirm } from '@/utils.js'
 
 export function actionsFor(o, a) {
@@ -66,9 +67,19 @@ export async function doAction(key, o, a) {
     case 'rate': uni.navigateTo({ url: `/pages/order/rate?id=${o.id}` }); return null
     case 'ticket': uni.navigateTo({ url: `/pages/user/tickets?orderId=${o.id}` }); return null
     case 'submit': uni.navigateTo({ url: `/pages/staff/complete?id=${o.id}` }); return null
-    case 'pay':
-      if (!(await confirm(`应付 ¥${o.amount}`, '模拟微信支付'))) return null
-      return done(await run(api.payOrder(a, o.id)), '支付成功')
+    case 'pay': {
+      const w = await getWallet(a).catch(() => null)
+      let method = 'wechat'
+      if (w && w.balance >= o.amount) {
+        method = await new Promise((resolve) => uni.showActionSheet({
+          itemList: [`余额支付（余额 ¥${w.balance}）`, '微信支付'],
+          success: (r) => resolve(r.tapIndex === 0 ? 'balance' : 'wechat'), fail: () => resolve(null)
+        }))
+        if (!method) return null
+      }
+      if (!(await confirm(`应付 ¥${o.amount}`, method === 'balance' ? '确认余额支付' : '模拟微信支付'))) return null
+      return done(await run(api.payOrder(a, o.id, method)), '支付成功')
+    }
     case 'cancel':
       if (!(await confirm('确定取消这笔订单吗？'))) return null
       return done(await run(api.cancelOrder(a, o.id)), '已取消')

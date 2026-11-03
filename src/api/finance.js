@@ -23,6 +23,18 @@ export function saveSettings(actor, patch) {
     if (h !== s.autoConfirmHours) changed.push(`自动确认 ${s.autoConfirmHours}h → ${h}h`)
     s.autoConfirmHours = h
   }
+  if (patch.recharge) {
+    const rc = patch.recharge
+    if (rc.tiers) {
+      const tiers = rc.tiers.map((t) => ({ pay: Number(t.pay), bonus: Number(t.bonus) || 0 })).filter((t) => t.pay > 0)
+      if (!tiers.length) return fail('至少保留一个充值档位')
+      if (tiers.some((t) => t.bonus < 0 || t.bonus >= t.pay)) return fail('赠送金额需小于充值金额')
+      s.recharge.tiers = tiers.sort((a, b) => a.pay - b.pay)
+    }
+    if (rc.popup !== undefined) s.recharge.popup = !!rc.popup
+    if (rc.popupMin !== undefined) s.recharge.popupMin = Math.max(0, Number(rc.popupMin) || 0)
+    changed.push('充值设置')
+  }
   if (patch.notice !== undefined && patch.notice !== s.notice) { s.notice = patch.notice.trim(); changed.push('公告') }
   if (patch.faqs) { s.faqs = patch.faqs.filter((f) => f.q && f.q.trim()); changed.push('常见问题') }
   if (patch.agreements) { s.agreements = { ...s.agreements, ...patch.agreements }; changed.push('协议') }

@@ -13,9 +13,9 @@
       <text class="arrow" v-if="!logged">›</text>
     </view>
 
-    <view class="card wallet between">
-      <view><text class="muted wl">余额（元）</text><text class="wn">0.00</text></view>
-      <view class="btn sm light" @tap="soon">充值</view>
+    <view class="card wallet between" @tap="goLogged('/pages/user/recharge')">
+      <view><text class="muted wl">余额（元）</text><text class="wn">{{ balance }}</text></view>
+      <view class="btn sm">充值</view>
     </view>
 
     <view class="card quick">
@@ -39,12 +39,20 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { getWallet } from '@/api/wallet.js'
 import { session, logout, needUserLogin } from '@/store/session.js'
 import { resetDb } from '@/api/db.js'
 import { maskPhone, toast, confirm } from '@/utils.js'
 
 const logged = computed(() => session.user && session.user.role === 'user')
+const balance = ref('0.00')
+onShow(async () => {
+  if (!logged.value) { balance.value = '0.00'; return }
+  const w = await getWallet(session.user).catch(() => null)
+  balance.value = w ? w.balance.toFixed(2) : '0.00'
+})
 const login = () => uni.navigateTo({ url: '/pages/login/login' })
 const toService = () => uni.switchTab({ url: '/pages/service/service' })
 const toOrders = () => uni.switchTab({ url: '/pages/orders/orders' })

@@ -1,7 +1,7 @@
 // 模拟数据库：数据存在本机（小程序 storage / 浏览器 localStorage），刷新不丢。
 // 接真后端后这个文件可以删掉，api/*.js 里的函数改成请求接口即可。
 
-const KEY = 'demo_db_v3'
+const KEY = 'demo_db_v4'
 const H = 3600 * 1000
 const D = 24 * H
 
@@ -131,10 +131,31 @@ function seed() {
   ]
   const userCoupons = [{ id: 1, userId: 1001, couponId: 1, name: '新人立减', amount: 10, minSpend: 50, expireAt: t + 20 * D, usedOrderId: null, createdAt: t - 2 * D }]
 
+  // 储值充值：档位由管理员配置；历史记录用于首页「刚刚充值」提示和数据统计
+  const TIERS = [{ pay: 100, bonus: 0 }, { pay: 300, bonus: 20 }, { pay: 500, bonus: 50 }, { pay: 1000, bonus: 120 }]
+  const recharges = []
+  for (let i = 0; i < 26; i++) {
+    const u = r() < 0.5 ? pick(heavy) : pick(customers)
+    const tier = TIERS[Math.min(3, Math.floor(Math.pow(r(), 1.6) * 4))]
+    recharges.push({ userId: u.id, pay: tier.pay, bonus: tier.bonus, createdAt: t - Math.floor(r() * 58 * 24) * H - 3 * H })
+  }
+  // 最近几小时内的几笔，打开首页就能看到提示
+  ;[[1003, 2], [1005, 1], [1002, 3], [1009, 2]].forEach(([uid, k], i) => {
+    recharges.push({ userId: uid, pay: TIERS[k].pay, bonus: TIERS[k].bonus, createdAt: t - (i * 37 + 6) * 60000 })
+  })
+  recharges.push({ userId: 1001, pay: 300, bonus: 20, createdAt: t - 3 * D })
+  recharges.sort((a, b) => a.createdAt - b.createdAt).forEach((x, i) => { x.id = i + 1 })
+  // 余额 = 充值 + 赠送 − 已用（演示：已用掉一部分）
+  customers.forEach((u) => {
+    const got = recharges.filter((x) => x.userId === u.id).reduce((s, x) => s + x.pay + x.bonus, 0)
+    u.balance = u.id === 1001 ? got : Math.round(got * (0.2 + r() * 0.5))
+  })
+
   return {
-    seq: { user: 2000, order: oid, product: 5, msg: 10, banner: 10, withdrawal: 3, ticket: 2, application: 2, coupon: 2, userCoupon: 1, log: 3 },
+    seq: { user: 2000, order: oid, product: 5, msg: 10, banner: 10, withdrawal: 3, ticket: 2, application: 2, coupon: 2, userCoupon: 1, log: 3, recharge: recharges.length },
     settings: {
       shareRate: RATE,
+      recharge: { tiers: TIERS, popup: true, popupMin: 100 },
       autoConfirmHours: 24,
       notice: '国庆福利单限时开放，新用户领券立减 10 元',
       faqs: DEFAULT_FAQS,
@@ -143,7 +164,7 @@ function seed() {
         privacy: '【隐私政策】\n\n[请在「管理后台 → 分成与设置」中替换为正式的隐私政策内容。]'
       }
     },
-    users, products, orders, withdrawals, tickets, applications, coupons, userCoupons,
+    users, products, orders, withdrawals, tickets, applications, coupons, userCoupons, recharges,
     messages: {
       [o1.id]: [
         { id: 1, from: 3, role: 'escort', name: '护航 阿峰', text: '老板好，我是这单的护航，游戏 ID 发我一下，我拉你进队～', t: t - 2.8 * H },
