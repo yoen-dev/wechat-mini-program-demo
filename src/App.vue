@@ -1,6 +1,12 @@
 <script>
+// 小程序入口：启动时初始化云托管（只有接真实后端的 cloud 模式才会真正执行）
+import { initCloud } from '@/api/remote/request.js'
+
 export default {
-  globalData: {} // 页面间临时传参（如首页跳分类时预选的类目）
+  globalData: {}, // 页面间临时传参（如首页跳分类时预选的类目）
+  onLaunch() {
+    initCloud()
+  }
 }
 </script>
 

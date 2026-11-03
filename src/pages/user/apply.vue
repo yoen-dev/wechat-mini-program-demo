@@ -1,3 +1,6 @@
+<!--
+  【老板】成为护航：填写报名表（称呼、手机号、段位、擅长地图、简介），客服审核通过后开通护航账号。
+-->
 <template>
   <view class="wrap">
     <view v-if="mine && mine.status !== '已拒绝'" class="card state">
@@ -31,18 +34,23 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { submitApplication, myApplication } from '@/api/service.js'
+import { submitApplication, myApplication } from '@api/service.js'
 import { session, needUserLogin } from '@/store/session.js'
 import { run, toast, fmtTime } from '@/utils.js'
 
+// 我最近一次报名（有的话显示审核状态）
 const mine = ref(null)
+// 提交中，防止重复点击
 const busy = ref(false)
+// 表单内容
 const f = reactive({ name: '', phone: '', rank: '', maps: '', intro: '' })
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(async () => {
   if (!needUserLogin()) return
   f.phone = f.phone || session.user.phone || ''
   mine.value = await run(myApplication(session.user))
 })
+// 提交报名
 async function submit() {
   busy.value = true
   const r = await run(submitApplication(session.user, f))

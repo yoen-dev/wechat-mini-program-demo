@@ -1,3 +1,6 @@
+<!--
+  【客服 / 管理员】用户（老板）管理：搜索、查看消费和余额、最近订单、拉黑 / 解除拉黑。
+-->
 <template>
   <view class="wrap">
     <input class="input search" v-model="keyword" placeholder="搜索昵称或手机号" confirm-type="search" @confirm="load" @blur="load" />
@@ -27,27 +30,36 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listCustomers, toggleCustomer } from '@/api/service.js'
-import { listOrders } from '@/api/orders.js'
+import { listCustomers, toggleCustomer } from '@api/service.js'
+import { listOrders } from '@api/orders.js'
 import { session, guard } from '@/store/session.js'
 import { run, fmtTime, maskPhone, toast } from '@/utils.js'
 
+// 搜索关键词（名字或手机号）
 const keyword = ref('')
+// 列表数据
 const list = ref([])
+// 展开查看订单的用户
 const openId = ref(null)
+// 展开用户的最近订单
 const orders = ref([])
 
+// 加载页面数据
 async function load() {
   if (!guard(['cs', 'admin'])) return
   list.value = (await run(listCustomers(session.user, keyword.value))) || []
 }
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
+// 展开 / 收起用户最近订单
 async function toggleOpen(id) {
   if (openId.value === id) { openId.value = null; return }
   openId.value = id
   orders.value = ((await run(listOrders(session.user, { scope: 'user', userId: id }))) || []).slice(0, 10)
 }
+// 打开订单详情
 const openOrder = (id) => uni.navigateTo({ url: `/pages/order/order?id=${id}` })
+// 拉黑（填原因）/ 解除拉黑
 function toggleBan(u) {
   if (u.status !== 'active') return run(toggleCustomer(session.user, u.id)).then((r) => r && (toast('已解除'), load()))
   uni.showModal({

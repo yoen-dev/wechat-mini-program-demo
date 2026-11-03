@@ -2,7 +2,9 @@
 
 uni-app (Vue 3) 项目，同一套代码可以编译成**微信小程序**和**网页预览版**。
 
-当前是**功能模板**：样式为中性灰白，后端用本地模拟数据（存在手机 / 浏览器里，刷新不丢），用于先把需求和流程跑通。设计定稿、后端接好后再替换。
+当前是**功能模板**：样式为中性灰白。后端已完成（`server/`，Node.js + MySQL，部署在**微信云托管**）；网页预览版仍用本地模拟数据，方便随时给人看效果。
+
+📘 **完整说明（全部文件用途、接口、部署步骤、常见修改）见 [docs/项目指引.md](docs/项目指引.md)。**
 
 ## 在线预览
 
@@ -48,43 +50,37 @@ uni-app (Vue 3) 项目，同一套代码可以编译成**微信小程序**和**�
 ## 代码结构
 
 ```
-src/
-  api/            模拟后端（接真后端只改这里）
-    db.js         本地“数据库”和种子数据
-    auth.js       微信登录、手机号登录、短信验证码、绑定手机、账号密码登录、改密码
-    products.js   单子、分类、规格
-    orders.js     订单状态流转、聊天、统计
-    staff.js      员工账号、护航在线状态和资料
-    finance.js    系统设置、护航收入、提现
-    service.js    售后工单、护航报名、用户管理、操作日志
-    coupons.js    优惠券
-    analytics.js  经营数据
-    banners.js    首页轮播图
-    wallet.js     余额、储值充值、首页充值提示
+src/                前端（uni-app）
+  api/
+    constants.js    前后端共用的常量（订单状态、分类、规格…）
+    mock/           演示版接口：本地假数据（网页预览用）
+    remote/         真实接口：请求云托管后端（request.js 统一处理令牌、支付、上传）
   store/session.js  登录态、按身份跳转、页面守卫
   orderActions.js   各身份在各状态下能点哪些按钮（全端共用）
-  components/       订单卡片、状态标签、员工页头等
-  pages/
-    index category detail orders order chat service me   用户端
-    login/            登录、绑定手机号
-    user/             优惠券、售后、成为护航、协议
-    staff/            护航 / 客服 / 管理员 / 负责人的全部页面
+  components/       轮播图、充值提示、订单卡片、状态标签、员工页头等
+  pages/            老板端页面、login/ 登录、user/ 老板的其他页面、staff/ 员工端全部页面
+server/             后端（Express + MySQL，Dockerfile 用于微信云托管）
+  src/routes/       各功能接口
+  src/services/     订单核心逻辑、微信登录 / 支付、短信、设置
+  src/db/           建表迁移、初始化 / 演示数据
+  test/             接口自动测试
+docs/项目指引.md     项目说明书
 ```
+
+页面统一写 `import ... from '@api/xxx.js'`，打包时由 `vite.config.js` 决定用 `mock` 还是 `remote`。
 
 ## 本地开发
 
 ```bash
 npm install
-npm run dev:h5          # 浏览器预览
-npm run dev:mp-weixin   # 用微信开发者工具导入 dist/dev/mp-weixin
-npm run build:mp-weixin # 正式构建，导入 dist/build/mp-weixin
+npm run dev:h5                 # 网页演示版（本地假数据）
+npm run dev:mp-weixin          # 小程序演示版，微信开发者工具导入 dist/dev/mp-weixin
+
+cd server && npm install && cp .env.example .env   # 改好数据库配置
+npm run seed:demo && npm run dev                   # 后端 http://localhost:3000
+cd .. && npm run dev:h5:localapi                   # 网页版连本地后端
+
+npm run build:mp-weixin:cloud  # 正式小程序（连云托管），先填 .env.cloud 和 manifest.json 的 AppID
 ```
 
-导入微信开发者工具前，把 `src/manifest.json` 里 `mp-weixin.appid` 填成公司小程序的 AppID。
-
-## 接后端时要换的地方
-
-- `api/auth.js`：`uni.login` 拿 code 换 openid；短信验证码走短信服务（或用微信「手机号快速验证」）；账号密码登录返回 token 和角色
-- `api/orders.js`：`payOrder` 改为后端统一下单 + `uni.requestPayment`，状态以支付回调为准
-- `pages/chat`：轮询改为 WebSocket 或云开发实时推送
-- 上线前删除登录页的「演示账号」区块和「我的 → 重置演示数据」
+部署到微信云托管的步骤见 [docs/项目指引.md 第 10 节](docs/项目指引.md#10-部署到微信云托管)。

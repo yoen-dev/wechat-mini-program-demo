@@ -1,3 +1,6 @@
+<!--
+  首页轮播图组件：左右滑动切换、底部小圆点显示第几张，点击放大查看。图片由管理员在「管理后台 → 首页轮播图」上传。
+-->
 <template>
   <!-- 首页轮播图：左右滑切换、圆点显示第几张、点击全屏查看（可双指缩放，再点一下退出） -->
   <view v-if="list.length" class="bs">
@@ -16,14 +19,19 @@
 import { ref, watch } from 'vue'
 
 const props = defineProps({ list: { type: Array, default: () => [] } })
+// 当前显示第几张
 const current = ref(0)
 watch(() => props.list.length, (n) => { if (current.value >= n) current.value = 0 })
 
 // 滑动过程中的点击不算“点击放大”
 let lastMove = 0
+// 开始滑动时记下时间，滑动过程中的点击不触发放大
 const onMove = () => { lastMove = Date.now() }
+// 滑动结束时间
 const onStop = () => { lastMove = Date.now() }
+// 切换到下一张时更新小圆点
 const onChange = (e) => { current.value = e.detail.current; lastMove = Date.now() }
+// 点击放大查看（刚滑动完 350ms 内的点击忽略，避免电脑上拖动误触）
 function preview(i) {
   if (Date.now() - lastMove < 350) return
   uni.previewImage({ urls: props.list.map((b) => b.url), current: i, indicator: 'number', loop: true })

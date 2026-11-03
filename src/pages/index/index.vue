@@ -1,3 +1,6 @@
+<!--
+  【老板】首页：搜索框、轮播图、公告、充值提示、分类入口和热门单子列表。
+-->
 <template>
   <view class="wrap">
     <RechargeTicker :list="recharges" />
@@ -47,21 +50,26 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listProducts, CATEGORIES } from '@/api/products.js'
-import { listBanners } from '@/api/banners.js'
-import { getSettings } from '@/api/finance.js'
+import { listProducts, CATEGORIES } from '@api/products.js'
+import { listBanners } from '@api/banners.js'
+import { getSettings } from '@api/finance.js'
 import BannerSwiper from '@/components/BannerSwiper.vue'
 import RechargeTicker from '@/components/RechargeTicker.vue'
-import { recentRecharges } from '@/api/wallet.js'
+import { recentRecharges } from '@api/wallet.js'
 import { session } from '@/store/session.js'
 import { run } from '@/utils.js'
 
+// 单子列表
 const list = ref([])
+// 轮播图
 const banners = ref([])
+// 公告
 const notice = ref('')
+// 最近的真实充值记录（首页提示用）
 const recharges = ref([])
 const steps = [{ t: '选单子', d: '保底 / 清图' }, { t: '填 ID 付款', d: '派单或指定' }, { t: '进队开打', d: '护航拉你' }]
 
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(async () => {
   // 员工误入用户端时送回工作台
   if (session.user && session.user.role !== 'user') return uni.reLaunch({ url: `/pages/staff/${session.user.role}` })
@@ -72,12 +80,14 @@ onShow(async () => {
   recharges.value = (await run(recentRecharges())) || []
 })
 
+// 点分类入口：记下分类再切到分类页
 function goCat(cat, focus = false) {
   const g = getApp().globalData
   g.presetCat = cat
   g.focusSearch = focus
   uni.switchTab({ url: '/pages/category/category' })
 }
+// 进入单子详情页
 const open = (id) => uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
 </script>
 

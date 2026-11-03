@@ -1,3 +1,6 @@
+<!--
+  首页「某某刚刚充值」轮播提示：只显示后台真实的充值记录（最近 48 小时、名字打码），可在「管理后台 → 储值设置」关闭。
+-->
 <template>
   <!-- 首页「刚刚充值」提示：真实充值记录轮流滑出，名字已打码 -->
   <view v-if="cur" class="ticker" :class="{ show: visible }">
@@ -10,7 +13,9 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({ list: { type: Array, default: () => [] } })
+// 当前显示第几条
 const cur = ref(null)
+// 是否显示提示条
 const visible = ref(false)
 let i = 0
 let timer = null
@@ -19,6 +24,7 @@ const SHOW = 3500 // 每条显示时长
 const GAP = 1800 // 两条之间的间隔
 const REST = 12000 // 一轮放完后休息多久
 
+// 把时间转成「3 分钟前」这种文字
 function ago(t) {
   const m = Math.floor((Date.now() - t) / 60000)
   if (m < 2) return '刚刚'
@@ -27,6 +33,7 @@ function ago(t) {
   return h < 24 ? `${h} 小时前` : '昨天'
 }
 
+// 切到下一条：显示几秒 → 隐藏 → 再显示下一条
 function next() {
   clearTimeout(timer)
   if (!props.list.length) { visible.value = false; return }
@@ -40,7 +47,9 @@ function next() {
 }
 
 watch(() => props.list.map((x) => x.id).join(','), () => { i = 0; next() })
+// 组件显示后开始轮播
 onMounted(() => { timer = setTimeout(next, 800) })
+// 离开页面时清掉定时器
 onUnmounted(() => clearTimeout(timer))
 </script>
 

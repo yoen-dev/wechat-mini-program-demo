@@ -1,3 +1,6 @@
+<!--
+  【老板】分类页：左边分类、右边该分类下的单子，顶部可以搜索。
+-->
 <template>
   <view class="page">
     <view class="top">
@@ -29,24 +32,31 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listProducts, CATEGORIES } from '@/api/products.js'
+import { listProducts, CATEGORIES } from '@api/products.js'
 import { run } from '@/utils.js'
 import Empty from '@/components/Empty.vue'
 
 const cats = ['', ...CATEGORIES]
+// 全部单子
 const all = ref([])
+// 当前选中的分类
 const picked = ref('')
+// 搜索关键词
 const keyword = ref('')
+// 是否自动聚焦搜索框（从首页搜索框跳过来时）
 const focus = ref(false)
 
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(async () => {
   const g = getApp().globalData
   if (g.presetCat !== undefined) { picked.value = g.presetCat; focus.value = !!g.focusSearch; delete g.presetCat; delete g.focusSearch }
   all.value = (await run(listProducts())) || []
 })
 
+// 按分类和关键词筛选后的单子
 const shown = computed(() => all.value.filter((p) =>
   (!picked.value || p.cats.includes(picked.value)) && (!keyword.value || p.name.includes(keyword.value) || p.desc.includes(keyword.value))))
+// 进入单子详情页下单
 const open = (id) => uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
 </script>
 

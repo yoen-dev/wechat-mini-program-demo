@@ -1,8 +1,8 @@
 // 员工账号 / 护航资料接口（模拟）
 import { db, save, nextId, respond, fail, audit, isAdmin, isStaff } from './db.js'
 
-export const ROLE_NAME = { user: '老板', escort: '护航', cs: '客服', admin: '管理员', owner: '负责人' }
-export const STAFF_ROLES = ['escort', 'cs', 'admin', 'owner']
+import { ROLE_NAME, STAFF_ROLES } from '../constants.js'
+export { ROLE_NAME, STAFF_ROLES }
 
 const pub = ({ password, openid, ...rest }) => rest
 

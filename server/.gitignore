@@ -1,0 +1,5 @@
+# 后端忽略文件：依赖、本地配置（含密钥）、用户上传的图片
+node_modules/
+.env
+uploads/
+*.log

@@ -1,3 +1,6 @@
+<!--
+  【管理员】单子管理：列表、上架 / 下架、进入编辑。
+-->
 <template>
   <view class="wrap">
     <view class="btn add" @tap="edit()">＋ 新建单子</view>
@@ -15,17 +18,22 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listProducts, toggleSale } from '@/api/products.js'
+import { listProducts, toggleSale } from '@api/products.js'
 import { session, guard } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 
+// 列表数据
 const list = ref([])
+// 加载页面数据
 async function load() {
   if (!guard(['admin'])) return
   list.value = (await run(listProducts({ includeOff: true }))) || []
 }
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
+// 编辑（不带 id 为新建）
 const edit = (id) => uni.navigateTo({ url: '/pages/staff/product-edit' + (id ? `?id=${id}` : '') })
+// 上架 / 下架
 async function toggle(p) { if (await run(toggleSale(session.user, p.id))) { toast(p.onSale ? '已下架' : '已上架'); load() } }
 </script>
 

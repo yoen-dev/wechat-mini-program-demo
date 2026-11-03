@@ -1,3 +1,6 @@
+<!--
+  【老板】客服页：常见问题（管理员可在后台编辑）、联系客服、提交售后。
+-->
 <template>
   <view class="wrap">
     <view class="card">
@@ -20,15 +23,21 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { getSettings } from '@/api/finance.js'
+import { getSettings } from '@api/finance.js'
 import { needUserLogin } from '@/store/session.js'
 import { toast, run } from '@/utils.js'
 
+// 展开的问题序号
 const open = ref(-1)
+// 常见问题
 const faqs = ref([])
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(async () => { const st = await run(getSettings()); faqs.value = st ? st.faqs : [] })
+// 去订单页
 const goOrders = () => uni.switchTab({ url: '/pages/orders/orders' })
+// 去售后记录
 const goTickets = () => needUserLogin() && uni.navigateTo({ url: '/pages/user/tickets' })
+// 联系客服（正式小程序里用微信客服按钮）
 function onContact() {
   // #ifdef H5
   toast('网页预览版不支持，小程序里会打开微信客服')

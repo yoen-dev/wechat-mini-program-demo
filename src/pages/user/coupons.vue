@@ -1,3 +1,6 @@
+<!--
+  【老板】优惠券：领券中心（可领的券）和我的券（可使用 / 已使用 / 已过期）。
+-->
 <template>
   <view class="wrap">
     <template v-if="data.claimable.length">
@@ -22,18 +25,23 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { couponCenter, claimCoupon } from '@/api/coupons.js'
+import { couponCenter, claimCoupon } from '@api/coupons.js'
 import { session, needUserLogin } from '@/store/session.js'
 import { run, toast, fmtTime } from '@/utils.js'
 import Empty from '@/components/Empty.vue'
 
+// 可领的券和我的券
 const data = ref({ claimable: [], mine: [] })
+// 加载页面数据
 async function load() {
   if (!needUserLogin()) return
   data.value = (await run(couponCenter(session.user))) || data.value
 }
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
+// 领取
 async function claim(c) { if (await run(claimCoupon(session.user, c.id))) { toast('领取成功', 'success'); load() } }
+// 去使用：回首页选单子
 const use = () => uni.switchTab({ url: '/pages/index/index' })
 </script>
 

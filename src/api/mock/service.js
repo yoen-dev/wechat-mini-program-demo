@@ -1,7 +1,7 @@
 // 售后工单 / 护航报名 / 用户管理接口（模拟）
 import { db, save, nextId, respond, fail, audit, isStaff, nameOf } from './db.js'
 
-export const TICKET_TYPES = ['服务质量', '退款问题', '护航态度', '其他']
+export { TICKET_TYPES } from '../constants.js'
 
 // ---------------- 售后工单 ----------------
 const decorateT = (x) => ({ ...x, userName: nameOf(x.userId) })

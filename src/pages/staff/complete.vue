@@ -1,3 +1,6 @@
+<!--
+  【护航】提交完成：上传战绩截图（至少 1 张）和说明，提交后等老板确认。
+-->
 <template>
   <view v-if="o" class="wrap">
     <view class="card block">
@@ -29,24 +32,32 @@
 <script setup>
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { getOrder, submitComplete } from '@/api/orders.js'
+import { getOrder, submitComplete } from '@api/orders.js'
 import { session, guard } from '@/store/session.js'
 import { run, toast, pickImage } from '@/utils.js'
 
+// 订单信息
 const o = ref(null)
+// 已上传的截图地址
 const proofs = ref([])
+// 护航说明
 const note = ref('')
+// 提交中，防止重复点击
 const busy = ref(false)
 
+// 页面打开时读取网址参数并加载数据
 onLoad(async (q) => {
   if (!guard(['escort'])) return
   o.value = await run(getOrder(session.user, q.id))
 })
+// 选一张截图上传
 async function add() {
   const src = await pickImage(900)
   if (src) proofs.value.push(src)
 }
+// 点图片全屏预览
 const preview = (i) => uni.previewImage({ urls: proofs.value, current: i })
+// 提交完成
 async function submit() {
   if (!proofs.value.length) return toast('请至少上传 1 张战绩截图')
   busy.value = true

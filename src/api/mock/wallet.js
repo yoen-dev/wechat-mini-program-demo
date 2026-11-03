@@ -4,11 +4,8 @@ import { db, save, nextId, respond, fail, nameOf } from './db.js'
 
 const r2 = (n) => Math.round(n * 100) / 100
 
-/** 名字打码：Kevin → K***，小雨 → 小* */
-export function maskName(name = '') {
-  if (!name) return '用户'
-  return name.slice(0, 1) + '*'.repeat(Math.min(3, Math.max(1, name.length - 1)))
-}
+import { maskName } from '../constants.js'
+export { maskName }
 
 export function getTiers() {
   return respond(db().settings.recharge.tiers, 40)

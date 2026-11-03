@@ -1,3 +1,6 @@
+<!--
+  【所有员工】账号设置：护航可编辑展示给老板的资料（段位、擅长地图、简介），所有员工都可以改密码和退出登录。
+-->
 <template>
   <view v-if="me" class="wrap">
     <view class="card">
@@ -48,19 +51,26 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { changePassword } from '@/api/auth.js'
-import { ROLE_NAME, getEscort, saveProfile } from '@/api/staff.js'
+import { changePassword } from '@api/auth.js'
+import { ROLE_NAME, getEscort, saveProfile } from '@api/staff.js'
 import { session, guard, logout } from '@/store/session.js'
 import { run, toast, confirm, fmtTime } from '@/utils.js'
 import Empty from '@/components/Empty.vue'
 
+// 当前登录的员工
 const me = computed(() => session.user)
+// 原密码
 const oldPwd = ref('')
+// 新密码
 const newPwd = ref('')
+// 再次输入新密码
 const newPwd2 = ref('')
+// 是不是护航
 const esc = ref(null)
+// 护航资料表单
 const pf = reactive({ rank: '', maps: '', intro: '' })
 
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(async () => {
   if (!guard(['escort', 'cs', 'admin', 'owner'])) return
   if (me.value.role === 'escort') {
@@ -70,9 +80,11 @@ onShow(async () => {
   }
 })
 
+// 保存护航资料
 async function saveProf() {
   if (await run(saveProfile(me.value, pf))) toast('已保存', 'success')
 }
+// 修改密码
 async function submit() {
   if (newPwd.value !== newPwd2.value) return toast('两次输入的新密码不一致')
   if (await run(changePassword(me.value.id, oldPwd.value, newPwd.value))) {
@@ -80,6 +92,7 @@ async function submit() {
     oldPwd.value = newPwd.value = newPwd2.value = ''
   }
 }
+// 退出登录
 async function onLogout() { if (await confirm('确定退出登录吗？')) logout() }
 </script>
 

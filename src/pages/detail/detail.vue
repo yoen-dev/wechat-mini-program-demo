@@ -1,3 +1,6 @@
+<!--
+  【老板】单子详情 + 下单页：选规格、选「客服派单 / 指定护航」、填游戏 ID、选优惠券和支付方式，然后下单支付。
+-->
 <template>
   <view v-if="p" class="page">
     <view class="cover hero">封面图</view>
@@ -78,37 +81,56 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { getProduct, SPECS, specPrice } from '@/api/products.js'
-import { listEscorts } from '@/api/staff.js'
-import { usableCoupons } from '@/api/coupons.js'
-import { getWallet } from '@/api/wallet.js'
-import { createOrder, payOrder } from '@/api/orders.js'
+import { getProduct, SPECS, specPrice } from '@api/products.js'
+import { listEscorts } from '@api/staff.js'
+import { usableCoupons } from '@api/coupons.js'
+import { getWallet } from '@api/wallet.js'
+import { createOrder, payOrder } from '@api/orders.js'
 import { session, needUserLogin } from '@/store/session.js'
 import { run, toast, confirm } from '@/utils.js'
+import { IS_MOCK } from '@/api/constants.js'
 
+// 单子信息
 const p = ref(null)
+// 选中的规格（单次 / 三次 / 五次）
 const spec = ref(SPECS[0])
+// 下单方式：dispatch 客服派单 / assign 指定护航
 const mode = ref('dispatch')
+// 在线的护航（指定护航时选）
 const escorts = ref([])
+// 选中的护航
 const escortId = ref(null)
+// 老板的游戏昵称 / ID
 const gameId = ref('')
+// 备注
 const note = ref('')
+// 提交中，防止重复点击
 const busy = ref(false)
+// 可用的优惠券
 const coupons = ref([])
+// 选中的优惠券
 const coupon = ref(null)
+// 老板是否手动选过券（没选过就自动选减最多的）
 const couponTouched = ref(false)
+// 支付方式：wechat 微信 / balance 余额
 const payWith = ref('wechat')
+// 老板余额（未登录为 null）
 const balance = ref(null)
 
+// 原价 = 单价 × 规格倍数
 const total = computed(() => (p.value ? specPrice(p.value.price, spec.value) : 0))
+// 实付 = 原价 − 优惠券
 const pay = computed(() => Math.max(0.01, total.value - (coupon.value ? coupon.value.amount : 0)))
+// 余额够不够付
 const enough = computed(() => balance.value !== null && balance.value >= pay.value)
 watch(enough, (v) => { if (!v && payWith.value === 'balance') payWith.value = 'wechat' })
+// 读取余额
 async function loadBalance() {
   if (!session.user || session.user.role !== 'user') { balance.value = null; return }
   const w = await getWallet(session.user).catch(() => null)
   balance.value = w ? w.balance : null
 }
+// 选择余额支付（余额不够就去充值）
 function pickBalance() {
   if (balance.value === null) return toast('登录后可用余额支付')
   if (!enough.value) return uni.navigateTo({ url: '/pages/user/recharge' })
@@ -122,6 +144,7 @@ async function refreshCoupons() {
   if (!couponTouched.value) coupon.value = coupons.value[0] || null
 }
 watch(total, refreshCoupons)
+// 手动选优惠券
 function pickCoupon() {
   if (!session.user || session.user.role !== 'user') return toast('登录后可使用优惠券')
   if (!coupons.value.length) return uni.navigateTo({ url: '/pages/user/coupons' })
@@ -130,11 +153,13 @@ function pickCoupon() {
     success: (r) => { couponTouched.value = true; coupon.value = coupons.value[r.tapIndex] || null }
   })
 }
+// 查看护航资料（段位、擅长地图、评分）
 function showProfile(e) {
   const pf = e.profile || {}
   uni.showModal({ title: e.name, showCancel: false, content: `段位：${pf.rank || '—'}\n擅长地图：${pf.maps || '—'}\n评分：${e.rating || '暂无'}（${e.ratingCount} 条）\n累计完成：${e.done} 单\n\n${pf.intro || ''}` })
 }
 
+// 页面打开时读取网址参数并加载数据
 onLoad(async (q) => {
   p.value = await run(getProduct(q.id))
   if (!p.value) return setTimeout(() => uni.navigateBack(), 800)
@@ -143,10 +168,13 @@ onLoad(async (q) => {
   escortId.value = escorts.value[0] && escorts.value[0].id
   refreshCoupons()
 })
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(loadBalance)
 
+// 跳到客服页
 const goService = () => uni.switchTab({ url: '/pages/service/service' })
 
+// 下单并支付：先创建订单（待付款），再支付；取消支付的话订单留在「待付款」可以稍后继续
 async function submit() {
   if (!needUserLogin()) return
   if (!gameId.value.trim()) return toast('请填写游戏昵称 / ID')
@@ -158,7 +186,8 @@ async function submit() {
   if (!o) return (busy.value = false)
   // 真实环境：微信支付调用 uni.requestPayment；余额支付由后端扣款
   const byBalance = payWith.value === 'balance'
-  const ok = await confirm(`${p.value.name} · ${spec.value.name}\n${byBalance ? '余额支付' : '应付'} ¥${o.amount}`, byBalance ? '确认余额支付' : '模拟微信支付')
+  // 余额支付先确认一下；微信支付在真实环境会弹微信自己的付款界面，只有演示版才弹「模拟微信支付」
+  const ok = byBalance || IS_MOCK ? await confirm(`${p.value.name} · ${spec.value.name}\n${byBalance ? '余额支付' : '应付'} ¥${o.amount}`, byBalance ? '确认余额支付' : '模拟微信支付') : true
   if (ok && (await run(payOrder(session.user, o.id, byBalance ? 'balance' : 'wechat')))) {
     toast('支付成功', 'success')
   } else {

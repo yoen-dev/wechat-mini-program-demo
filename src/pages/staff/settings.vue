@@ -1,3 +1,6 @@
+<!--
+  【管理员】系统设置（按 ?part= 分成四块）：money 分成比例和自动确认时长 / recharge 充值档位和首页提示 / content 公告和常见问题 / agree 用户协议和隐私政策。
+-->
 <template>
   <view v-if="s" class="wrap">
     <view class="seg">
@@ -74,22 +77,34 @@
 <script setup>
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { getSettings, saveSettings } from '@/api/finance.js'
+import { getSettings, saveSettings } from '@api/finance.js'
 import { session, guard } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 
+// 当前设置
 const s = ref(null)
+// 显示哪一块设置
 const part = ref('money')
+// 分成比例（%）
 const rate = ref('')
+// 自动确认时长（小时）
 const hours = ref('')
+// 公告
 const notice = ref('')
+// 常见问题
 const faqs = ref([])
+// 用户协议
 const agreeUser = ref('')
+// 隐私政策
 const agreePrivacy = ref('')
+// 充值档位
 const tiers = ref([])
+// 首页是否显示充值提示
 const popup = ref(true)
+// 多少元以上才提示
 const popupMin = ref('')
 
+// 页面打开时读取网址参数并加载数据
 onLoad(async (q) => {
   if (!guard(['admin'])) return
   if (q.part) { part.value = q.part; uni.setNavigationBarTitle({ title: q.part === 'recharge' ? '储值充值' : '公告与问答' }) }
@@ -105,12 +120,19 @@ onLoad(async (q) => {
   popup.value = s.value.recharge.popup
   popupMin.value = String(s.value.recharge.popupMin)
 })
+// 保存成功后提示并刷新
 const ok = (r) => r && toast('已保存', 'success')
+// 保存分成和自动确认
 async function saveMoney() { ok(await run(saveSettings(session.user, { shareRate: Number(rate.value) / 100, autoConfirmHours: Number(hours.value) }))) }
+// 保存公告
 async function saveNotice() { ok(await run(saveSettings(session.user, { notice: notice.value }))) }
+// 保存常见问题
 async function saveFaqs() { ok(await run(saveSettings(session.user, { faqs: faqs.value }))) }
+// 保存充值档位
 async function saveTiers() { ok(await run(saveSettings(session.user, { recharge: { tiers: tiers.value } }))) }
+// 保存充值提示开关
 async function savePopup() { ok(await run(saveSettings(session.user, { recharge: { popup: popup.value, popupMin: popupMin.value } }))) }
+// 保存协议
 async function saveAgree() { ok(await run(saveSettings(session.user, { agreements: { user: agreeUser.value, privacy: agreePrivacy.value } }))) }
 </script>
 

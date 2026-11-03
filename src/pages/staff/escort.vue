@@ -1,3 +1,6 @@
+<!--
+  【护航】工作台：接单开关、收入概览、「我的订单 / 抢单大厅」两个标签。
+-->
 <template>
   <view v-if="me">
     <StaffHead :user="me" />
@@ -39,9 +42,9 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
-import { listOrders } from '@/api/orders.js'
-import { setOnline, listEscorts } from '@/api/staff.js'
-import { getIncome } from '@/api/finance.js'
+import { listOrders } from '@api/orders.js'
+import { setOnline, listEscorts } from '@api/staff.js'
+import { getIncome } from '@api/finance.js'
 import { session, guard } from '@/store/session.js'
 import { actionsFor, doAction } from '@/orderActions.js'
 import { run, toast } from '@/utils.js'
@@ -49,6 +52,7 @@ import StaffHead from '@/components/StaffHead.vue'
 import OrderCard from '@/components/OrderCard.vue'
 import Empty from '@/components/Empty.vue'
 
+// 当前登录的员工
 const me = computed(() => session.user)
 const tabs = [{ key: 'todo', name: '待处理' }, { key: 'pool', name: '抢单大厅' }, { key: 'done', name: '已完成' }]
 const tips = {
@@ -56,12 +60,18 @@ const tips = {
   pool: '客服还没派出去的单，先抢先得（需要在接单中）',
   done: ''
 }
+// 当前选中的标签页
 const tab = ref('todo')
+// 我的订单和抢单大厅
 const lists = reactive({ todo: [], pool: [], done: [] })
+// 是否在接单中
 const online = ref(false)
+// 收入概览
 const income = ref({ month: 0, available: 0, waiting: 0 })
+// 各标签的数量
 const count = (k) => (k === 'done' ? 0 : lists[k].length)
 
+// 加载页面数据
 async function load() {
   if (!guard(['escort'])) return
   const mine = (await run(listOrders(me.value, { scope: 'assigned' }))) || []
@@ -73,15 +83,21 @@ async function load() {
   online.value = !!(self && self.online)
   income.value = (await run(getIncome(me.value))) || income.value
 }
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
+// 下拉刷新
 onPullDownRefresh(async () => { await load(); uni.stopPullDownRefresh() })
 
+// 切换接单 / 休息（休息时不能抢单，也不会出现在老板的指定列表）
 async function toggle(e) {
   const r = await run(setOnline(me.value, e.detail.value))
   if (r) { online.value = r.online; toast(r.online ? '已开始接单' : '已切换为休息') }
 }
+// 跳转到对应页面
 const go = (url) => uni.navigateTo({ url })
+// 打开订单详情
 const open = (id) => uni.navigateTo({ url: `/pages/order/order?id=${id}` })
+// 点订单按钮；抢单成功后自动切到「我的订单」
 async function act(key, o) {
   if (await doAction(key, o, me.value)) { await load(); if (key === 'grab') tab.value = 'todo' }
 }

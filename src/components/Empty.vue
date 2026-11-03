@@ -1,3 +1,6 @@
+<!--
+  空状态组件：列表没有数据时显示的提示文字。
+-->
 <template>
   <view class="empty">
     <view class="circle">—</view>

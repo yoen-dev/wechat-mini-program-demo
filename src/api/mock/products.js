@@ -1,15 +1,7 @@
 // 单子（商品）接口（模拟）
 import { db, save, nextId, respond, fail, audit, isAdmin } from './db.js'
 
-export const CATEGORIES = ['保底单', '清图单', '特惠', '明星护航']
-
-// 规格：按次数打包，rate 为相对单次价格的倍数
-export const SPECS = [
-  { name: '单次', times: 1, rate: 1 },
-  { name: '三次套餐', times: 3, rate: 2.73 },
-  { name: '五次套餐', times: 5, rate: 4.41 }
-]
-export const specPrice = (price, spec) => Math.round(price * spec.rate)
+export { CATEGORIES, SPECS, specPrice } from '../constants.js'
 
 export function listProducts({ cat = '', keyword = '', includeOff = false } = {}) {
   const k = keyword.trim()

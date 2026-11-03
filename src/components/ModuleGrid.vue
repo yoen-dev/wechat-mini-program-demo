@@ -1,3 +1,6 @@
+<!--
+  功能入口宫格组件：员工工作台上的一排排功能按钮（带待办数字角标）。
+-->
 <template>
   <!-- 工作台功能入口宫格，带红点数字 -->
   <view class="grid">
@@ -10,6 +13,7 @@
 
 <script setup>
 defineProps({ items: { type: Array, default: () => [] } })
+// 点击入口跳转到对应页面
 const go = (m) => (m.url ? uni.navigateTo({ url: m.url }) : m.tap && m.tap())
 </script>
 

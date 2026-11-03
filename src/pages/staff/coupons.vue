@@ -1,3 +1,6 @@
+<!--
+  【管理员】优惠券管理：新建券（减免金额、门槛、有效天数）、停发 / 恢复，查看领取和使用数量。
+-->
 <template>
   <view class="wrap">
     <view class="card form">
@@ -32,20 +35,26 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listCoupons, createCoupon, toggleCoupon } from '@/api/coupons.js'
+import { listCoupons, createCoupon, toggleCoupon } from '@api/coupons.js'
 import { session, guard } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 
+// 列表数据
 const list = ref([])
+// 表单内容
 const f = reactive({ name: '', amount: '', minSpend: '', days: '30' })
+// 加载页面数据
 async function load() {
   if (!guard(['admin'])) return
   list.value = (await run(listCoupons(session.user))) || []
 }
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
+// 新建优惠券
 async function create() {
   if (await run(createCoupon(session.user, f))) { toast('已创建', 'success'); Object.assign(f, { name: '', amount: '', minSpend: '', days: '30' }); load() }
 }
+// 停发 / 恢复发放
 async function toggle(c) { if (await run(toggleCoupon(session.user, c.id))) load() }
 </script>
 

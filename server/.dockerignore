@@ -1,0 +1,6 @@
+# 打包镜像时不需要的文件
+node_modules
+.env
+uploads
+test
+*.log

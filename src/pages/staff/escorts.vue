@@ -1,3 +1,6 @@
+<!--
+  【客服 / 管理员】护航列表：在线状态、手上单数、完成数、评分，派单时参考。
+-->
 <template>
   <view class="wrap">
     <text class="muted top">在线 {{ online }} 人 / 共 {{ list.length }} 人。派单优先选在线、手上单少的护航。</text>
@@ -19,12 +22,15 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listEscorts } from '@/api/staff.js'
+import { listEscorts } from '@api/staff.js'
 import { guard } from '@/store/session.js'
 import { run } from '@/utils.js'
 
+// 列表数据
 const list = ref([])
+// 在线人数
 const online = computed(() => list.value.filter((e) => e.online).length)
+// 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(async () => {
   if (!guard(['cs', 'admin'])) return
   list.value = (await run(listEscorts())) || []
