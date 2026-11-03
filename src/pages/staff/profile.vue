@@ -104,8 +104,8 @@ async function onLogout() { if (await confirm('确定退出登录吗？')) logou
 .submit { margin-top: 36rpx; }
 .out { margin-top: 40rpx; }
 .rv { padding: 24rpx 28rpx; display: flex; flex-direction: column; gap: 8rpx; }
-.rv + .rv { border-top: 2rpx solid #F0F0F0; }
-.stars { color: #FAAD14; font-size: 28rpx; letter-spacing: 4rpx; }
+.rv + .rv { border-top: 2rpx solid #E8EFFD; }
+.stars { color: #E0A548; font-size: 28rpx; letter-spacing: 4rpx; }
 .rx { font-size: 26rpx; }
 .rt { font-size: 22rpx; }
 </style>

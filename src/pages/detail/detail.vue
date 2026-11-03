@@ -209,7 +209,7 @@ async function submit() {
 .big { font-size: 48rpx; }
 .unit { font-size: 24rpx; }
 .point { display: flex; gap: 12rpx; margin-top: 16rpx; font-size: 26rpx; line-height: 1.6; }
-.dot { color: #8C8C8C; }
+.dot { color: #8798B5; }
 .spec { margin-top: 16rpx; font-size: 28rpx; }
 .modes { display: flex; gap: 16rpx; margin-top: 16rpx; }
 .mode { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
@@ -219,17 +219,17 @@ async function submit() {
 .escorts { flex-wrap: wrap; }
 .esc { width: calc(33.33% - 11rpx); box-sizing: border-box; flex: none; display: flex; flex-direction: column; align-items: center; gap: 6rpx; padding: 20rpx 8rpx 12rpx; min-width: 0; }
 .er { font-size: 20rpx; max-width: 100%; }
-.info { font-size: 22rpx; color: #0958D9; padding: 6rpx 12rpx; }
+.info { font-size: 22rpx; color: #4B72B8; padding: 6rpx 12rpx; }
 .none { font-size: 24rpx; }
-.online { position: absolute; right: 2rpx; bottom: 2rpx; width: 16rpx; height: 16rpx; border-radius: 50%; background: #52C41A; border: 3rpx solid #FFFFFF; }
+.online { position: absolute; right: 2rpx; bottom: 2rpx; width: 16rpx; height: 16rpx; border-radius: 50%; background: #28A88A; border: 3rpx solid #FFFFFF; }
 .coupon { align-items: center; }
 .mode.off { opacity: 0.6; }
-.cp-on { color: #CF1322; font-weight: 600; }
+.cp-on { color: #CB5368; font-weight: 600; }
 .save { font-size: 22rpx; }
-.avatar { position: relative; width: 72rpx; height: 72rpx; border-radius: 50%; background: #E8E8E8; }
+.avatar { position: relative; width: 72rpx; height: 72rpx; border-radius: 50%; background: #E4ECFA; }
 .en { font-size: 24rpx; max-width: 100%; }
-.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 2rpx solid #F0F0F0; display: flex; align-items: center; gap: 24rpx; padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom)); }
-.bar-cs { font-size: 24rpx; color: #595959; padding: 0 8rpx; }
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 2rpx solid #E8EFFD; display: flex; align-items: center; gap: 24rpx; padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom)); }
+.bar-cs { font-size: 24rpx; color: #5B6F92; padding: 0 8rpx; }
 .bar-total { flex: 1; font-size: 26rpx; }
 .bar-total .price { font-size: 36rpx; }
 .buy { width: 260rpx; margin: 0; }

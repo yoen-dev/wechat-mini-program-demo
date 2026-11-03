@@ -76,10 +76,10 @@ function toggleBan(u) {
 .ut { flex: 1; min-width: 0; }
 .row { gap: 10rpx; }
 .un { font-size: 28rpx; font-weight: 600; }
-.ban { background: #FFF1F0; color: #CF1322; }
+.ban { background: #FFEBEF; color: #CB5368; }
 .um { display: block; font-size: 22rpx; margin-top: 4rpx; }
 .us { display: flex; flex-direction: column; align-items: flex-end; }
-.detail { margin-top: 20rpx; padding-top: 16rpx; border-top: 2rpx solid #F5F5F5; }
+.detail { margin-top: 20rpx; padding-top: 16rpx; border-top: 2rpx solid #F4F7FF; }
 .ord { display: flex; justify-content: space-between; gap: 16rpx; font-size: 24rpx; padding: 12rpx 0; }
 .ops { display: flex; justify-content: flex-end; margin-top: 12rpx; }
 </style>

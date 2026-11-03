@@ -75,10 +75,10 @@ async function submit() {
 .sub { display: block; font-size: 22rpx; margin-top: 8rpx; }
 .hint { display: block; font-size: 22rpx; margin: 8rpx 0 20rpx; line-height: 1.5; }
 .imgs { display: flex; gap: 16rpx; }
-.img-box { position: relative; width: 196rpx; height: 196rpx; border-radius: 12rpx; overflow: hidden; background: #F5F5F5; }
+.img-box { position: relative; width: 196rpx; height: 196rpx; border-radius: 12rpx; overflow: hidden; background: #F4F7FF; }
 .img { width: 100%; height: 100%; }
 .del { position: absolute; right: 0; top: 0; width: 44rpx; height: 44rpx; background: rgba(0, 0, 0, 0.6); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 30rpx; }
-.add { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 48rpx; color: #8C8C8C; border: 2rpx dashed #D9D9D9; box-sizing: border-box; }
+.add { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 48rpx; color: #8798B5; border: 2rpx dashed #C9D8F2; box-sizing: border-box; }
 .add-t { font-size: 22rpx; }
 .area { height: auto; min-height: 140rpx; padding: 20rpx 24rpx; margin-top: 16rpx; }
 .submit { margin-top: 12rpx; }

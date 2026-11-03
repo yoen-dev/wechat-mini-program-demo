@@ -86,21 +86,21 @@ async function send() {
 
 <style scoped>
 .page { height: calc(100vh - var(--window-top)); display: flex; flex-direction: column; }
-.obar { display: flex; align-items: center; gap: 16rpx; padding: 20rpx 24rpx; background: #FFFFFF; border-bottom: 2rpx solid #F0F0F0; }
+.obar { display: flex; align-items: center; gap: 16rpx; padding: 20rpx 24rpx; background: #FFFFFF; border-bottom: 2rpx solid #E8EFFD; }
 .th { width: 72rpx; height: 72rpx; border-radius: 10rpx; flex-shrink: 0; font-size: 18rpx; }
 .ot { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4rpx; }
 .on { font-size: 26rpx; font-weight: 600; }
 .ono { font-size: 22rpx; }
 .msgs { flex: 1; min-height: 0; padding: 24rpx; box-sizing: border-box; }
-.sys { margin: 0 auto 24rpx; width: fit-content; font-size: 22rpx; color: #8C8C8C; background: #EBEBEB; border-radius: 8rpx; padding: 6rpx 16rpx; }
+.sys { margin: 0 auto 24rpx; width: fit-content; font-size: 22rpx; color: #8798B5; background: #DCE6F8; border-radius: 8rpx; padding: 6rpx 16rpx; }
 .mrow { display: flex; gap: 16rpx; margin-bottom: 24rpx; }
 .mrow.me { justify-content: flex-end; }
-.av { width: 64rpx; height: 64rpx; border-radius: 50%; background: #D9D9D9; color: #595959; font-size: 24rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.av { width: 64rpx; height: 64rpx; border-radius: 50%; background: #C9D8F2; color: #5B6F92; font-size: 24rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .mcol { display: flex; flex-direction: column; gap: 6rpx; max-width: 500rpx; }
 .who { font-size: 20rpx; }
 .bubble { padding: 18rpx 22rpx; font-size: 28rpx; line-height: 1.5; background: #FFFFFF; border-radius: 16rpx; word-break: break-all; }
-.mrow.me .bubble { background: #1F1F1F; color: #FFFFFF; }
-.composer { display: flex; gap: 16rpx; align-items: center; padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom)); background: #FFFFFF; border-top: 2rpx solid #F0F0F0; }
+.mrow.me .bubble { background: linear-gradient(115deg, #3F66AD, #7196D8); color: #FFFFFF; }
+.composer { display: flex; gap: 16rpx; align-items: center; padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom)); background: #FFFFFF; border-top: 2rpx solid #E8EFFD; }
 .box { flex: 1; height: 76rpx; }
 .send { height: 76rpx; }
 </style>

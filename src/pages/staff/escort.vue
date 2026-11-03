@@ -10,7 +10,7 @@
           <text class="st-t">{{ online ? '接单中' : '休息中' }}</text>
           <text class="muted st-d">{{ online ? '客服可以给你派单，老板可以指定你' : '不会被派单，老板也看不到你' }}</text>
         </view>
-        <switch :checked="online" color="#1F1F1F" @change="toggle" />
+        <switch :checked="online" color="#527AC3" @change="toggle" />
       </view>
 
       <view class="card money" @tap="go('/pages/staff/income')">

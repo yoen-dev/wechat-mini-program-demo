@@ -66,8 +66,8 @@ async function toggle(c) { if (await run(toggleCoupon(session.user, c.id))) load
 .hint { display: block; font-size: 22rpx; margin-top: 16rpx; text-align: center; }
 .sec { display: block; margin: 36rpx 8rpx 16rpx; }
 .c { display: flex; align-items: center; gap: 20rpx; padding: 24rpx; margin-bottom: 16rpx; }
-.cl { width: 150rpx; display: flex; flex-direction: column; align-items: center; border-right: 2rpx dashed #E5E5E5; padding-right: 16rpx; }
-.ca { font-size: 40rpx; font-weight: 700; color: #CF1322; }
+.cl { width: 150rpx; display: flex; flex-direction: column; align-items: center; border-right: 2rpx dashed #DCE6F8; padding-right: 16rpx; }
+.ca { font-size: 40rpx; font-weight: 700; color: #CB5368; }
 .cr { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6rpx; }
 .cr .row { gap: 10rpx; }
 .cn { font-size: 28rpx; font-weight: 600; }

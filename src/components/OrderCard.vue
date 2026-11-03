@@ -40,5 +40,5 @@ defineEmits(['open'])
 .name { font-size: 30rpx; font-weight: 600; }
 .meta { font-size: 24rpx; }
 .amt { font-size: 32rpx; }
-.actions { display: flex; justify-content: flex-end; gap: 16rpx; margin-top: 20rpx; padding-top: 20rpx; border-top: 2rpx solid #F5F5F5; }
+.actions { display: flex; justify-content: flex-end; gap: 16rpx; margin-top: 20rpx; padding-top: 20rpx; border-top: 2rpx solid #F4F7FF; }
 </style>

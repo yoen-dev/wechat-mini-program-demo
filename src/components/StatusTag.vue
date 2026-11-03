@@ -9,24 +9,24 @@
 import { computed } from 'vue'
 const props = defineProps({ status: String })
 const MAP = {
-  待付款: ['#FFF7E6', '#D46B08'],
-  待派单: ['#FFF7E6', '#D46B08'],
-  待接单: ['#E6F4FF', '#0958D9'],
-  已接单: ['#E6F4FF', '#0958D9'],
-  进行中: ['#1F1F1F', '#FFFFFF'],
-  待确认: ['#F9F0FF', '#531DAB'],
-  已完成: ['#F6FFED', '#389E0D'],
-  退款中: ['#FFF1F0', '#CF1322'],
-  已退款: ['#F5F5F5', '#8C8C8C'],
-  已取消: ['#F5F5F5', '#8C8C8C']
+  待付款: ['#FFF0D8', '#BB873A'],
+  待派单: ['#FFF0D8', '#BB873A'],
+  待接单: ['#EAF1FF', '#567BBB'],
+  已接单: ['#EAF1FF', '#567BBB'],
+  进行中: ['#DCE9FF', '#3F66AD'],
+  待确认: ['#FFF0D8', '#BB873A'],
+  已完成: ['#E0F6EF', '#269B79'],
+  退款中: ['#FFEBEF', '#C76C80'],
+  已退款: ['#EEF2F9', '#8798B5'],
+  已取消: ['#EEF2F9', '#8798B5']
 }
 // 按状态取颜色
 const style = computed(() => {
-  const [bg, fg] = MAP[props.status] || ['#F5F5F5', '#595959']
+  const [bg, fg] = MAP[props.status] || ['#F4F7FF', '#5B6F92']
   return `background:${bg};color:${fg}`
 })
 </script>
 
 <style scoped>
-.status { font-size: 22rpx; font-weight: 600; padding: 4rpx 14rpx; border-radius: 8rpx; white-space: nowrap; }
+.status { font-size: 20rpx; font-weight: 600; padding: 8rpx 16rpx; border-radius: 16rpx; white-space: nowrap; }
 </style>

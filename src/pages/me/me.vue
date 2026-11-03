@@ -87,7 +87,7 @@ async function reset() {
 
 <style scoped>
 .profile { display: flex; align-items: center; gap: 24rpx; padding: 32rpx; }
-.avatar { width: 112rpx; height: 112rpx; border-radius: 50%; background: #1F1F1F; color: #FFFFFF; font-size: 40rpx; display: flex; align-items: center; justify-content: center; }
+.avatar { width: 112rpx; height: 112rpx; border-radius: 50%; background: linear-gradient(115deg, #3F66AD, #7196D8); color: #FFFFFF; font-size: 40rpx; display: flex; align-items: center; justify-content: center; }
 .pt { flex: 1; display: flex; flex-direction: column; gap: 8rpx; }
 .pn { font-size: 34rpx; font-weight: 700; }
 .wallet { margin-top: 20rpx; padding: 28rpx 32rpx; }
@@ -95,6 +95,6 @@ async function reset() {
 .wn { font-size: 44rpx; font-weight: 700; }
 .quick { margin-top: 20rpx; display: flex; padding: 28rpx 0; }
 .q { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10rpx; font-size: 24rpx; }
-.qi { width: 72rpx; height: 72rpx; border-radius: 20rpx; background: #F5F5F5; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.qi { width: 72rpx; height: 72rpx; border-radius: 20rpx; background: #F4F7FF; display: flex; align-items: center; justify-content: center; font-weight: 700; }
 .menu { margin-top: 20rpx; }
 </style>

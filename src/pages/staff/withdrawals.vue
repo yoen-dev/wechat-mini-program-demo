@@ -70,6 +70,6 @@ async function handle(w, ok) {
 .wm { display: block; font-size: 22rpx; margin-top: 6rpx; }
 .ops { display: flex; justify-content: flex-end; gap: 16rpx; margin-top: 16rpx; }
 .ws { display: block; text-align: right; font-size: 24rpx; margin-top: 8rpx; }
-.ws.ok { color: #389E0D; }
-.ws.bad { color: #CF1322; }
+.ws.ok { color: #269B79; }
+.ws.bad { color: #CB5368; }
 </style>

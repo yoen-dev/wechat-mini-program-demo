@@ -35,7 +35,7 @@
       </view>
       <text class="sec-title sec">首页充值提示</text>
       <view class="card form">
-        <view class="between sw-row"><text>在首页弹出「某某刚刚充值」</text><switch :checked="popup" color="#1F1F1F" @change="popup = $event.detail.value" /></view>
+        <view class="between sw-row"><text>在首页弹出「某某刚刚充值」</text><switch :checked="popup" color="#527AC3" @change="popup = $event.detail.value" /></view>
         <text class="label">充值多少元以上才提示</text>
         <input class="input" v-model="popupMin" type="digit" placeholder="100" />
         <text class="muted hint">只展示最近 48 小时的真实充值记录，名字自动打码（如「小*」）。</text>
@@ -143,7 +143,7 @@ async function saveAgree() { ok(await run(saveSettings(session.user, { agreement
 .big { min-height: 300rpx; }
 .submit { margin-top: 32rpx; }
 .sec { display: block; margin: 36rpx 8rpx 0; }
-.del { font-size: 24rpx; color: #CF1322; margin-top: 12rpx; }
+.del { font-size: 24rpx; color: #CB5368; margin-top: 12rpx; }
 .two { display: flex; gap: 16rpx; margin-top: 24rpx; }
 .tier-row { display: flex; align-items: flex-end; gap: 16rpx; }
 .tier-row .col { flex: 1; }

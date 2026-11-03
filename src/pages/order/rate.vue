@@ -59,8 +59,8 @@ async function submit() {
 .name { display: block; font-size: 30rpx; font-weight: 700; }
 .sub { display: block; font-size: 22rpx; margin-top: 6rpx; }
 .stars { display: flex; gap: 20rpx; margin-top: 24rpx; }
-.star { font-size: 64rpx; color: #E5E5E5; }
-.star.on { color: #FAAD14; }
+.star { font-size: 64rpx; color: #DCE6F8; }
+.star.on { color: #E0A548; }
 .lvl { font-size: 24rpx; margin-top: 8rpx; }
 .area { height: auto; min-height: 180rpx; padding: 20rpx 24rpx; }
 </style>

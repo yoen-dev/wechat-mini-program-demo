@@ -44,5 +44,5 @@ async function toggle(p) { if (await run(toggleSale(session.user, p.id))) { toas
 .pt .row { gap: 10rpx; }
 .pn { font-size: 28rpx; font-weight: 600; }
 .pm { font-size: 22rpx; }
-.off { background: #FFF1F0; color: #CF1322; }
+.off { background: #FFEBEF; color: #CB5368; }
 </style>

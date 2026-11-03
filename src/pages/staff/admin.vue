@@ -83,5 +83,5 @@ onPullDownRefresh(async () => { await load(); uni.stopPullDownRefresh() })
 .stat { flex: 1; padding: 28rpx; display: flex; flex-direction: column; gap: 8rpx; }
 .sl { font-size: 24rpx; }
 .sv { font-size: 44rpx; font-weight: 700; }
-.gt { display: block; font-size: 26rpx; font-weight: 700; color: #595959; margin: 32rpx 8rpx 12rpx; }
+.gt { display: block; font-size: 26rpx; font-weight: 700; color: #5B6F92; margin: 32rpx 8rpx 12rpx; }
 </style>

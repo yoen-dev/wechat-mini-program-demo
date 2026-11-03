@@ -77,8 +77,8 @@ async function apply() {
 </script>
 
 <style scoped>
-.head { padding: 32rpx; background: #1F1F1F; color: #FFFFFF; }
-.head .muted { color: #A6A6A6; }
+.head { padding: 32rpx; background: linear-gradient(115deg, #203B69, #527AC3 70%, #7196D8); color: #FFFFFF; }
+.head .muted { color: #C5D6F3; }
 .hl { display: block; font-size: 22rpx; }
 .hv { display: block; font-size: 60rpx; font-weight: 700; margin: 6rpx 0 24rpx; }
 .hrow { display: flex; justify-content: space-between; }
@@ -91,8 +91,8 @@ async function apply() {
 .tabs { margin: 24rpx 0 16rpx; }
 .lt { display: flex; flex-direction: column; gap: 4rpx; }
 .ls { font-size: 22rpx; }
-.plus { font-weight: 700; color: #389E0D; }
-.wst { font-size: 24rpx; color: #D46B08; }
-.wst.ok { color: #389E0D; }
-.wst.bad { color: #CF1322; }
+.plus { font-weight: 700; color: #269B79; }
+.wst { font-size: 24rpx; color: #BB873A; }
+.wst.ok { color: #269B79; }
+.wst.bad { color: #CB5368; }
 </style>

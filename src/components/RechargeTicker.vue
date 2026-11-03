@@ -62,8 +62,8 @@ onUnmounted(() => clearTimeout(timer))
   opacity: 0; transform: translateX(-40rpx); transition: opacity 0.35s, transform 0.35s; pointer-events: none;
 }
 .ticker.show { opacity: 1; transform: translateX(0); }
-.av { width: 40rpx; height: 40rpx; border-radius: 50%; background: #FFFFFF; color: #1F1F1F; font-size: 22rpx; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.av { width: 40rpx; height: 40rpx; border-radius: 50%; background: #FFFFFF; color: #142B53; font-size: 22rpx; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .tx { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.amt { font-weight: 700; color: #FFD666; }
-.bonus { color: #FFD666; }
+.amt { font-weight: 700; color: #F5CF86; }
+.bonus { color: #F5CF86; }
 </style>

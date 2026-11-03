@@ -69,8 +69,8 @@ async function submit() {
 .form { padding: 8rpx 28rpx 32rpx; }
 .hint { display: block; font-size: 22rpx; margin-top: 8rpx; }
 .cats { display: flex; flex-wrap: wrap; gap: 12rpx; }
-.fchip { font-size: 24rpx; padding: 12rpx 24rpx; border-radius: 30rpx; background: #F5F5F5; color: #595959; }
-.fchip.on { background: #1F1F1F; color: #FFFFFF; }
+.fchip { font-size: 24rpx; padding: 12rpx 24rpx; border-radius: 30rpx; background: #F4F7FF; color: #5B6F92; }
+.fchip.on { background: linear-gradient(115deg, #3F66AD, #7196D8); color: #FFFFFF; }
 .area { height: auto; min-height: 180rpx; padding: 20rpx 24rpx; width: auto; }
 .save { margin-top: 32rpx; }
 </style>

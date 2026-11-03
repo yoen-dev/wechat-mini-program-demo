@@ -63,11 +63,11 @@ const open = (id) => uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
 <style scoped>
 .page { height: calc(100vh - var(--window-top) - var(--window-bottom)); display: flex; flex-direction: column; }
 .top { padding: 20rpx 32rpx; background: #FFFFFF; }
-.search { height: 72rpx; background: #F5F5F5; border-radius: 36rpx; padding: 0 28rpx; font-size: 26rpx; }
+.search { height: 72rpx; background: #F4F7FF; border-radius: 36rpx; padding: 0 28rpx; font-size: 26rpx; }
 .body { flex: 1; display: flex; min-height: 0; }
 .side { flex: 0 0 180rpx; width: 180rpx; height: 100%; background: #FFFFFF; }
-.side-item { height: 96rpx; display: flex; align-items: center; justify-content: center; font-size: 26rpx; color: #595959; white-space: nowrap; }
-.side-item.on { background: #F5F5F5; color: #1F1F1F; font-weight: 700; border-left: 6rpx solid #1F1F1F; }
+.side-item { height: 96rpx; display: flex; align-items: center; justify-content: center; font-size: 26rpx; color: #5B6F92; white-space: nowrap; }
+.side-item.on { background: #F4F7FF; color: #142B53; font-weight: 700; border-left: 6rpx solid #527AC3; }
 .list { flex: 1; width: 0; height: 100%; }
 .list-inner { padding: 20rpx 24rpx 40rpx; }
 .item { display: flex; gap: 16rpx; padding: 16rpx; margin-bottom: 16rpx; }

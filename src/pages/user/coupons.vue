@@ -49,8 +49,8 @@ const use = () => uni.switchTab({ url: '/pages/index/index' })
 .sec { display: block; margin: 16rpx 8rpx; }
 .c { display: flex; align-items: center; gap: 20rpx; padding: 24rpx; margin-bottom: 16rpx; }
 .c.dim { opacity: 0.5; }
-.cl { width: 150rpx; display: flex; flex-direction: column; align-items: center; border-right: 2rpx dashed #E5E5E5; padding-right: 16rpx; }
-.ca { font-size: 40rpx; font-weight: 700; color: #CF1322; }
+.cl { width: 150rpx; display: flex; flex-direction: column; align-items: center; border-right: 2rpx dashed #DCE6F8; padding-right: 16rpx; }
+.ca { font-size: 40rpx; font-weight: 700; color: #CB5368; }
 .cr { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6rpx; }
 .cn { font-size: 28rpx; font-weight: 600; }
 .cm { font-size: 22rpx; }

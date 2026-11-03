@@ -40,7 +40,7 @@ function preview(i) {
 
 <style scoped>
 /* 推荐图片尺寸 1080 × 450（约 2.4 : 1），其他比例会居中裁切 */
-.bs { position: relative; border-radius: 20rpx; overflow: hidden; background: #E8E8E8; transform: translateZ(0); }
+.bs { position: relative; border-radius: 20rpx; overflow: hidden; background: #E4ECFA; transform: translateZ(0); }
 .sw { width: 100%; height: 286rpx; }
 .img { width: 100%; height: 100%; display: block; }
 .dots { position: absolute; left: 0; right: 0; bottom: 16rpx; display: flex; justify-content: center; gap: 10rpx; pointer-events: none; }

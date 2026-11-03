@@ -70,6 +70,6 @@ async function act(key, o) { if (await doAction(key, o, session.user)) load() }
 
 <style scoped>
 .list { margin-top: 20rpx; }
-.dotn { margin-left: 4rpx; font-size: 18rpx; color: #FFFFFF; background: #F5222D; border-radius: 14rpx; padding: 0 8rpx; }
+.dotn { margin-left: 4rpx; font-size: 18rpx; color: #FFFFFF; background: #ED7384; border-radius: 14rpx; padding: 0 8rpx; }
 .login { width: 280rpx; margin-top: 16rpx; }
 </style>

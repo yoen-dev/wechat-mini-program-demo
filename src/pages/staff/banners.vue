@@ -62,7 +62,7 @@ const preview = (i) => uni.previewImage({ urls: list.value.map((x) => x.url), cu
 .add { margin-bottom: 16rpx; }
 .note { display: block; font-size: 22rpx; margin: 0 8rpx 20rpx; line-height: 1.6; }
 .brow { display: flex; gap: 20rpx; padding: 20rpx; margin-bottom: 16rpx; }
-.bthumb { width: 240rpx; height: 100rpx; border-radius: 10rpx; background: #E8E8E8; flex-shrink: 0; }
+.bthumb { width: 240rpx; height: 100rpx; border-radius: 10rpx; background: #E4ECFA; flex-shrink: 0; }
 .bt { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 12rpx; }
 .pn { font-size: 28rpx; font-weight: 600; }
 .bops { display: flex; gap: 10rpx; }

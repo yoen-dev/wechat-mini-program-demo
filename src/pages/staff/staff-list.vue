@@ -59,12 +59,12 @@ async function toggleUser(u) {
 <style scoped>
 .add { margin-bottom: 16rpx; }
 .filters { white-space: nowrap; margin-bottom: 16rpx; }
-.fchip { display: inline-block; font-size: 24rpx; padding: 10rpx 22rpx; margin-right: 12rpx; border-radius: 30rpx; background: #FFFFFF; color: #595959; }
-.fchip.on { background: #1F1F1F; color: #FFFFFF; }
+.fchip { display: inline-block; font-size: 24rpx; padding: 10rpx 22rpx; margin-right: 12rpx; border-radius: 30rpx; background: #FFFFFF; color: #5B6F92; }
+.fchip.on { background: linear-gradient(115deg, #3F66AD, #7196D8); color: #FFFFFF; }
 .srow { display: flex; align-items: center; gap: 16rpx; padding: 24rpx; margin-bottom: 16rpx; }
 .pt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6rpx; }
 .pt .row { gap: 10rpx; }
 .pn { font-size: 28rpx; font-weight: 600; }
 .pm { font-size: 22rpx; }
-.off { background: #FFF1F0; color: #CF1322; }
+.off { background: #FFEBEF; color: #CB5368; }
 </style>

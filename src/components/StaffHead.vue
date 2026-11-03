@@ -20,10 +20,10 @@ const toProfile = () => uni.navigateTo({ url: '/pages/staff/profile' })
 </script>
 
 <style scoped>
-.sh { display: flex; align-items: center; gap: 20rpx; padding: 28rpx 32rpx; background: #1F1F1F; color: #FFFFFF; }
-.av { width: 80rpx; height: 80rpx; border-radius: 50%; background: #FFFFFF; color: #1F1F1F; font-weight: 700; font-size: 30rpx; display: flex; align-items: center; justify-content: center; }
+.sh { display: flex; align-items: center; gap: 20rpx; padding: 28rpx 32rpx; background: linear-gradient(115deg, #203B69, #527AC3 70%, #7196D8); color: #FFFFFF; }
+.av { width: 80rpx; height: 80rpx; border-radius: 50%; background: #FFFFFF; color: #142B53; font-weight: 700; font-size: 30rpx; display: flex; align-items: center; justify-content: center; }
 .t { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
 .n { font-size: 32rpx; font-weight: 700; }
-.r { font-size: 22rpx; color: #BFBFBF; }
-.set { background: transparent; color: #FFFFFF; border-color: #595959; }
+.r { font-size: 22rpx; color: #A2B3CC; }
+.set { background: rgba(255,255,255,0.14); color: #FFFFFF; border-color: rgba(255,255,255,0.35); }
 </style>

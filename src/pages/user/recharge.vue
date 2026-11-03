@@ -76,21 +76,21 @@ async function submit() {
 </script>
 
 <style scoped>
-.head { padding: 32rpx; background: #1F1F1F; color: #FFFFFF; }
-.head .muted { color: #A6A6A6; }
+.head { padding: 32rpx; background: linear-gradient(115deg, #203B69, #527AC3 70%, #7196D8); color: #FFFFFF; }
+.head .muted { color: #C5D6F3; }
 .hl { display: block; font-size: 22rpx; }
 .hv { display: block; font-size: 64rpx; font-weight: 700; margin: 8rpx 0 16rpx; }
 .sec { display: block; margin: 36rpx 8rpx 16rpx; }
 .tiers { display: flex; flex-wrap: wrap; gap: 16rpx; }
 .tier { width: calc(50% - 8rpx); box-sizing: border-box; background: #FFFFFF; border: 3rpx solid #FFFFFF; border-radius: 20rpx; padding: 28rpx 24rpx; display: flex; flex-direction: column; gap: 6rpx; }
-.tier.on { border-color: #1F1F1F; }
+.tier.on { border-color: #527AC3; }
 .tp { font-size: 44rpx; font-weight: 700; }
-.tb { font-size: 24rpx; font-weight: 600; color: #CF1322; }
+.tb { font-size: 24rpx; font-weight: 600; color: #CB5368; }
 .tg { font-size: 22rpx; }
 .pay { margin-top: 28rpx; background: #07C160; }
 .note { display: block; text-align: center; font-size: 22rpx; margin-top: 16rpx; }
 .lt { display: flex; flex-direction: column; gap: 4rpx; }
 .ls { font-size: 22rpx; }
-.plus { font-weight: 700; color: #389E0D; }
+.plus { font-weight: 700; color: #269B79; }
 .minus { font-weight: 700; }
 </style>

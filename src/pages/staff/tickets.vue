@@ -71,13 +71,13 @@ function reply(t, resolve) {
 <style scoped>
 .tk { padding: 28rpx; margin-top: 20rpx; }
 .tt { font-size: 28rpx; font-weight: 700; }
-.ts { font-size: 24rpx; color: #0958D9; }
-.ts.new { color: #D46B08; }
-.ts.ok { color: #389E0D; }
+.ts { font-size: 24rpx; color: #4B72B8; }
+.ts.new { color: #BB873A; }
+.ts.ok { color: #269B79; }
 .tm { display: block; font-size: 22rpx; margin-top: 6rpx; }
-.link { color: #0958D9; }
+.link { color: #4B72B8; }
 .tc { display: block; font-size: 28rpx; margin-top: 16rpx; line-height: 1.6; }
-.rp { margin-top: 12rpx; padding: 16rpx 20rpx; background: #F5F5F5; border-radius: 12rpx; font-size: 24rpx; line-height: 1.6; }
+.rp { margin-top: 12rpx; padding: 16rpx 20rpx; background: #F4F7FF; border-radius: 12rpx; font-size: 24rpx; line-height: 1.6; }
 .rn { font-weight: 600; }
 .ops { display: flex; justify-content: flex-end; gap: 16rpx; margin-top: 20rpx; }
 </style>

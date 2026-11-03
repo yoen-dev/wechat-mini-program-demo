@@ -63,9 +63,9 @@ async function handle(a, approve) {
 .ap { padding: 28rpx; margin-bottom: 20rpx; }
 .an { font-size: 30rpx; font-weight: 700; }
 .as { font-size: 24rpx; }
-.as.new { color: #D46B08; }
-.as.ok { color: #389E0D; }
-.as.bad { color: #CF1322; }
+.as.new { color: #BB873A; }
+.as.ok { color: #269B79; }
+.as.bad { color: #CB5368; }
 .kv { display: flex; justify-content: space-between; gap: 24rpx; margin-top: 14rpx; font-size: 26rpx; }
 .intro { text-align: right; flex: 1; }
 .ops { display: flex; justify-content: flex-end; gap: 16rpx; margin-top: 24rpx; }

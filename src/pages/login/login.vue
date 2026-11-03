@@ -5,7 +5,7 @@
   <view class="page">
     <view class="brand">
       <view class="logo">LOGO</view>
-      <text class="title">[品牌名]</text>
+      <text class="title">BLK电竞</text>
       <text class="muted">三角洲行动 · 专业护航</text>
     </view>
 
@@ -173,7 +173,7 @@ function demoUser() {
 <style scoped>
 .page { padding: 40rpx 40rpx 60rpx; }
 .brand { display: flex; flex-direction: column; align-items: center; gap: 12rpx; margin: 32rpx 0 48rpx; }
-.logo { width: 128rpx; height: 128rpx; border-radius: 28rpx; background: #1F1F1F; color: #FFFFFF; font-size: 24rpx; display: flex; align-items: center; justify-content: center; }
+.logo { width: 128rpx; height: 128rpx; border-radius: 28rpx; background: linear-gradient(115deg, #3F66AD, #7196D8); color: #FFFFFF; font-size: 24rpx; display: flex; align-items: center; justify-content: center; }
 .title { font-size: 40rpx; font-weight: 700; margin-top: 8rpx; }
 .tabs { margin-bottom: 24rpx; }
 .panel { padding: 8rpx 32rpx 32rpx; }
@@ -184,11 +184,11 @@ function demoUser() {
 .submit { margin-top: 40rpx; }
 .tip { display: block; text-align: center; font-size: 24rpx; margin-top: 24rpx; }
 .agree { display: flex; align-items: center; justify-content: center; gap: 12rpx; margin-top: 32rpx; font-size: 24rpx; }
-.check { width: 32rpx; height: 32rpx; border-radius: 50%; border: 2rpx solid #BFBFBF; font-size: 20rpx; display: flex; align-items: center; justify-content: center; color: #FFFFFF; }
-.check.on { background: #1F1F1F; border-color: #1F1F1F; }
-.lk { color: #0958D9; }
-.demo { margin-top: 48rpx; padding: 24rpx 28rpx; border: 2rpx dashed #D9D9D9; background: #FAFAFA; }
+.check { width: 32rpx; height: 32rpx; border-radius: 50%; border: 2rpx solid #A2B3CC; font-size: 20rpx; display: flex; align-items: center; justify-content: center; color: #FFFFFF; }
+.check.on { background: linear-gradient(115deg, #3F66AD, #7196D8); border-color: #527AC3; }
+.lk { color: #4B72B8; }
+.demo { margin-top: 48rpx; padding: 24rpx 28rpx; border: 2rpx dashed #C9D8F2; background: #F4F7FF; }
 .demo-title { font-size: 24rpx; font-weight: 600; }
-.demo-row { display: flex; justify-content: space-between; padding: 16rpx 0; font-size: 26rpx; border-bottom: 2rpx solid #F0F0F0; }
+.demo-row { display: flex; justify-content: space-between; padding: 16rpx 0; font-size: 26rpx; border-bottom: 2rpx solid #E8EFFD; }
 .demo-note { display: block; font-size: 22rpx; margin-top: 12rpx; }
 </style>

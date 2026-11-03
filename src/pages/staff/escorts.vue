@@ -41,8 +41,8 @@ onShow(async () => {
 .top { display: block; font-size: 22rpx; margin: 0 8rpx 20rpx; }
 .e { padding: 24rpx 28rpx; margin-bottom: 16rpx; }
 .row { gap: 12rpx; }
-.dot { width: 16rpx; height: 16rpx; border-radius: 50%; background: #D9D9D9; }
-.dot.on { background: #52C41A; }
+.dot { width: 16rpx; height: 16rpx; border-radius: 50%; background: #C9D8F2; }
+.dot.on { background: #28A88A; }
 .en { font-size: 28rpx; font-weight: 600; }
 .stats { display: flex; margin-top: 20rpx; }
 .stats view { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }

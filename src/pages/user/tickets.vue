@@ -87,20 +87,20 @@ function append(t) {
 <style scoped>
 .form { padding: 28rpx 28rpx 32rpx; }
 .types { display: flex; flex-wrap: wrap; gap: 12rpx; }
-.fchip { font-size: 24rpx; padding: 12rpx 24rpx; border-radius: 30rpx; background: #F5F5F5; color: #595959; }
-.fchip.on { background: #1F1F1F; color: #FFFFFF; }
+.fchip { font-size: 24rpx; padding: 12rpx 24rpx; border-radius: 30rpx; background: #F4F7FF; color: #5B6F92; }
+.fchip.on { background: linear-gradient(115deg, #3F66AD, #7196D8); color: #FFFFFF; }
 .pick { display: flex; align-items: center; }
 .area { height: auto; min-height: 180rpx; padding: 20rpx 24rpx; }
 .submit { margin-top: 32rpx; }
 .sec { display: block; margin: 36rpx 8rpx 16rpx; }
 .tk { padding: 24rpx 28rpx; margin-bottom: 16rpx; }
 .tt { font-size: 26rpx; font-weight: 600; }
-.ts { font-size: 24rpx; color: #D46B08; }
-.ts.ok { color: #389E0D; }
+.ts { font-size: 24rpx; color: #BB873A; }
+.ts.ok { color: #269B79; }
 .tc { display: block; font-size: 26rpx; margin-top: 12rpx; line-height: 1.6; }
-.rp { margin-top: 12rpx; padding: 14rpx 18rpx; background: #F5F5F5; border-radius: 12rpx; font-size: 24rpx; line-height: 1.6; }
+.rp { margin-top: 12rpx; padding: 14rpx 18rpx; background: #F4F7FF; border-radius: 12rpx; font-size: 24rpx; line-height: 1.6; }
 .rn { font-weight: 600; }
 .ops { display: flex; justify-content: space-between; margin-top: 16rpx; }
 .small { font-size: 22rpx; }
-.lk { font-size: 24rpx; color: #0958D9; }
+.lk { font-size: 24rpx; color: #4B72B8; }
 </style>

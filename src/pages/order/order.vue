@@ -115,17 +115,17 @@ async function act(key) { const r = await doAction(key, o.value, session.user); 
 .sub-hint { font-size: 22rpx; margin-top: -8rpx; }
 .block { margin-top: 20rpx; padding: 28rpx; }
 .imgs { display: flex; gap: 16rpx; margin-top: 16rpx; }
-.img { width: 196rpx; height: 196rpx; border-radius: 12rpx; background: #F0F0F0; }
+.img { width: 196rpx; height: 196rpx; border-radius: 12rpx; background: #E8EFFD; }
 .note { display: block; font-size: 24rpx; margin-top: 16rpx; line-height: 1.6; }
-.stars { display: block; color: #FAAD14; font-size: 32rpx; letter-spacing: 4rpx; margin-top: 12rpx; }
+.stars { display: block; color: #E0A548; font-size: 32rpx; letter-spacing: 4rpx; margin-top: 12rpx; }
 .name { font-size: 32rpx; font-weight: 700; }
 .amt { font-size: 36rpx; }
 .kv { display: flex; justify-content: space-between; gap: 24rpx; margin-top: 18rpx; font-size: 26rpx; }
 .log { display: flex; gap: 20rpx; margin-top: 24rpx; }
-.dot { width: 16rpx; height: 16rpx; border-radius: 50%; background: #D9D9D9; margin-top: 10rpx; flex-shrink: 0; }
-.dot.first { background: #1F1F1F; }
+.dot { width: 16rpx; height: 16rpx; border-radius: 50%; background: #C9D8F2; margin-top: 10rpx; flex-shrink: 0; }
+.dot.first { background: linear-gradient(115deg, #3F66AD, #7196D8); }
 .lt { display: flex; flex-direction: column; gap: 4rpx; font-size: 26rpx; }
 .ltime { font-size: 22rpx; }
-.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 2rpx solid #F0F0F0; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 16rpx; padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom)); }
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 2rpx solid #E8EFFD; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 16rpx; padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom)); }
 .bb { height: 76rpx; padding: 0 28rpx; font-size: 28rpx; }
 </style>
