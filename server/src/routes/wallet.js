@@ -60,7 +60,7 @@ router.post('/recharge', need('user'), limit({ windowSec: 60, max: 10 }), wrap(a
   const [id] = await db('recharges').insert({ user_id: req.user.id, pay: tier.pay, bonus: tier.bonus || 0, status: '待支付', created_at: now() })
   const tradeNo = `R${id}T${Date.now()}`
   await db('recharges').where({ id }).update({ trade_no: tradeNo })
-  const p = await pay.createPayment({ tradeNo, amount: Number(tier.pay), description: `余额充值 ¥${tier.pay}`, openid: req.user.openid })
+  const p = await pay.createPayment({ tradeNo, amount: Number(tier.pay), description: `余额充值 ¥${tier.pay}`, openid: req.user.openid, ip: req.ip })
   if (p.mockPaid) {
     await markRechargePaid(tradeNo) // 模拟模式：直接到账
     const u = await db('users').where({ id: req.user.id }).first('balance')
@@ -72,8 +72,13 @@ router.post('/recharge', need('user'), limit({ windowSec: 60, max: 10 }), wrap(a
 router.get('/recharge/:id', need('user'), wrap(async (req, res) => {
   const r = await db('recharges').where({ id: toId(req.params.id), user_id: req.user.id }).first()
   if (!r) throw notFound('充值记录不存在')
+  // 还没到账的话主动向微信查一次（回调可能比前端慢几秒）
+  if (r.status === '待支付' && r.trade_no) {
+    const q = await pay.queryPaid(r.trade_no)
+    if (q.paid) await require('./pay').settle(r.trade_no, q.amount)
+  }
   const u = await db('users').where({ id: req.user.id }).first('balance')
-  res.json({ status: r.status, balance: Number(u.balance) })
+  res.json({ status: (await db('recharges').where({ id: r.id }).first('status')).status, balance: Number(u.balance) })
 }))
 
 module.exports = router

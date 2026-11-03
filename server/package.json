@@ -11,7 +11,7 @@
     "migrate": "knex --knexfile src/db/knexfile.js migrate:latest",
     "seed:init": "node src/db/seed.js init",
     "seed:demo": "node src/db/seed.js demo",
-    "test": "node --test --test-concurrency=1 test/"
+    "test": "node --test --test-concurrency=1 test/*.test.js"
   },
   "engines": {
     "node": ">=18"

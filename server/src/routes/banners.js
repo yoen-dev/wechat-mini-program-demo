@@ -20,8 +20,8 @@ const { clean, toId, now } = require('../utils/helpers')
 const router = express.Router()
 const MAX_BANNERS = 9
 
-// 图片地址只允许：内置图、本站上传的图片、https 图片
-const okSrc = (s) => /^builtin:[a-z]+$/.test(s) || /^https?:\/\/[^\s]+$/.test(s) || /^\/uploads\/[\w.-]+$/.test(s)
+// 图片地址只允许：内置图、云托管对象存储（cloud://）、http(s) 图片
+const okSrc = (s) => /^builtin:[a-z]+$/.test(s) || /^(https?|cloud):\/\/[^\s]+$/.test(s)
 
 router.get('/', wrap(async (req, res) => {
   res.json((await db('banners').orderBy('sort').orderBy('id')).map(serialize.banner))

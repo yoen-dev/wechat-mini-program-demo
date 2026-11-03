@@ -20,7 +20,7 @@ const db = require('../db')
 const settings = require('./settings')
 const serialize = require('./serialize')
 const { AppError, conflict, notFound } = require('../utils/errors')
-const { r2, now } = require('../utils/helpers')
+const { now } = require('../utils/helpers')
 
 const STATUS = ['待付款', '待派单', '待接单', '已接单', '进行中', '待确认', '已完成', '退款中', '已退款', '已取消']
 const REFUNDABLE = ['待派单', '待接单', '已接单'] // 可以申请退款的状态
@@ -124,6 +124,17 @@ async function autoConfirm() {
 }
 
 /**
+ * 「顺便」检查一次超时自动确认，最多 30 秒一次
+ * 云托管没人访问时实例会缩到 0，定时任务不运行；所以在有人查订单时也触发一下，保证状态及时更新
+ */
+let lastAuto = 0
+function autoConfirmSoon() {
+  if (Date.now() - lastAuto < 30 * 1000) return Promise.resolve()
+  lastAuto = Date.now()
+  return autoConfirm().catch((e) => console.error('[自动确认] 出错：', e.message))
+}
+
+/**
  * 计算下单金额（以服务器的价格为准，不信任前端传来的金额）
  * 规格倍数和前端 src/api/constants.js 的 SPECS 保持一致，改的时候两边一起改
  */
@@ -134,4 +145,4 @@ function priceOf(product, spec) {
   return Math.round(Number(product.price) * rate)
 }
 
-module.exports = { STATUS, REFUNDABLE, ACTIVE, SPECS, isStaff, baseQuery, toClient, canSee, loadForClient, addLog, transition, markPaid, finish, autoConfirm, priceOf, r2 }
+module.exports = { STATUS, REFUNDABLE, ACTIVE, SPECS, isStaff, baseQuery, toClient, canSee, loadForClient, addLog, transition, markPaid, finish, autoConfirm, autoConfirmSoon, priceOf }

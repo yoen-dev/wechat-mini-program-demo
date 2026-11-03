@@ -10,6 +10,7 @@
  * 老板
  *   POST /                      下单  { productId, spec, mode: dispatch|assign, escortId?, gameId, note?, couponId? } → 订单（待付款）
  *   POST /:id/pay               支付  { method: wechat|balance } → { order, payParams? }（有 payParams 时前端调 uni.requestPayment）
+ *   POST /:id/pay/check         微信支付完成后查询结果 → 订单
  *   POST /:id/cancel            取消（待付款）
  *   POST /:id/refund            申请退款  { reason }
  *   POST /:id/confirm           确认完成
@@ -57,6 +58,7 @@ async function raw(id, trx = db) {
 // ================= 查询 =================
 
 router.get('/', need(), wrap(async (req, res) => {
+  await os.autoConfirmSoon()
   const u = req.user
   const scope = String(req.query.scope || 'mine')
   const status = String(req.query.status || '').split(',').map((s) => s.trim()).filter((s) => os.STATUS.includes(s))
@@ -91,6 +93,7 @@ router.get('/todo', need('cs', 'admin'), wrap(async (req, res) => {
 }))
 
 router.get('/:id', need(), wrap(async (req, res) => {
+  await os.autoConfirmSoon()
   res.json(await loadForClient(req.orderId, req.user))
 }))
 
@@ -158,10 +161,21 @@ router.post('/:id/pay', need('user'), wrap(async (req, res) => {
 
   // 微信支付
   const tradeNo = `O${o.id}T${Date.now()}`
-  const p = await pay.createPayment({ tradeNo, amount: Number(o.amount), description: `${o.product_name}（${o.spec}）`, openid: req.user.openid })
+  const p = await pay.createPayment({ tradeNo, amount: Number(o.amount), description: `${o.product_name}（${o.spec}）`, openid: req.user.openid, ip: req.ip })
   await db('orders').where({ id: o.id }).update({ trade_no: tradeNo })
   if (p.mockPaid) await db.transaction((trx) => os.markPaid(trx, o, 'wechat')) // 模拟模式：直接视为支付成功
   res.json({ order: await loadForClient(o.id, req.user), payParams: p.payParams })
+}))
+
+// 微信支付完成后前端调用：主动向微信查一次支付结果（回调可能比前端慢几秒）
+router.post('/:id/pay/check', need('user'), wrap(async (req, res) => {
+  const o = await raw(req.orderId)
+  if (o.user_id !== req.user.id) throw notFound('订单不存在')
+  if (o.status === '待付款' && o.trade_no) {
+    const q = await pay.queryPaid(o.trade_no)
+    if (q.paid) await require('./pay').settle(o.trade_no, q.amount)
+  }
+  res.json(await loadForClient(o.id, req.user))
 }))
 
 router.post('/:id/cancel', need('user'), wrap(async (req, res) => {
@@ -282,7 +296,7 @@ router.post('/:id/start', need('escort'), wrap(async (req, res) => {
 }))
 
 router.post('/:id/submit', need('escort'), wrap(async (req, res) => {
-  const proofs = (Array.isArray(req.body.proofs) ? req.body.proofs : []).map((s) => clean(s, 500)).filter((s) => /^(https?:\/\/|\/uploads\/)/.test(s)).slice(0, 9)
+  const proofs = (Array.isArray(req.body.proofs) ? req.body.proofs : []).map((s) => clean(s, 500)).filter((s) => /^(https?|cloud):\/\//.test(s)).slice(0, 9)
   if (!proofs.length) throw bad('请至少上传 1 张战绩截图')
   await db.transaction(async (trx) => {
     await transition(trx, req.orderId, ['进行中'], { status: '待确认', proofs: JSON.stringify(proofs), proof_note: clean(req.body.note, 500), submitted_at: now() }, { escort_id: req.user.id })

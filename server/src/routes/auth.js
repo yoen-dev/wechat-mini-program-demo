@@ -35,7 +35,7 @@ function checkActive(u) {
 
 // ---------------- 微信登录 ----------------
 router.post('/wx', limit({ windowSec: 600, max: 30 }), wrap(async (req, res) => {
-  const { openid } = await wechat.code2session(clean(req.body.code, 128))
+  const openid = await wechat.getOpenid(req, clean(req.body.code, 128))
   let u = await db('users').where({ openid }).first()
   if (!u) {
     // 第一次登录：自动注册成老板

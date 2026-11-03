@@ -30,7 +30,7 @@ app.use(cors({
 }))
 
 // 微信支付回调：必须拿到原始请求体才能验签，所以单独挂在 JSON 解析之前
-app.use('/api/pay', require('./routes/pay'))
+app.use('/api/pay', require('./routes/pay').router)
 
 // 解析 JSON 请求体，限制 1MB（图片走上传接口，不走 JSON）
 app.use(express.json({ limit: '1mb' }))
