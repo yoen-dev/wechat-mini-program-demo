@@ -31,7 +31,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { submitApplication, myApplication } from '@/api/service.js'
+import { submitApplication, myApplication } from '@api/service.js'
 import { session, needUserLogin } from '@/store/session.js'
 import { run, toast, fmtTime } from '@/utils.js'
 

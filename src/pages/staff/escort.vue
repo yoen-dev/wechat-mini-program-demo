@@ -39,9 +39,9 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
-import { listOrders } from '@/api/orders.js'
-import { setOnline, listEscorts } from '@/api/staff.js'
-import { getIncome } from '@/api/finance.js'
+import { listOrders } from '@api/orders.js'
+import { setOnline, listEscorts } from '@api/staff.js'
+import { getIncome } from '@api/finance.js'
 import { session, guard } from '@/store/session.js'
 import { actionsFor, doAction } from '@/orderActions.js'
 import { run, toast } from '@/utils.js'

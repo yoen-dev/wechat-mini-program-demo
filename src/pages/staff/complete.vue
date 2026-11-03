@@ -29,7 +29,7 @@
 <script setup>
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { getOrder, submitComplete } from '@/api/orders.js'
+import { getOrder, submitComplete } from '@api/orders.js'
 import { session, guard } from '@/store/session.js'
 import { run, toast, pickImage } from '@/utils.js'
 

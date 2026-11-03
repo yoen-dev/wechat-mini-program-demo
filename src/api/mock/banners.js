@@ -1,12 +1,8 @@
 // 首页轮播图接口（模拟）
 // 真实环境：图片上传到云存储 / 对象存储，这里只存图片地址和顺序。
 import { db, save, nextId, respond, fail, audit } from './db.js'
-import rights from '@/static/banner/rights.jpg'
-import aftersale from '@/static/banner/aftersale.jpg'
-
-// 内置示例图：数据里只存 key，显示时再换成真实地址（打包后文件名会变）
-const BUILTIN = { rights, aftersale }
-export const MAX_BANNERS = 9
+import { MAX_BANNERS, bannerUrl } from '../constants.js'
+export { MAX_BANNERS, bannerUrl }
 
 function list() {
   const d = db()
@@ -18,11 +14,6 @@ function list() {
     save()
   }
   return d.banners
-}
-
-/** 把存储的 src 转成可显示的地址 */
-export function bannerUrl(src) {
-  return src && src.startsWith('builtin:') ? BUILTIN[src.slice(8)] : src
 }
 
 export function listBanners() {

@@ -22,7 +22,7 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { couponCenter, claimCoupon } from '@/api/coupons.js'
+import { couponCenter, claimCoupon } from '@api/coupons.js'
 import { session, needUserLogin } from '@/store/session.js'
 import { run, toast, fmtTime } from '@/utils.js'
 import Empty from '@/components/Empty.vue'

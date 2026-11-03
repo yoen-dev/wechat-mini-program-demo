@@ -7,7 +7,7 @@
 <script setup>
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { getSettings } from '@/api/finance.js'
+import { getSettings } from '@api/finance.js'
 import { run } from '@/utils.js'
 
 const text = ref('')

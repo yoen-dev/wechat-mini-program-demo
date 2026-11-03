@@ -46,7 +46,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { getIncome, requestWithdraw } from '@/api/finance.js'
+import { getIncome, requestWithdraw } from '@api/finance.js'
 import { session, guard } from '@/store/session.js'
 import { run, toast, fmtTime, confirm } from '@/utils.js'
 import Empty from '@/components/Empty.vue'

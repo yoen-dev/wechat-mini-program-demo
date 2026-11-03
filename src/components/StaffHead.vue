@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import { ROLE_NAME } from '@/api/staff.js'
+import { ROLE_NAME } from '@api/staff.js'
 defineProps({ user: Object })
 const toProfile = () => uni.navigateTo({ url: '/pages/staff/profile' })
 </script>

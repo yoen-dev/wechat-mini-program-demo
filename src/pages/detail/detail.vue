@@ -78,13 +78,14 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { getProduct, SPECS, specPrice } from '@/api/products.js'
-import { listEscorts } from '@/api/staff.js'
-import { usableCoupons } from '@/api/coupons.js'
-import { getWallet } from '@/api/wallet.js'
-import { createOrder, payOrder } from '@/api/orders.js'
+import { getProduct, SPECS, specPrice } from '@api/products.js'
+import { listEscorts } from '@api/staff.js'
+import { usableCoupons } from '@api/coupons.js'
+import { getWallet } from '@api/wallet.js'
+import { createOrder, payOrder } from '@api/orders.js'
 import { session, needUserLogin } from '@/store/session.js'
 import { run, toast, confirm } from '@/utils.js'
+import { IS_MOCK } from '@/api/constants.js'
 
 const p = ref(null)
 const spec = ref(SPECS[0])
@@ -158,7 +159,8 @@ async function submit() {
   if (!o) return (busy.value = false)
   // 真实环境：微信支付调用 uni.requestPayment；余额支付由后端扣款
   const byBalance = payWith.value === 'balance'
-  const ok = await confirm(`${p.value.name} · ${spec.value.name}\n${byBalance ? '余额支付' : '应付'} ¥${o.amount}`, byBalance ? '确认余额支付' : '模拟微信支付')
+  // 余额支付先确认一下；微信支付在真实环境会弹微信自己的付款界面，只有演示版才弹「模拟微信支付」
+  const ok = byBalance || IS_MOCK ? await confirm(`${p.value.name} · ${spec.value.name}\n${byBalance ? '余额支付' : '应付'} ¥${o.amount}`, byBalance ? '确认余额支付' : '模拟微信支付') : true
   if (ok && (await run(payOrder(session.user, o.id, byBalance ? 'balance' : 'wechat')))) {
     toast('支付成功', 'success')
   } else {

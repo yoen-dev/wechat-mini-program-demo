@@ -74,7 +74,7 @@
 <script setup>
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { getSettings, saveSettings } from '@/api/finance.js'
+import { getSettings, saveSettings } from '@api/finance.js'
 import { session, guard } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 

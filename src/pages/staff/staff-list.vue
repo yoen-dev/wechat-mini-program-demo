@@ -18,7 +18,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listStaff, resetPassword, toggleStaff, ROLE_NAME } from '@/api/staff.js'
+import { listStaff, resetPassword, toggleStaff, ROLE_NAME } from '@api/staff.js'
 import { session, guard } from '@/store/session.js'
 import { run, confirm } from '@/utils.js'
 
@@ -34,8 +34,9 @@ async function load() {
 onShow(load)
 const newStaff = () => uni.navigateTo({ url: '/pages/staff/staff-edit' })
 async function reset(u) {
-  if (!(await confirm(`把 ${u.name} 的密码重置为 123456？`))) return
-  if (await run(resetPassword(me.value, u.id))) uni.showModal({ title: '已重置', content: `账号：${u.account}\n新密码：123456\n请转告对方登录后修改`, showCancel: false })
+  if (!(await confirm(`重置 ${u.name} 的密码？对方需要用新密码重新登录。`))) return
+  const r = await run(resetPassword(me.value, u.id))
+  if (r) uni.showModal({ title: '已重置', content: `账号：${u.account}\n新密码：${r.password}\n请转告对方登录后修改`, showCancel: false })
 }
 async function toggleUser(u) {
   if (u.status === 'active' && !(await confirm(`停用后 ${u.name} 将无法登录，确定吗？`))) return

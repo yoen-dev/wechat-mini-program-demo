@@ -26,7 +26,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
-import { listTickets, replyTicket } from '@/api/service.js'
+import { listTickets, replyTicket } from '@api/service.js'
 import { session, guard } from '@/store/session.js'
 import { run, toast, fmtTime } from '@/utils.js'
 import Empty from '@/components/Empty.vue'

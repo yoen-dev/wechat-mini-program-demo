@@ -48,8 +48,8 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { changePassword } from '@/api/auth.js'
-import { ROLE_NAME, getEscort, saveProfile } from '@/api/staff.js'
+import { changePassword } from '@api/auth.js'
+import { ROLE_NAME, getEscort, saveProfile } from '@api/staff.js'
 import { session, guard, logout } from '@/store/session.js'
 import { run, toast, confirm, fmtTime } from '@/utils.js'
 import Empty from '@/components/Empty.vue'

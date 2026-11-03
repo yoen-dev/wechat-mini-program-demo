@@ -21,7 +21,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onLoad, onShow, onPullDownRefresh } from '@dcloudio/uni-app'
-import { listOrders, getTodo } from '@/api/orders.js'
+import { listOrders, getTodo } from '@api/orders.js'
 import { session, guard } from '@/store/session.js'
 import { actionsFor, doAction } from '@/orderActions.js'
 import { run } from '@/utils.js'

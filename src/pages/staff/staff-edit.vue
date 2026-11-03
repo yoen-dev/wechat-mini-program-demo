@@ -22,7 +22,7 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { createStaff } from '@/api/staff.js'
+import { createStaff } from '@api/staff.js'
 import { session, guard } from '@/store/session.js'
 import { run } from '@/utils.js'
 

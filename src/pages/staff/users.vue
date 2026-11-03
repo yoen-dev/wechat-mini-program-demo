@@ -27,8 +27,8 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listCustomers, toggleCustomer } from '@/api/service.js'
-import { listOrders } from '@/api/orders.js'
+import { listCustomers, toggleCustomer } from '@api/service.js'
+import { listOrders } from '@api/orders.js'
 import { session, guard } from '@/store/session.js'
 import { run, fmtTime, maskPhone, toast } from '@/utils.js'
 

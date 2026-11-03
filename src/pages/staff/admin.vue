@@ -25,7 +25,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
-import { getTodo } from '@/api/orders.js'
+import { getTodo } from '@api/orders.js'
 import { session, guard } from '@/store/session.js'
 import { run } from '@/utils.js'
 import StaffHead from '@/components/StaffHead.vue'

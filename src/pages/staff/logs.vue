@@ -15,8 +15,8 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listLogs } from '@/api/service.js'
-import { ROLE_NAME } from '@/api/staff.js'
+import { listLogs } from '@api/service.js'
+import { ROLE_NAME } from '@api/staff.js'
 import { session, guard } from '@/store/session.js'
 import { run, fmtTime } from '@/utils.js'
 import Empty from '@/components/Empty.vue'

@@ -20,7 +20,7 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listBanners, addBanner, removeBanner, moveBanner, renameBanner, MAX_BANNERS } from '@/api/banners.js'
+import { listBanners, addBanner, removeBanner, moveBanner, renameBanner, MAX_BANNERS } from '@api/banners.js'
 import { session, guard } from '@/store/session.js'
 import { run, toast, confirm, pickImage } from '@/utils.js'
 import Empty from '@/components/Empty.vue'

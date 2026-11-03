@@ -27,8 +27,8 @@
 <script setup>
 import { ref, nextTick } from 'vue'
 import { onLoad, onShow, onHide, onUnload } from '@dcloudio/uni-app'
-import { getOrder, listMessages, sendMessage } from '@/api/orders.js'
-import { ROLE_NAME } from '@/api/staff.js'
+import { getOrder, listMessages, sendMessage } from '@api/orders.js'
+import { ROLE_NAME } from '@api/staff.js'
 import { session } from '@/store/session.js'
 import { run } from '@/utils.js'
 import StatusTag from '@/components/StatusTag.vue'

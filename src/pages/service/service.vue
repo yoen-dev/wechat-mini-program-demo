@@ -20,7 +20,7 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { getSettings } from '@/api/finance.js'
+import { getSettings } from '@api/finance.js'
 import { needUserLogin } from '@/store/session.js'
 import { toast, run } from '@/utils.js'
 

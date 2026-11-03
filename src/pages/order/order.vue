@@ -16,7 +16,7 @@
     </view>
     <view v-else-if="o.status === '待确认'" class="card block">
       <text class="sec-title">战绩截图</text>
-      <text class="muted note">（演示数据未附截图）{{ o.proofNote || '' }}</text>
+      <text class="muted note">（未附截图）{{ o.proofNote || '' }}</text>
     </view>
 
     <view class="card block">
@@ -58,8 +58,8 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { getOrder } from '@/api/orders.js'
-import { getSettings } from '@/api/finance.js'
+import { getOrder } from '@api/orders.js'
+import { getSettings } from '@api/finance.js'
 import { session } from '@/store/session.js'
 import { actionsFor, doAction } from '@/orderActions.js'
 import { run, fmtTime } from '@/utils.js'

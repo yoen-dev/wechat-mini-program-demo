@@ -24,7 +24,7 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { getProduct, saveProduct, CATEGORIES } from '@/api/products.js'
+import { getProduct, saveProduct, CATEGORIES } from '@api/products.js'
 import { session, guard } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 

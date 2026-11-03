@@ -33,7 +33,8 @@
 
     <view class="card menu">
       <view class="list-row" v-if="logged" @tap="logout"><text>退出登录</text><text class="arrow">›</text></view>
-      <view class="list-row" @tap="reset"><text class="muted">重置演示数据</text><text class="arrow">›</text></view>
+      <!-- 只有网页演示版显示：清空本机的模拟数据 -->
+      <view class="list-row" v-if="IS_MOCK" @tap="reset"><text class="muted">重置演示数据</text><text class="arrow">›</text></view>
     </view>
   </view>
 </template>
@@ -41,9 +42,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { getWallet } from '@/api/wallet.js'
+import { getWallet } from '@api/wallet.js'
 import { session, logout, needUserLogin } from '@/store/session.js'
-import { resetDb } from '@/api/db.js'
+import { resetDb } from '@api/db.js'
+import { IS_MOCK } from '@/api/constants.js'
 import { maskPhone, toast, confirm } from '@/utils.js'
 
 const logged = computed(() => session.user && session.user.role === 'user')

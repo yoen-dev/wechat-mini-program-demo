@@ -32,7 +32,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listCoupons, createCoupon, toggleCoupon } from '@/api/coupons.js'
+import { listCoupons, createCoupon, toggleCoupon } from '@api/coupons.js'
 import { session, guard } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 

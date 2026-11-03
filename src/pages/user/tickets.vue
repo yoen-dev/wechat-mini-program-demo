@@ -27,8 +27,8 @@
 <script setup>
 import { ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { createTicket, listTickets, replyTicket, TICKET_TYPES } from '@/api/service.js'
-import { listOrders } from '@/api/orders.js'
+import { createTicket, listTickets, replyTicket, TICKET_TYPES } from '@api/service.js'
+import { listOrders } from '@api/orders.js'
 import { session, needUserLogin } from '@/store/session.js'
 import { run, toast, fmtTime } from '@/utils.js'
 import Empty from '@/components/Empty.vue'

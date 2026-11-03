@@ -44,8 +44,8 @@
       <text class="muted">我已阅读并同意<text class="lk" @tap.stop="readAgree('user')">《用户协议》</text>和<text class="lk" @tap.stop="readAgree('privacy')">《隐私政策》</text></text>
     </view>
 
-    <!-- 演示用：上线前删除 -->
-    <view class="card demo">
+    <!-- 演示账号：只在网页演示版和本地联调时显示，正式小程序（云托管）自动隐藏 -->
+    <view class="card demo" v-if="showDemo">
       <text class="demo-title">演示账号（点击填入）</text>
       <view class="demo-row" @tap="demoUser">
         <text>示例老板</text><text class="muted">微信登录，已绑定手机</text>
@@ -60,9 +60,12 @@
 
 <script setup>
 import { ref, onUnmounted } from 'vue'
-import { wxLogin, staffLogin, phoneLogin, sendSmsCode } from '@/api/auth.js'
+import { wxLogin, staffLogin, phoneLogin, sendSmsCode } from '@api/auth.js'
 import { setSession, goHome } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
+import { API_MODE } from '@/api/constants.js'
+
+const showDemo = API_MODE !== 'cloud'
 
 const tabs = [{ key: 'wx', name: '微信登录' }, { key: 'phone', name: '手机号登录' }, { key: 'pwd', name: '账号密码' }]
 const tab = ref('wx')
@@ -111,7 +114,7 @@ async function onWxLogin(opts = {}) {
 async function send() {
   const r = await run(sendSmsCode(phone.value))
   if (!r) return
-  toast(`验证码已发送（演示：${r.demoCode}）`)
+  toast(r.demoCode ? `验证码已发送（测试环境：${r.demoCode}）` : '验证码已发送')
   count.value = 60
   timer = setInterval(() => { count.value--; if (count.value <= 0) clearInterval(timer) }, 1000)
 }

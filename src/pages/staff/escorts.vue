@@ -19,7 +19,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listEscorts } from '@/api/staff.js'
+import { listEscorts } from '@api/staff.js'
 import { guard } from '@/store/session.js'
 import { run } from '@/utils.js'
 

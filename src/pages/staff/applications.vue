@@ -1,6 +1,6 @@
 <template>
   <view class="wrap">
-    <text class="muted top">老板在「我的 → 成为护航」提交报名。通过后自动生成护航账号，初始密码 123456，请转告对方登录后修改。</text>
+    <text class="muted top">老板在「我的 → 成为护航」提交报名。通过后自动生成护航账号和初始密码，请转告对方登录后修改。</text>
     <view class="card ap" v-for="a in list" :key="a.id">
       <view class="between">
         <text class="an">{{ a.name }}</text>
@@ -25,7 +25,7 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listApplications, handleApplication } from '@/api/service.js'
+import { listApplications, handleApplication } from '@api/service.js'
 import { session, guard } from '@/store/session.js'
 import { run, fmtTime, confirm } from '@/utils.js'
 import Empty from '@/components/Empty.vue'

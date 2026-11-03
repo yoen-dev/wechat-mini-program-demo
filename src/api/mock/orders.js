@@ -12,9 +12,8 @@
 import { db, save, nextId, respond, fail, audit, isStaff, nameOf } from './db.js'
 import { deductBalance, refundBalance } from './wallet.js'
 
-export const STATUS = ['待付款', '待派单', '待接单', '已接单', '进行中', '待确认', '已完成', '退款中', '已退款', '已取消']
-export const REFUNDABLE = ['待派单', '待接单', '已接单']
-export const ACTIVE = ['待派单', '待接单', '已接单', '进行中', '待确认']
+import { STATUS, REFUNDABLE, ACTIVE } from '../constants.js'
+export { STATUS, REFUNDABLE, ACTIVE }
 
 function find(id) {
   return db().orders.find((o) => o.id === Number(id))

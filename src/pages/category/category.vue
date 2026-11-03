@@ -29,7 +29,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listProducts, CATEGORIES } from '@/api/products.js'
+import { listProducts, CATEGORIES } from '@api/products.js'
 import { run } from '@/utils.js'
 import Empty from '@/components/Empty.vue'
 

@@ -19,7 +19,7 @@
 
 <script setup>
 import { ref, onUnmounted } from 'vue'
-import { sendSmsCode, bindPhone } from '@/api/auth.js'
+import { sendSmsCode, bindPhone } from '@api/auth.js'
 import { session, setSession, goHome } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 
@@ -32,7 +32,7 @@ let timer = null
 async function send() {
   const r = await run(sendSmsCode(phone.value))
   if (!r) return
-  toast(`验证码已发送（演示：${r.demoCode}）`)
+  toast(r.demoCode ? `验证码已发送（测试环境：${r.demoCode}）` : '验证码已发送')
   count.value = 60
   timer = setInterval(() => { count.value--; if (count.value <= 0) clearInterval(timer) }, 1000)
 }

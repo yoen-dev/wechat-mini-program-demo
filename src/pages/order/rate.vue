@@ -21,7 +21,7 @@
 <script setup>
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { getOrder, rateOrder } from '@/api/orders.js'
+import { getOrder, rateOrder } from '@api/orders.js'
 import { session, needUserLogin } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 

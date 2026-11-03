@@ -47,12 +47,12 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listProducts, CATEGORIES } from '@/api/products.js'
-import { listBanners } from '@/api/banners.js'
-import { getSettings } from '@/api/finance.js'
+import { listProducts, CATEGORIES } from '@api/products.js'
+import { listBanners } from '@api/banners.js'
+import { getSettings } from '@api/finance.js'
 import BannerSwiper from '@/components/BannerSwiper.vue'
 import RechargeTicker from '@/components/RechargeTicker.vue'
-import { recentRecharges } from '@/api/wallet.js'
+import { recentRecharges } from '@api/wallet.js'
 import { session } from '@/store/session.js'
 import { run } from '@/utils.js'
 

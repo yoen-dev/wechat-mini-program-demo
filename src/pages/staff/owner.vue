@@ -108,7 +108,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
-import { getAnalytics } from '@/api/analytics.js'
+import { getAnalytics } from '@api/analytics.js'
 import { session, guard } from '@/store/session.js'
 import { run, fmtTime } from '@/utils.js'
 import StaffHead from '@/components/StaffHead.vue'

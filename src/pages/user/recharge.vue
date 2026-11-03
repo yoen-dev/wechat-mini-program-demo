@@ -31,9 +31,10 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { getWallet, getTiers, recharge } from '@/api/wallet.js'
+import { getWallet, getTiers, recharge } from '@api/wallet.js'
 import { session, needUserLogin } from '@/store/session.js'
 import { run, toast, confirm, fmtTime } from '@/utils.js'
+import { IS_MOCK } from '@/api/constants.js'
 import Empty from '@/components/Empty.vue'
 
 const wallet = ref({ balance: 0, logs: [] })
@@ -53,8 +54,8 @@ onShow(load)
 async function submit() {
   const t = tiers.value[pick.value]
   if (!t) return
-  // 真实环境：后端下单 → uni.requestPayment → 支付回调成功后才加余额
-  if (!(await confirm(`充值 ¥${t.pay}${t.bonus ? '，赠送 ¥' + t.bonus : ''}`, '模拟微信支付'))) return
+  // 演示版弹「模拟微信支付」；真实环境由 recharge() 调起微信支付，付完后台确认到账才加余额
+  if (IS_MOCK && !(await confirm(`充值 ¥${t.pay}${t.bonus ? '，赠送 ¥' + t.bonus : ''}`, '模拟微信支付'))) return
   busy.value = true
   const r = await run(recharge(session.user, pick.value))
   busy.value = false
