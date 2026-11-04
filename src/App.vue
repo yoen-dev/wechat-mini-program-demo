@@ -115,6 +115,8 @@ button::after { border: none; }
 .tile .ts { display: block; font-size: 20rpx; color: #8599B8; margin-top: 6rpx; }
 .tile.mini { min-height: 150rpx; padding: 24rpx 6rpx; text-align: center; display: flex; flex-direction: column; align-items: center; }
 .tile.mini .tt { font-size: 21rpx; margin-top: 12rpx; }
+/* 磁贴里的图标：蓝色渐变小方块 + 一个字（不用 emoji，各手机显示一致） */
+.ico { width: 68rpx; height: 68rpx; border-radius: 22rpx; background: linear-gradient(130deg, #B3C9F3, #5176BA); color: #FFFFFF; font-size: 28rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 8rpx 20rpx rgba(81, 118, 186, 0.25); }
 
 /* 数字指标卡 */
 .metric { background: #FFFFFF; border: 2rpx solid var(--line); border-radius: 32rpx; padding: 26rpx; box-shadow: 0 8rpx 30rpx rgba(102, 133, 189, 0.05); }

@@ -55,7 +55,7 @@ onUnmounted(() => clearTimeout(timer))
 
 <style scoped>
 .ticker {
-  position: fixed; left: 24rpx; top: calc(var(--window-top, 0px) + 150rpx); z-index: 50;
+  position: fixed; left: 24rpx; bottom: calc(var(--window-bottom, 0px) + 24rpx); z-index: 50;
   display: flex; align-items: center; gap: 12rpx; max-width: 80%;
   padding: 6rpx 22rpx 6rpx 6rpx; border-radius: 40rpx; background: rgba(20, 43, 83, 0.82); color: #FFFFFF;
   font-size: 24rpx; box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.18);

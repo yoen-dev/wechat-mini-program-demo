@@ -3,7 +3,7 @@
 -->
 <template>
   <view class="empty">
-    <text class="big">☁</text>
+    <text class="big">☁︎</text>
     <text class="muted">{{ text }}</text>
     <slot />
   </view>

@@ -5,7 +5,7 @@
   <view class="wrap">
     <!-- 个人信息横幅：没登录时点一下去登录 -->
     <view class="blk-banner profile" @tap="!logged && login()">
-      <view class="pav">{{ logged ? session.user.name.slice(0, 1) : '🐳' }}</view>
+      <view class="pav">{{ logged ? session.user.name.slice(0, 1) : 'B' }}</view>
       <view class="pt" v-if="logged">
         <text class="b-t">{{ session.user.name }}</text>
         <text class="b-s">{{ maskPhone(session.user.phone) }} · 欢迎来到 BLK电竞</text>
@@ -25,7 +25,7 @@
 
     <!-- 快捷入口 -->
     <view class="grid4 quick">
-      <view class="tile mini" v-for="q in quick" :key="q.t" @tap="q.go"><text class="ti">{{ ICON[q.t] || '◆' }}</text><text class="tt">{{ q.t }}</text></view>
+      <view class="tile mini" v-for="q in quick" :key="q.t" @tap="q.go"><text class="ico">{{ ICON[q.t] || q.t.slice(0, 1) }}</text><text class="tt">{{ q.t }}</text></view>
     </view>
 
     <!-- 我的服务 -->
@@ -75,7 +75,7 @@ const go = (url) => uni.navigateTo({ url })
 // 需要登录的入口：没登录先去登录
 const goLogged = (url) => needUserLogin() && go(url)
 // 快捷入口图标
-const ICON = { 我的订单: '▤', 优惠券: '🎁', 售后记录: '♧', 收藏: '☆' }
+const ICON = { 我的订单: '单', 优惠券: '券', 售后记录: '售', 收藏: '藏' }
 const quick = [
   { t: '我的订单', go: toOrders }, { t: '优惠券', go: () => goLogged('/pages/user/coupons') },
   { t: '售后记录', go: () => goLogged('/pages/user/tickets') }, { t: '收藏', go: soon }

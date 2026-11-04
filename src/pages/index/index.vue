@@ -18,7 +18,7 @@
     <view class="section"><text class="s-t">热门服务</text><text class="s-more" @tap="goCat('')">查看全部 ❯</text></view>
     <view class="grid2">
       <view class="tile" v-for="c in CATEGORIES" :key="c" @tap="goCat(c)">
-        <text class="ti">{{ ICONS[c] || '◆' }}</text>
+        <text class="ico">{{ ICONS[c] || c.slice(0, 1) }}</text>
         <text class="tt">{{ c }}</text>
         <text class="ts">立即查看 ❯</text>
       </view>
@@ -28,7 +28,7 @@
     <view class="section"><text class="s-t">快捷入口</text></view>
     <view class="grid4">
       <view class="tile mini" v-for="q in quick" :key="q.t" @tap="q.go">
-        <text class="ti">{{ q.i }}</text>
+        <text class="ico">{{ q.i }}</text>
         <text class="tt">{{ q.t }}</text>
       </view>
     </view>
@@ -44,7 +44,7 @@
     </view>
 
     <!-- 公告：在「管理后台 → 公告与问答」修改 -->
-    <view v-if="notice" class="notice-bar notice"><text class="nt">📢</text><text class="ellipsis nx">{{ notice }}</text></view>
+    <view v-if="notice" class="notice-bar notice"><text class="nt chip">公告</text><text class="ellipsis nx">{{ notice }}</text></view>
 
     <!-- 单子列表 -->
     <view class="section"><text class="s-t">人气单子</text><text class="s-more" @tap="goCat('')">全部 ❯</text></view>
@@ -84,13 +84,13 @@ const notice = ref('')
 const recharges = ref([])
 const steps = [{ t: '选单子', d: '保底 / 清图' }, { t: '填 ID 付款', d: '派单或指定' }, { t: '进队开打', d: '护航拉你' }]
 // 分类图标
-const ICONS = { 保底单: '🛡', 清图单: '⚔', 特惠: '🎁', 明星护航: '♛' }
+const ICONS = { 保底单: '保', 清图单: '清', 特惠: '惠', 明星护航: '星' }
 // 快捷入口（都是已有页面）
 const quick = [
-  { i: '🎁', t: '领券中心', go: () => needUserLogin() && uni.navigateTo({ url: '/pages/user/coupons' }) },
-  { i: '♛', t: '成为护航', go: () => needUserLogin() && uni.navigateTo({ url: '/pages/user/apply' }) },
-  { i: '♧', t: '客服中心', go: () => uni.switchTab({ url: '/pages/service/service' }) },
-  { i: '▤', t: '我的订单', go: () => uni.switchTab({ url: '/pages/orders/orders' }) }
+  { i: '券', t: '领券中心', go: () => needUserLogin() && uni.navigateTo({ url: '/pages/user/coupons' }) },
+  { i: '护', t: '成为护航', go: () => needUserLogin() && uni.navigateTo({ url: '/pages/user/apply' }) },
+  { i: '客', t: '客服中心', go: () => uni.switchTab({ url: '/pages/service/service' }) },
+  { i: '单', t: '我的订单', go: () => uni.switchTab({ url: '/pages/orders/orders' }) }
 ]
 
 // 每次显示页面时刷新（从别的页面返回也会触发）
@@ -119,7 +119,7 @@ const open = (id) => uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
 .search { height: 84rpx; background: #FFFFFF; border: 2rpx solid #DCE6F8; border-radius: 30rpx; padding: 0 30rpx; display: flex; align-items: center; gap: 12rpx; font-size: 24rpx; color: #97A7BF; }
 .s-ico { font-size: 30rpx; }
 .hero { margin-top: 24rpx; border-radius: 40rpx; overflow: hidden; box-shadow: 0 24rpx 68rpx rgba(40, 74, 132, 0.2); }
-.hero :deep(.sw) { height: 330rpx; }
+.hero :deep(.sw) { height: 288rpx; } /* 690rpx 宽 ÷ 2.4 = 推荐图片比例 1080×450 */
 .steps { display: flex; padding: 28rpx 0; }
 .step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8rpx; }
 .step + .step { border-left: 2rpx solid #E7EEF9; }

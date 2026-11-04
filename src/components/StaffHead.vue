@@ -11,7 +11,7 @@
         <text class="hdr-s">你好，{{ user.name }} · {{ ROLE_NAME[user.role] }} · {{ user.account }}</text>
       </view>
     </view>
-    <view class="icon-btn" @tap="toProfile">⚙</view>
+    <view class="icon-btn" @tap="toProfile">⚙︎</view>
   </view>
 </template>
 
