@@ -2,76 +2,84 @@
   【老板】单子详情 + 下单页：选规格、选「客服派单 / 指定护航」、填游戏 ID、选优惠券和支付方式，然后下单支付。
 -->
 <template>
-  <view v-if="p" class="page">
-    <view class="cover hero">封面图</view>
+  <view v-if="p" class="wrap page">
+    <!-- 顶部横幅：分类、名称、简介 -->
+    <view class="blk-banner">
+      <text class="b-s top">BLK · {{ p.cats[0] || '护航' }}</text>
+      <text class="b-t">{{ p.name }}</text>
+      <text class="b-s">{{ p.desc }}</text>
+    </view>
 
-    <view class="card block first">
-      <text class="name">{{ p.name }}</text>
-      <view class="tags"><text class="tag" v-for="t in p.tags" :key="t">{{ t }}</text></view>
+    <!-- 价格和标签 -->
+    <view class="card pad">
+      <view class="chips"><text class="chip" v-for="t in p.tags" :key="t">{{ t }}</text></view>
       <view class="row price-row"><text class="price big">¥{{ total }}</text><text class="muted unit"> / {{ spec.name }}</text></view>
     </view>
 
-    <view class="card block">
-      <text class="sec-title">服务说明</text>
-      <view class="point" v-for="x in p.points" :key="x"><text class="dot">•</text><text class="sub">{{ x }}</text></view>
-    </view>
-
-    <view class="card block">
-      <text class="sec-title">选择规格</text>
-      <view class="choice spec between" v-for="s in SPECS" :key="s.name" :class="{ on: spec.name === s.name }" @tap="spec = s">
-        <text>{{ s.name }}</text><text class="price">¥{{ specPrice(p.price, s) }}</text>
+    <!-- 规格（套餐） -->
+    <view class="section"><text class="s-t">套餐选择</text></view>
+    <view class="grid3">
+      <view class="spec" v-for="s in SPECS" :key="s.name" :class="{ on: spec.name === s.name }" @tap="spec = s">
+        <text class="sp-n">{{ s.name }}</text><text class="sp-p">¥{{ specPrice(p.price, s) }}</text>
       </view>
     </view>
 
-    <view class="card block">
-      <text class="sec-title">下单方式</text>
-      <view class="modes">
-        <view class="choice mode" :class="{ on: mode === 'dispatch' }" @tap="mode = 'dispatch'">
-          <text class="mt">客服派单</text><text class="muted md">最快匹配，推荐</text>
-        </view>
-        <view class="choice mode" :class="{ on: mode === 'assign' }" @tap="mode = 'assign'">
-          <text class="mt">指定护航</text><text class="muted md">选你想要的人</text>
-        </view>
+    <!-- 服务说明 -->
+    <view class="section"><text class="s-t">服务说明</text></view>
+    <view class="step-row" v-for="(x, i) in p.points" :key="x"><text class="sn">{{ i + 1 }}</text><text class="sub">{{ x }}</text></view>
+
+    <!-- 下单方式：客服派单 / 指定护航 -->
+    <view class="section"><text class="s-t">下单方式</text></view>
+    <view class="grid2">
+      <view class="choice mode" :class="{ on: mode === 'dispatch' }" @tap="mode = 'dispatch'">
+        <text class="mt">客服派单</text><text class="muted md">最快匹配，推荐</text>
       </view>
-      <view v-if="mode === 'assign'" class="escorts">
-        <view class="choice esc" v-for="e in escorts" :key="e.id" :class="{ on: escortId === e.id }" @tap="escortId = e.id">
-          <view class="avatar"><view class="online"></view></view>
-          <text class="en ellipsis">{{ e.name }}</text>
-          <text class="muted er">{{ e.rating ? '★ ' + e.rating : '新护航' }} · {{ e.done }} 单</text>
-          <text class="muted er ellipsis">{{ e.profile.rank || '—' }}</text>
+      <view class="choice mode" :class="{ on: mode === 'assign' }" @tap="mode = 'assign'">
+        <text class="mt">指定护航</text><text class="muted md">选你想要的人</text>
+      </view>
+    </view>
+    <view v-if="mode === 'assign'" class="escorts">
+      <view class="lrow esc" v-for="e in escorts" :key="e.id" :class="{ on: escortId === e.id }" @tap="escortId = e.id">
+        <view class="person">
+          <view class="avatar">♛<view class="online"></view></view>
+          <view class="pinfo">
+            <text class="p-n ellipsis">{{ e.name }}</text>
+            <text class="p-s ellipsis">{{ e.profile.rank || '—' }} · {{ e.rating ? '★ ' + e.rating : '新护航' }} · {{ e.done }} 单</text>
+          </view>
+        </view>
+        <view class="row">
           <text class="info" @tap.stop="showProfile(e)">资料</text>
+          <text class="radio">{{ escortId === e.id ? '◉' : '◯' }}</text>
         </view>
-        <text v-if="!escorts.length" class="muted none">暂时没有在线的护航，建议选择客服派单</text>
+      </view>
+      <text v-if="!escorts.length" class="muted none">暂时没有在线的护航，建议选择客服派单</text>
+    </view>
+
+    <!-- 下单信息 -->
+    <view class="section"><text class="s-t">下单信息</text></view>
+    <view class="field"><text class="f-l">游戏昵称 / ID</text><input class="f-in" v-model="gameId" placeholder="护航会按这个拉你进队" /></view>
+    <view class="field"><text class="f-l">备注（选填）</text><input class="f-in" v-model="note" placeholder="如：晚上 9 点后" /></view>
+
+    <!-- 优惠券 -->
+    <view class="lrow" @tap="pickCoupon">
+      <view><text class="l-t">优惠券</text><text class="l-s">{{ coupons.length ? coupons.length + ' 张可用' : '暂无可用，去领券' }}</text></view>
+      <view class="row"><text :class="coupon ? 'cp-on' : 'muted'">{{ coupon ? coupon.name + ' −¥' + coupon.amount : '' }}</text><text class="chev">❯</text></view>
+    </view>
+
+    <!-- 支付方式 -->
+    <view class="section"><text class="s-t">支付方式</text></view>
+    <view class="grid2">
+      <view class="choice mode" :class="{ on: payWith === 'wechat' }" @tap="payWith = 'wechat'">
+        <text class="mt">微信支付</text><text class="muted md">推荐</text>
+      </view>
+      <view class="choice mode" :class="{ on: payWith === 'balance', off: !enough }" @tap="pickBalance">
+        <text class="mt">余额支付</text><text class="muted md">{{ balance === null ? '登录后可用' : '余额 ¥' + balance + (enough ? '' : '，去充值 ›') }}</text>
       </view>
     </view>
 
-    <view class="card block coupon between" @tap="pickCoupon">
-      <text class="sec-title">优惠券</text>
-      <text :class="coupon ? 'cp-on' : 'muted'">{{ coupon ? coupon.name + ' −¥' + coupon.amount : coupons.length ? coupons.length + ' 张可用 ›' : '暂无可用 ›' }}</text>
-    </view>
-
-    <view class="card block">
-      <text class="sec-title">支付方式</text>
-      <view class="modes">
-        <view class="choice mode" :class="{ on: payWith === 'wechat' }" @tap="payWith = 'wechat'">
-          <text class="mt">微信支付</text><text class="muted md">　</text>
-        </view>
-        <view class="choice mode" :class="{ on: payWith === 'balance', off: !enough }" @tap="pickBalance">
-          <text class="mt">余额支付</text><text class="muted md">{{ balance === null ? '登录后可用' : '余额 ¥' + balance + (enough ? '' : '，去充值 ›') }}</text>
-        </view>
-      </view>
-    </view>
-
-    <view class="card block">
-      <text class="sec-title">下单信息</text>
-      <text class="label">游戏昵称 / ID</text>
-      <input class="input" v-model="gameId" placeholder="护航会按这个拉你进队" />
-      <text class="label">备注（选填）</text>
-      <input class="input" v-model="note" placeholder="如：晚上 9 点后" />
-    </view>
-
+    <!-- 底部下单栏 -->
     <view class="bar">
-      <view class="bar-cs" @tap="goService"><text>客服</text></view>
+      <view class="bar-cs" @tap="goService"><text class="cs-i">♧</text><text>客服</text></view>
       <view class="bar-total"><text class="muted">实付 </text><text class="price">¥{{ pay }}</text><text v-if="coupon" class="muted save"> 已省 {{ coupon.amount }}</text></view>
       <button class="btn buy" :loading="busy" @tap="submit">立即下单</button>
     </view>
@@ -199,38 +207,34 @@ async function submit() {
 </script>
 
 <style scoped>
-.page { padding-bottom: 180rpx; }
-.hero { height: 400rpx; font-size: 26rpx; }
-.block { margin: 20rpx 24rpx 0; padding: 28rpx; }
-.first { margin-top: -40rpx; position: relative; }
-.name { display: block; font-size: 38rpx; font-weight: 700; }
-.tags { display: flex; flex-wrap: wrap; gap: 10rpx; margin-top: 16rpx; }
+.page { padding-bottom: 200rpx; }
+.top { margin-top: 0; letter-spacing: 2rpx; }
+.chips { display: flex; flex-wrap: wrap; gap: 8rpx; }
 .price-row { margin-top: 20rpx; align-items: baseline; }
-.big { font-size: 48rpx; }
-.unit { font-size: 24rpx; }
-.point { display: flex; gap: 12rpx; margin-top: 16rpx; font-size: 26rpx; line-height: 1.6; }
-.dot { color: #8798B5; }
-.spec { margin-top: 16rpx; font-size: 28rpx; }
-.modes { display: flex; gap: 16rpx; margin-top: 16rpx; }
-.mode { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
-.mt { font-size: 28rpx; font-weight: 600; }
-.md { font-size: 22rpx; }
-.escorts { display: flex; gap: 16rpx; margin-top: 16rpx; }
-.escorts { flex-wrap: wrap; }
-.esc { width: calc(33.33% - 11rpx); box-sizing: border-box; flex: none; display: flex; flex-direction: column; align-items: center; gap: 6rpx; padding: 20rpx 8rpx 12rpx; min-width: 0; }
-.er { font-size: 20rpx; max-width: 100%; }
-.info { font-size: 22rpx; color: #4B72B8; padding: 6rpx 12rpx; }
-.none { font-size: 24rpx; }
-.online { position: absolute; right: 2rpx; bottom: 2rpx; width: 16rpx; height: 16rpx; border-radius: 50%; background: #28A88A; border: 3rpx solid #FFFFFF; }
-.coupon { align-items: center; }
+.big { font-size: 52rpx; }
+.unit { font-size: 22rpx; }
+.spec { background: #E8EFFD; border: 2rpx solid #E8EFFD; border-radius: 24rpx; padding: 22rpx 0; display: flex; flex-direction: column; align-items: center; gap: 6rpx; color: #466AA9; }
+.spec.on { background: linear-gradient(110deg, #4B73BA, #7CA1E5); color: #FFFFFF; }
+.sp-n { font-size: 25rpx; font-weight: 700; }
+.sp-p { font-size: 22rpx; }
+.mode { display: flex; flex-direction: column; gap: 6rpx; }
 .mode.off { opacity: 0.6; }
-.cp-on { color: #CB5368; font-weight: 600; }
-.save { font-size: 22rpx; }
-.avatar { position: relative; width: 72rpx; height: 72rpx; border-radius: 50%; background: #E4ECFA; }
-.en { font-size: 24rpx; max-width: 100%; }
-.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 2rpx solid #E8EFFD; display: flex; align-items: center; gap: 24rpx; padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom)); }
-.bar-cs { font-size: 24rpx; color: #5B6F92; padding: 0 8rpx; }
-.bar-total { flex: 1; font-size: 26rpx; }
-.bar-total .price { font-size: 36rpx; }
+.mt { font-size: 27rpx; font-weight: 700; }
+.md { font-size: 21rpx; }
+.escorts { margin-top: 20rpx; }
+.esc.on { border-color: #527AC3; background: #F0F5FF; }
+.pinfo { min-width: 0; }
+.avatar { position: relative; }
+.online { position: absolute; right: -4rpx; bottom: -4rpx; width: 20rpx; height: 20rpx; border-radius: 50%; background: #28A88A; border: 4rpx solid #FFFFFF; }
+.info { font-size: 22rpx; color: #4B72B8; padding: 6rpx 16rpx; }
+.radio { color: #527AC3; font-size: 30rpx; }
+.none { display: block; font-size: 23rpx; padding: 10rpx 4rpx; }
+.cp-on { color: #CB5368; font-weight: 700; font-size: 24rpx; }
+.save { font-size: 21rpx; }
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 2rpx solid #E0E9FA; display: flex; align-items: center; gap: 24rpx; padding: 16rpx 30rpx calc(16rpx + env(safe-area-inset-bottom)); z-index: 10; }
+.bar-cs { display: flex; flex-direction: column; align-items: center; font-size: 20rpx; color: #8B9DBB; padding: 0 6rpx; }
+.cs-i { font-size: 34rpx; color: #4B72B8; }
+.bar-total { flex: 1; font-size: 24rpx; }
+.bar-total .price { font-size: 38rpx; }
 .buy { width: 260rpx; margin: 0; }
 </style>

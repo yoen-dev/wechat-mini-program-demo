@@ -3,7 +3,7 @@
 -->
 <template>
   <view class="empty">
-    <view class="circle">—</view>
+    <text class="big">☁</text>
     <text class="muted">{{ text }}</text>
     <slot />
   </view>
@@ -14,6 +14,6 @@ defineProps({ text: { type: String, default: '暂无数据' } })
 </script>
 
 <style scoped>
-.empty { padding: 120rpx 0; display: flex; flex-direction: column; align-items: center; gap: 20rpx; }
-.circle { width: 120rpx; height: 120rpx; border-radius: 50%; background: #DCE6F8; color: #A2B3CC; display: flex; align-items: center; justify-content: center; font-size: 40rpx; }
+.empty { padding: 90rpx 24rpx; display: flex; flex-direction: column; align-items: center; gap: 20rpx; color: #9BADC6; font-size: 24rpx; }
+.big { font-size: 78rpx; color: #B8C9E4; }
 </style>

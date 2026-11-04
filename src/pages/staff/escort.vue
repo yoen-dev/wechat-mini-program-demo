@@ -5,29 +5,31 @@
   <view v-if="me">
     <StaffHead :user="me" />
     <view class="wrap">
-      <view class="card status between">
-        <view>
-          <text class="st-t">{{ online ? '接单中' : '休息中' }}</text>
-          <text class="muted st-d">{{ online ? '客服可以给你派单，老板可以指定你' : '不会被派单，老板也看不到你' }}</text>
+      <!-- 接单状态：休息时不会被派单，老板也看不到你 -->
+      <view class="blk-banner between" :class="{ rest: !online }">
+        <view class="st">
+          <text class="b-t">{{ online ? '接单中' : '休息中' }}</text>
+          <text class="b-s">{{ online ? '客服可以给你派单，老板可以指定你' : '不会被派单，老板也看不到你' }}</text>
         </view>
-        <switch :checked="online" color="#527AC3" @change="toggle" />
+        <view class="btn sm light sw" @tap="toggle({ detail: { value: !online } })">{{ online ? '切换休息' : '开启接单' }}</view>
       </view>
 
-      <view class="card money" @tap="go('/pages/staff/income')">
-        <view class="m"><text class="muted ml">本月收入</text><text class="mv">¥{{ income.month }}</text></view>
-        <view class="m"><text class="muted ml">可提现</text><text class="mv">¥{{ income.available }}</text></view>
-        <view class="m"><text class="muted ml">待老板确认</text><text class="mv">¥{{ income.waiting }}</text></view>
-        <text class="arrow">›</text>
+      <!-- 收入概览（点进收入页） -->
+      <view class="grid3" @tap="go('/pages/staff/income')">
+        <view class="metric"><text class="m-l">可提现</text><text class="m-v">¥{{ income.available }}</text></view>
+        <view class="metric"><text class="m-l">本月收入</text><text class="m-v">¥{{ income.month }}</text></view>
+        <view class="metric"><text class="m-l">待老板确认</text><text class="m-v">¥{{ income.waiting }}</text></view>
       </view>
 
-      <view class="links">
-        <view class="btn ghost sm lk" @tap="go('/pages/staff/income')">我的收入 / 提现</view>
-        <view class="btn ghost sm lk" @tap="go('/pages/staff/profile')">我的主页 / 评价</view>
+      <view class="grid2 links">
+        <view class="btn" @tap="go('/pages/staff/income')">我的收入 / 提现</view>
+        <view class="btn light" @tap="go('/pages/staff/profile')">我的主页 / 评价</view>
       </view>
 
-      <view class="seg">
-        <view v-for="t in tabs" :key="t.key" class="seg-item" :class="{ on: t.key === tab }" @tap="tab = t.key">
-          {{ t.name }}{{ count(t.key) ? ' ' + count(t.key) : '' }}
+      <!-- 我的订单 / 抢单大厅 -->
+      <view class="tabsline">
+        <view v-for="t in tabs" :key="t.key" class="tb" :class="{ on: t.key === tab }" @tap="tab = t.key">
+          {{ t.name }}<text v-if="count(t.key)" class="dot">{{ count(t.key) }}</text>
         </view>
       </view>
       <text class="muted tip">{{ tips[tab] }}</text>
@@ -104,14 +106,10 @@ async function act(key, o) {
 </script>
 
 <style scoped>
-.status { padding: 24rpx 28rpx; }
-.st-t { display: block; font-size: 32rpx; font-weight: 700; }
-.st-d { display: block; font-size: 22rpx; margin-top: 4rpx; }
-.money { display: flex; align-items: center; padding: 24rpx 28rpx; margin-top: 16rpx; }
-.m { flex: 1; display: flex; flex-direction: column; gap: 6rpx; }
-.ml { font-size: 22rpx; }
-.mv { font-size: 34rpx; font-weight: 700; }
-.links { display: flex; gap: 16rpx; margin: 16rpx 0 20rpx; }
-.lk { flex: 1; }
-.tip { display: block; font-size: 22rpx; margin: 16rpx 8rpx; line-height: 1.5; }
+.st { min-width: 0; padding-right: 16rpx; }
+.rest { background: linear-gradient(110deg, #5B6F92, #8FA3C4); }
+.sw { flex-shrink: 0; }
+.m-v { font-size: 32rpx; }
+.links { margin: 22rpx 0 30rpx; }
+.tip { display: block; font-size: 21rpx; margin: -8rpx 6rpx 20rpx; line-height: 1.6; }
 </style>

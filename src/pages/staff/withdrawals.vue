@@ -3,22 +3,22 @@
 -->
 <template>
   <view class="wrap">
-    <view class="seg">
-      <view v-for="t in tabs" :key="t" class="seg-item" :class="{ on: t === tab }" @tap="tab = t">{{ t }}{{ t === '待审核' && pending ? ' ' + pending : '' }}</view>
+    <view class="tabsline">
+      <view v-for="t in tabs" :key="t" class="tb" :class="{ on: t === tab }" @tap="tab = t">{{ t }}<text v-if="t === '待审核' && pending" class="dot">{{ pending }}</text></view>
     </view>
-    <text class="muted top">线下给护航转账后点「已打款」；金额或身份有问题点「驳回」，钱会退回护航的可提现余额。</text>
+    <view class="notice-bar top">线下给护航转账后点「已打款」；金额或身份有问题点「驳回」，钱会退回护航的可提现余额。</view>
     <view class="card w" v-for="w in shown" :key="w.id">
       <view class="between">
-        <text class="wn">{{ w.escortName }}</text>
+        <text class="wn">{{ w.escortName }} · 申请提现</text>
         <text class="price wa">¥{{ w.amount }}</text>
       </view>
       <text class="muted wm">申请 {{ fmtTime(w.createdAt) }}<text v-if="w.handledAt"> · {{ w.handler }} {{ fmtTime(w.handledAt) }} {{ w.status }}</text></text>
       <text v-if="w.note" class="muted wm">备注：{{ w.note }}</text>
-      <view v-if="w.status === '待审核'" class="ops">
-        <view class="btn sm ghost" @tap="handle(w, false)">驳回</view>
-        <view class="btn sm" @tap="handle(w, true)">已打款</view>
+      <view v-if="w.status === '待审核'" class="grid2 ops">
+        <view class="btn" @tap="handle(w, true)">已线下打款</view>
+        <view class="btn danger" @tap="handle(w, false)">驳回</view>
       </view>
-      <text v-else :class="['ws', w.status === '已打款' ? 'ok' : 'bad']">{{ w.status }}</text>
+      <view v-else class="ws"><text :class="['chip', w.status === '已打款' ? 'green' : 'red']">{{ w.status }}</text></view>
     </view>
     <Empty v-if="!shown.length" text="没有提现申请" />
   </view>
@@ -63,13 +63,11 @@ async function handle(w, ok) {
 </script>
 
 <style scoped>
-.top { display: block; font-size: 22rpx; margin: 16rpx 8rpx; line-height: 1.6; }
-.w { padding: 24rpx 28rpx; margin-bottom: 16rpx; }
-.wn { font-size: 28rpx; font-weight: 600; }
-.wa { font-size: 34rpx; }
-.wm { display: block; font-size: 22rpx; margin-top: 6rpx; }
-.ops { display: flex; justify-content: flex-end; gap: 16rpx; margin-top: 16rpx; }
-.ws { display: block; text-align: right; font-size: 24rpx; margin-top: 8rpx; }
-.ws.ok { color: #269B79; }
-.ws.bad { color: #CB5368; }
+.top { margin-bottom: 22rpx; }
+.w { padding: 28rpx; margin-bottom: 18rpx; }
+.wn { font-size: 27rpx; font-weight: 800; }
+.wa { font-size: 38rpx; }
+.wm { display: block; font-size: 21rpx; margin-top: 8rpx; }
+.ops { margin-top: 24rpx; }
+.ws { display: flex; justify-content: flex-end; margin-top: 12rpx; }
 </style>

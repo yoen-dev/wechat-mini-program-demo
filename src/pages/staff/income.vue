@@ -3,20 +3,19 @@
 -->
 <template>
   <view class="wrap" v-if="inc">
-    <view class="card head">
-      <text class="muted hl">可提现（元）</text>
-      <text class="hv">{{ inc.available }}</text>
-      <view class="hrow">
-        <view><text class="muted hl">累计收入</text><text class="hs">¥{{ inc.total }}</text></view>
-        <view><text class="muted hl">本月</text><text class="hs">¥{{ inc.month }}</text></view>
-        <view><text class="muted hl">提现中</text><text class="hs">¥{{ inc.pending }}</text></view>
-        <view><text class="muted hl">待确认</text><text class="hs">¥{{ inc.waiting }}</text></view>
-      </view>
-      <text class="muted rate">当前分成比例 {{ ratePct }}%，老板确认完成后入账</text>
+    <view class="blk-banner">
+      <text class="b-s">可提现余额（元）</text>
+      <text class="b-big">¥{{ inc.available }}</text>
+      <text class="b-s">累计收入 ¥{{ inc.total }} · 提现中 ¥{{ inc.pending }}</text>
     </view>
+    <view class="grid2">
+      <view class="metric"><text class="m-l">本月收入</text><text class="m-v">¥{{ inc.month }}</text></view>
+      <view class="metric"><text class="m-l">待老板确认</text><text class="m-v">¥{{ inc.waiting }}</text></view>
+    </view>
+    <view class="notice-bar rate">当前分成比例 {{ ratePct }}%，老板确认完成后入账</view>
 
     <view class="card wd">
-      <text class="sec-title">申请提现</text>
+      <text class="card-t">申请提现</text>
       <view class="wrow">
         <input class="input win" v-model="amount" type="digit" :placeholder="'最多 ' + inc.available" />
         <view class="btn sm light" @tap="amount = String(inc.available)">全部</view>
@@ -25,21 +24,21 @@
       <text class="muted hint">管理员审核后线下打款，打款后状态变为「已打款」</text>
     </view>
 
-    <view class="seg tabs">
-      <view class="seg-item" :class="{ on: tab === 'rec' }" @tap="tab = 'rec'">收入明细</view>
-      <view class="seg-item" :class="{ on: tab === 'wd' }" @tap="tab = 'wd'">提现记录</view>
+    <view class="tabsline tabs">
+      <view class="tb" :class="{ on: tab === 'rec' }" @tap="tab = 'rec'">收入明细</view>
+      <view class="tb" :class="{ on: tab === 'wd' }" @tap="tab = 'wd'">提现记录</view>
     </view>
-    <view class="card" v-if="tab === 'rec'">
-      <view class="list-row" v-for="r in inc.records" :key="r.id">
-        <view class="lt"><text>{{ r.productName }}</text><text class="muted ls">#{{ r.id }} · {{ fmtTime(r.t) }} · 订单 ¥{{ r.amount }}</text></view>
-        <text class="plus">+{{ r.share }}</text>
+    <view v-if="tab === 'rec'">
+      <view class="lrow" v-for="r in inc.records" :key="r.id">
+        <view><text class="l-t">{{ r.productName }}</text><text class="l-s">BLK-{{ r.id }} · {{ fmtTime(r.t) }} · 订单 ¥{{ r.amount }}</text></view>
+        <text class="plus">+¥{{ r.share }}</text>
       </view>
       <Empty v-if="!inc.records.length" text="还没有收入" />
     </view>
-    <view class="card" v-else>
-      <view class="list-row" v-for="w in inc.withdrawals" :key="w.id">
-        <view class="lt"><text>¥{{ w.amount }}</text><text class="muted ls">{{ fmtTime(w.createdAt) }}{{ w.note ? ' · ' + w.note : '' }}</text></view>
-        <text :class="['wst', w.status === '已打款' ? 'ok' : w.status === '已驳回' ? 'bad' : '']">{{ w.status }}</text>
+    <view v-else>
+      <view class="lrow" v-for="w in inc.withdrawals" :key="w.id">
+        <view><text class="l-t">¥{{ w.amount }}</text><text class="l-s">{{ fmtTime(w.createdAt) }}{{ w.note ? ' · ' + w.note : '' }}</text></view>
+        <text :class="['chip', w.status === '已打款' ? 'green' : w.status === '已驳回' ? 'red' : 'orange']">{{ w.status }}</text>
       </view>
       <Empty v-if="!inc.withdrawals.length" text="还没有提现记录" />
     </view>
@@ -77,22 +76,11 @@ async function apply() {
 </script>
 
 <style scoped>
-.head { padding: 32rpx; background: linear-gradient(115deg, #203B69, #527AC3 70%, #7196D8); color: #FFFFFF; }
-.head .muted { color: #C5D6F3; }
-.hl { display: block; font-size: 22rpx; }
-.hv { display: block; font-size: 60rpx; font-weight: 700; margin: 6rpx 0 24rpx; }
-.hrow { display: flex; justify-content: space-between; }
-.hs { display: block; font-size: 28rpx; font-weight: 600; margin-top: 4rpx; }
-.rate { display: block; font-size: 22rpx; margin-top: 24rpx; }
+.rate { margin-top: 20rpx; }
 .wd { margin-top: 20rpx; padding: 28rpx; }
-.wrow { display: flex; gap: 12rpx; align-items: center; margin-top: 16rpx; }
+.wrow { display: flex; gap: 12rpx; align-items: center; }
 .win { flex: 1; }
-.hint { display: block; font-size: 22rpx; margin-top: 12rpx; }
-.tabs { margin: 24rpx 0 16rpx; }
-.lt { display: flex; flex-direction: column; gap: 4rpx; }
-.ls { font-size: 22rpx; }
-.plus { font-weight: 700; color: #269B79; }
-.wst { font-size: 24rpx; color: #BB873A; }
-.wst.ok { color: #269B79; }
-.wst.bad { color: #CB5368; }
+.hint { display: block; font-size: 21rpx; margin-top: 14rpx; }
+.tabs { margin: 30rpx 0 20rpx; }
+.plus { font-weight: 800; color: #269B79; }
 </style>

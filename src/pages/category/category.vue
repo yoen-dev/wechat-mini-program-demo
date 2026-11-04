@@ -1,31 +1,30 @@
 <!--
-  【老板】分类页：左边分类、右边该分类下的单子，顶部可以搜索。
+  【老板】分类页：顶部搜索、横向分类标签，下面是该分类的单子。
 -->
 <template>
-  <view class="page">
-    <view class="top">
-      <input class="search" v-model="keyword" :focus="focus" placeholder="搜索单子" confirm-type="search" />
+  <view class="wrap">
+    <view class="hdr"><view><text class="hdr-t">选择服务</text><text class="hdr-s">挑选适合你的护航方案</text></view></view>
+
+    <!-- 搜索：按名称或简介筛选 -->
+    <view class="search"><text class="s-ico">⌕</text><input class="s-in" v-model="keyword" :focus="focus" placeholder="搜索单子名称 / 地图" confirm-type="search" /></view>
+
+    <!-- 分类标签（可左右滑） -->
+    <scroll-view scroll-x class="tabsline" :show-scrollbar="false">
+      <view v-for="c in cats" :key="c" class="tb" :class="{ on: c === picked }" @tap="picked = c">{{ c || '全部' }}</view>
+    </scroll-view>
+
+    <view class="card item" v-for="p in shown" :key="p.id" @tap="open(p.id)">
+      <view class="ii">
+        <view class="chips"><text class="chip" v-for="c in p.cats.slice(0, 2)" :key="c">{{ c }}</text></view>
+        <text class="in">{{ p.name }}</text>
+        <text class="card-p idesc">{{ p.desc }}</text>
+      </view>
+      <view class="ir">
+        <text class="price ip">¥{{ p.price }}<text class="qi"> 起</text></text>
+        <view class="btn sm" @tap.stop="open(p.id)">查看详情</view>
+      </view>
     </view>
-    <view class="body">
-      <scroll-view scroll-y class="side">
-        <view class="side-inner">
-          <view v-for="c in cats" :key="c" class="side-item" :class="{ on: c === picked }" @tap="picked = c">{{ c || '全部' }}</view>
-        </view>
-      </scroll-view>
-      <scroll-view scroll-y class="list">
-        <view class="list-inner">
-          <view class="card item" v-for="p in shown" :key="p.id" @tap="open(p.id)">
-            <view class="cover ic">封面</view>
-            <view class="ii">
-              <text class="in">{{ p.name }}</text>
-              <text class="muted idesc ellipsis">{{ p.desc }}</text>
-              <view class="between"><text class="price ip">¥{{ p.price }}</text><view class="btn sm" @tap.stop="open(p.id)">下单</view></view>
-            </view>
-          </view>
-          <Empty v-if="!shown.length" text="没有找到相关单子" />
-        </view>
-      </scroll-view>
-    </view>
+    <Empty v-if="!shown.length" text="没有找到相关单子" />
   </view>
 </template>
 
@@ -61,19 +60,15 @@ const open = (id) => uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
 </script>
 
 <style scoped>
-.page { height: calc(100vh - var(--window-top) - var(--window-bottom)); display: flex; flex-direction: column; }
-.top { padding: 20rpx 32rpx; background: #FFFFFF; }
-.search { height: 72rpx; background: #F4F7FF; border-radius: 36rpx; padding: 0 28rpx; font-size: 26rpx; }
-.body { flex: 1; display: flex; min-height: 0; }
-.side { flex: 0 0 180rpx; width: 180rpx; height: 100%; background: #FFFFFF; }
-.side-item { height: 96rpx; display: flex; align-items: center; justify-content: center; font-size: 26rpx; color: #5B6F92; white-space: nowrap; }
-.side-item.on { background: #F4F7FF; color: #142B53; font-weight: 700; border-left: 6rpx solid #527AC3; }
-.list { flex: 1; width: 0; height: 100%; }
-.list-inner { padding: 20rpx 24rpx 40rpx; }
-.item { display: flex; gap: 16rpx; padding: 16rpx; margin-bottom: 16rpx; }
-.ic { width: 140rpx; height: 140rpx; border-radius: 12rpx; flex-shrink: 0; }
-.ii { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; }
-.in { font-size: 28rpx; font-weight: 600; }
-.idesc { font-size: 22rpx; }
-.ip { font-size: 32rpx; }
+.search { height: 84rpx; background: #FFFFFF; border: 2rpx solid #DCE6F8; border-radius: 30rpx; padding: 0 28rpx; display: flex; align-items: center; gap: 12rpx; margin-bottom: 22rpx; }
+.s-ico { font-size: 30rpx; color: #97A7BF; }
+.s-in { flex: 1; font-size: 25rpx; color: #284674; }
+.item { display: flex; align-items: flex-end; gap: 20rpx; padding: 28rpx; margin-bottom: 20rpx; }
+.ii { flex: 1; min-width: 0; }
+.chips { display: flex; gap: 8rpx; }
+.in { display: block; font-size: 29rpx; font-weight: 800; margin: 14rpx 0 6rpx; }
+.idesc { overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.ir { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 16rpx; }
+.ip { font-size: 40rpx; }
+.qi { font-size: 20rpx; color: #9AA9BF; font-weight: 400; }
 </style>

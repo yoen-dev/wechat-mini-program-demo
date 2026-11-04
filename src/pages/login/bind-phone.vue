@@ -3,8 +3,10 @@
 -->
 <template>
   <view class="page">
-    <text class="title">绑定手机号</text>
-    <text class="muted desc">用于接收订单通知，以及护航和客服联系你</text>
+    <view class="blk-banner">
+      <text class="b-t">绑定手机号</text>
+      <text class="b-s">用于接收订单通知，以及护航和客服联系你</text>
+    </view>
 
     <view class="card panel">
       <text class="label">手机号</text>
@@ -63,12 +65,10 @@ onUnmounted(() => clearInterval(timer))
 </script>
 
 <style scoped>
-.page { padding: 48rpx 40rpx; }
-.title { display: block; font-size: 44rpx; font-weight: 700; }
-.desc { display: block; margin: 12rpx 0 40rpx; font-size: 26rpx; }
-.panel { padding: 8rpx 32rpx 32rpx; }
+.page { padding: 28rpx 32rpx; }
+.panel { padding: 8rpx 30rpx 32rpx; }
 .code-row { display: flex; gap: 16rpx; }
 .code { flex: 1; }
-.get { width: 220rpx; height: 88rpx; font-size: 26rpx; margin: 0; }
+.get { width: 220rpx; height: 88rpx; font-size: 24rpx; margin: 0; }
 .submit { margin-top: 48rpx; }
 </style>

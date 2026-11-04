@@ -5,21 +5,22 @@
   <view v-if="me">
     <StaffHead :user="me" />
     <view class="wrap">
+      <!-- 今日数据 -->
       <view class="grid2">
-        <view class="card stat"><text class="muted sl">今日订单</text><text class="sv">{{ todo.todayOrders || 0 }}</text></view>
-        <view class="card stat"><text class="muted sl">今日成交</text><text class="sv">¥{{ todo.todayIncome || 0 }}</text></view>
+        <view class="metric"><text class="m-l">今日订单</text><text class="m-v">{{ todo.todayOrders || 0 }}</text></view>
+        <view class="metric"><text class="m-l">今日成交</text><text class="m-v">¥{{ todo.todayIncome || 0 }}</text></view>
       </view>
 
-      <text class="gt">待办</text>
+      <view class="section"><text class="s-t">待办</text></view>
       <ModuleGrid :items="todoItems" />
 
-      <text class="gt">订单与服务</text>
+      <view class="section"><text class="s-t">订单与服务</text></view>
       <ModuleGrid :items="serviceItems" />
 
-      <text class="gt">运营</text>
+      <view class="section"><text class="s-t">运营</text></view>
       <ModuleGrid :items="opsItems" />
 
-      <text class="gt">财务与系统</text>
+      <view class="section"><text class="s-t">财务与系统</text></view>
       <ModuleGrid :items="sysItems" />
     </view>
   </view>
@@ -79,9 +80,5 @@ onPullDownRefresh(async () => { await load(); uni.stopPullDownRefresh() })
 </script>
 
 <style scoped>
-.grid2 { display: flex; gap: 16rpx; }
-.stat { flex: 1; padding: 28rpx; display: flex; flex-direction: column; gap: 8rpx; }
-.sl { font-size: 24rpx; }
-.sv { font-size: 44rpx; font-weight: 700; }
-.gt { display: block; font-size: 26rpx; font-weight: 700; color: #5B6F92; margin: 32rpx 8rpx 12rpx; }
+.section { margin-top: 36rpx; }
 </style>

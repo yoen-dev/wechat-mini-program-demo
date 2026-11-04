@@ -6,10 +6,10 @@
     <view class="btn add" @tap="edit()">＋ 新建单子</view>
     <view class="card prow" v-for="p in list" :key="p.id">
       <view class="pt">
-        <view class="row"><text class="pn">{{ p.name }}</text><text class="tag off" v-if="!p.onSale">已下架</text></view>
-        <text class="muted pm">¥{{ p.price }} · {{ p.cats.join(' / ') || '未分类' }}</text>
+        <view class="row"><text class="pn">{{ p.name }}</text><text :class="['chip', p.onSale ? 'green' : 'red']">{{ p.onSale ? '已上架' : '已下架' }}</text></view>
+        <text class="card-p pm">{{ p.cats.join(' / ') || '未分类' }} · ¥{{ p.price }}</text>
       </view>
-      <view class="btn sm ghost" @tap="toggle(p)">{{ p.onSale ? '下架' : '上架' }}</view>
+      <view class="btn sm light" @tap="toggle(p)">{{ p.onSale ? '下架' : '上架' }}</view>
       <view class="btn sm" @tap="edit(p.id)">编辑</view>
     </view>
   </view>
@@ -38,11 +38,10 @@ async function toggle(p) { if (await run(toggleSale(session.user, p.id))) { toas
 </script>
 
 <style scoped>
-.add { margin-bottom: 20rpx; }
-.prow { display: flex; align-items: center; gap: 16rpx; padding: 24rpx; margin-bottom: 16rpx; }
-.pt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6rpx; }
+.add { margin-bottom: 22rpx; }
+.prow { display: flex; align-items: center; gap: 14rpx; padding: 28rpx; margin-bottom: 18rpx; }
+.pt { flex: 1; min-width: 0; }
 .pt .row { gap: 10rpx; }
-.pn { font-size: 28rpx; font-weight: 600; }
-.pm { font-size: 22rpx; }
-.off { background: #FFEBEF; color: #CB5368; }
+.pn { font-size: 27rpx; font-weight: 800; }
+.pm { margin-top: 6rpx; }
 </style>

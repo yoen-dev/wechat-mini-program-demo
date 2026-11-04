@@ -67,10 +67,10 @@ async function submit() {
 
 <style scoped>
 .form { padding: 8rpx 28rpx 32rpx; }
-.hint { display: block; font-size: 22rpx; margin-top: 8rpx; }
-.cats { display: flex; flex-wrap: wrap; gap: 12rpx; }
-.fchip { font-size: 24rpx; padding: 12rpx 24rpx; border-radius: 30rpx; background: #F4F7FF; color: #5B6F92; }
-.fchip.on { background: linear-gradient(115deg, #3F66AD, #7196D8); color: #FFFFFF; }
+.hint { display: block; font-size: 21rpx; margin-top: 10rpx; }
+.cats { display: flex; flex-wrap: wrap; gap: 14rpx; }
+.fchip { font-size: 22rpx; padding: 16rpx 26rpx; border-radius: 20rpx; background: #E8EEFB; color: #7D91B3; }
+.fchip.on { background: #4E76BD; color: #FFFFFF; font-weight: 700; }
 .area { height: auto; min-height: 180rpx; padding: 20rpx 24rpx; width: auto; }
 .save { margin-top: 32rpx; }
 </style>

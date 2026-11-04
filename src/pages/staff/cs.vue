@@ -7,9 +7,10 @@
     <view class="wrap">
       <ModuleGrid v-if="me.role === 'cs'" :items="modules" />
 
-      <view class="seg tabs">
-        <view v-for="t in tabs" :key="t.key" class="seg-item" :class="{ on: t.key === tab }" @tap="tab = t.key">
-          {{ t.name }}{{ t.badge && shown(t.key).length ? ' ' + shown(t.key).length : '' }}
+      <!-- 订单分类标签，数字是要处理的单数 -->
+      <view class="tabsline tabs">
+        <view v-for="t in tabs" :key="t.key" class="tb" :class="{ on: t.key === tab }" @tap="tab = t.key">
+          {{ t.name }}<text v-if="t.badge && shown(t.key).length" class="dot">{{ shown(t.key).length }}</text>
         </view>
       </view>
       <text class="muted tip">{{ tips[tab] }}</text>
@@ -86,7 +87,6 @@ async function act(key, o) { if (await doAction(key, o, me.value)) load() }
 </script>
 
 <style scoped>
-.tabs { margin-top: 24rpx; }
-.wrap > .seg:first-child { margin-top: 0; }
-.tip { display: block; font-size: 22rpx; margin: 16rpx 8rpx; line-height: 1.5; }
+.tabs { margin-top: 28rpx; }
+.tip { display: block; font-size: 21rpx; margin: -8rpx 6rpx 20rpx; line-height: 1.6; }
 </style>

@@ -3,16 +3,38 @@
 -->
 <template>
   <view class="wrap">
+    <!-- 「某某刚刚充值」提示（悬浮在页面左上方） -->
     <RechargeTicker :list="recharges" />
+
+    <!-- 搜索框：点了跳到分类页并自动聚焦搜索 -->
     <view class="search" @tap="goCat('', true)">
-      <text class="muted">搜索单子，如 保底单</text>
+      <text class="s-ico">⌕</text><text>搜索单子，如 保底单</text>
     </view>
 
-    <view v-if="notice" class="notice"><text class="nt">公告</text><text class="ellipsis nx">{{ notice }}</text></view>
+    <!-- 轮播图（首页大图）：在「管理后台 → 轮播图」里增删和排序 -->
+    <view class="hero"><BannerSwiper :list="banners" /></view>
 
-    <!-- 轮播图：在「管理后台 → 轮播图」里增删和排序 -->
-    <view class="banner"><BannerSwiper :list="banners" /></view>
+    <!-- 热门服务：按分类进入 -->
+    <view class="section"><text class="s-t">热门服务</text><text class="s-more" @tap="goCat('')">查看全部 ❯</text></view>
+    <view class="grid2">
+      <view class="tile" v-for="c in CATEGORIES" :key="c" @tap="goCat(c)">
+        <text class="ti">{{ ICONS[c] || '◆' }}</text>
+        <text class="tt">{{ c }}</text>
+        <text class="ts">立即查看 ❯</text>
+      </view>
+    </view>
 
+    <!-- 快捷入口 -->
+    <view class="section"><text class="s-t">快捷入口</text></view>
+    <view class="grid4">
+      <view class="tile mini" v-for="q in quick" :key="q.t" @tap="q.go">
+        <text class="ti">{{ q.i }}</text>
+        <text class="tt">{{ q.t }}</text>
+      </view>
+    </view>
+
+    <!-- 下单三步 -->
+    <view class="section"><text class="s-t">下单流程</text></view>
     <view class="card steps">
       <view class="step" v-for="(s, i) in steps" :key="s.t">
         <text class="n">{{ i + 1 }}</text>
@@ -21,27 +43,20 @@
       </view>
     </view>
 
-    <view class="cats">
-      <view class="cat" v-for="c in CATEGORIES" :key="c" @tap="goCat(c)">
-        <view class="cat-ico">{{ c.slice(0, 1) }}</view>
-        <text>{{ c }}</text>
-      </view>
-    </view>
+    <!-- 公告：在「管理后台 → 公告与问答」修改 -->
+    <view v-if="notice" class="notice-bar notice"><text class="nt">📢</text><text class="ellipsis nx">{{ notice }}</text></view>
 
-    <view class="between sec">
-      <text class="sec-title">热门单子</text>
-      <text class="muted more" @tap="goCat('')">全部 ›</text>
-    </view>
+    <!-- 单子列表 -->
+    <view class="section"><text class="s-t">人气单子</text><text class="s-more" @tap="goCat('')">全部 ❯</text></view>
     <view class="card prod" v-for="p in list" :key="p.id" @tap="open(p.id)">
-      <view class="cover pc">封面</view>
       <view class="pi">
+        <view class="chips"><text class="chip" v-for="c in p.cats.slice(0, 1)" :key="c">{{ c }}</text><text class="chip green" v-for="t in p.tags.slice(0, 2)" :key="t">{{ t }}</text></view>
         <text class="pn">{{ p.name }}</text>
-        <text class="muted pd ellipsis">{{ p.desc }}</text>
-        <view class="tags"><text class="tag" v-for="t in p.tags.slice(0, 2)" :key="t">{{ t }}</text></view>
-        <view class="between">
-          <text class="price pp">¥{{ p.price }}</text>
-          <view class="btn sm" @tap.stop="open(p.id)">下单</view>
-        </view>
+        <text class="card-p pd">{{ p.desc }}</text>
+      </view>
+      <view class="pr">
+        <text class="price pp">¥{{ p.price }}<text class="qi"> 起</text></text>
+        <view class="btn sm" @tap.stop="open(p.id)">下单</view>
       </view>
     </view>
   </view>
@@ -56,7 +71,7 @@ import { getSettings } from '@api/finance.js'
 import BannerSwiper from '@/components/BannerSwiper.vue'
 import RechargeTicker from '@/components/RechargeTicker.vue'
 import { recentRecharges } from '@api/wallet.js'
-import { session } from '@/store/session.js'
+import { session, needUserLogin } from '@/store/session.js'
 import { run } from '@/utils.js'
 
 // 单子列表
@@ -68,6 +83,15 @@ const notice = ref('')
 // 最近的真实充值记录（首页提示用）
 const recharges = ref([])
 const steps = [{ t: '选单子', d: '保底 / 清图' }, { t: '填 ID 付款', d: '派单或指定' }, { t: '进队开打', d: '护航拉你' }]
+// 分类图标
+const ICONS = { 保底单: '🛡', 清图单: '⚔', 特惠: '🎁', 明星护航: '♛' }
+// 快捷入口（都是已有页面）
+const quick = [
+  { i: '🎁', t: '领券中心', go: () => needUserLogin() && uni.navigateTo({ url: '/pages/user/coupons' }) },
+  { i: '♛', t: '成为护航', go: () => needUserLogin() && uni.navigateTo({ url: '/pages/user/apply' }) },
+  { i: '♧', t: '客服中心', go: () => uni.switchTab({ url: '/pages/service/service' }) },
+  { i: '▤', t: '我的订单', go: () => uni.switchTab({ url: '/pages/orders/orders' }) }
+]
 
 // 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(async () => {
@@ -92,27 +116,25 @@ const open = (id) => uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
 </script>
 
 <style scoped>
-.search { height: 80rpx; background: #FFFFFF; border: 2rpx solid #DCE6F8; border-radius: 30rpx; padding: 0 30rpx; display: flex; align-items: center; font-size: 24rpx; }
-.banner { margin-top: 24rpx; border-radius: 32rpx; overflow: hidden; box-shadow: 0 24rpx 68rpx rgba(40, 74, 132, 0.18); }
-.notice { display: flex; align-items: center; gap: 16rpx; margin-top: 20rpx; padding: 20rpx 24rpx; background: #FFFFFF; border: 2rpx solid #DCE6F8; border-radius: 28rpx; font-size: 23rpx; color: #4F70A6; }
-.nt { flex-shrink: 0; font-size: 20rpx; font-weight: 700; color: #FFFFFF; background: linear-gradient(110deg, #4B73BA, #7CA1E5); padding: 4rpx 12rpx; border-radius: 10rpx; }
-.nx { flex: 1; min-width: 0; }
-.steps { margin-top: 20rpx; display: flex; padding: 26rpx 0; }
+.search { height: 84rpx; background: #FFFFFF; border: 2rpx solid #DCE6F8; border-radius: 30rpx; padding: 0 30rpx; display: flex; align-items: center; gap: 12rpx; font-size: 24rpx; color: #97A7BF; }
+.s-ico { font-size: 30rpx; }
+.hero { margin-top: 24rpx; border-radius: 40rpx; overflow: hidden; box-shadow: 0 24rpx 68rpx rgba(40, 74, 132, 0.2); }
+.hero :deep(.sw) { height: 330rpx; }
+.steps { display: flex; padding: 28rpx 0; }
 .step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8rpx; }
 .step + .step { border-left: 2rpx solid #E7EEF9; }
-.n { width: 52rpx; height: 52rpx; border-radius: 50%; background: #DCE9FF; color: #4E75B7; font-size: 24rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.n { width: 54rpx; height: 54rpx; border-radius: 50%; background: #DCE9FF; color: #4E75B7; font-size: 24rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 .t { font-size: 25rpx; font-weight: 700; }
-.d { font-size: 21rpx; }
-.cats { display: flex; gap: 16rpx; margin-top: 24rpx; }
-.cat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 12rpx; padding: 22rpx 0; font-size: 23rpx; font-weight: 700; background: linear-gradient(150deg, #FFFFFF, #E9F1FF); border: 2rpx solid #DCE6F8; border-radius: 28rpx; }
-.cat-ico { width: 72rpx; height: 72rpx; border-radius: 24rpx; background: linear-gradient(130deg, #B3C9F3, #5176BA); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 30rpx; font-weight: 800; }
-.sec { margin: 40rpx 2rpx 18rpx; }
-.more { font-size: 22rpx; }
-.prod { display: flex; gap: 20rpx; padding: 24rpx; margin-bottom: 20rpx; }
-.pc { width: 168rpx; height: 168rpx; border-radius: 24rpx; flex-shrink: 0; }
-.pi { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; }
-.pn { font-size: 29rpx; font-weight: 800; }
-.pd { font-size: 22rpx; }
-.tags { display: flex; gap: 8rpx; }
-.pp { font-size: 38rpx; }
+.d { font-size: 20rpx; }
+.notice { display: flex; align-items: center; gap: 12rpx; margin-top: 26rpx; }
+.nt { flex-shrink: 0; }
+.nx { flex: 1; min-width: 0; }
+.prod { display: flex; align-items: flex-end; gap: 20rpx; padding: 28rpx; margin-bottom: 20rpx; }
+.pi { flex: 1; min-width: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 8rpx; }
+.pn { display: block; font-size: 30rpx; font-weight: 800; margin: 14rpx 0 6rpx; }
+.pd { overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.pr { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 16rpx; }
+.pp { font-size: 40rpx; }
+.qi { font-size: 20rpx; color: #9AA9BF; font-weight: 400; }
 </style>

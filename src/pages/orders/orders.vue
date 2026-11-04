@@ -4,9 +4,10 @@
 <template>
   <view class="wrap">
     <template v-if="logged">
-      <view class="seg">
-        <view v-for="t in tabs" :key="t.name" class="seg-item" :class="{ on: t.name === tab }" @tap="tab = t.name">{{ t.name }}<text v-if="t.name === '待确认' && waiting" class="dotn">{{ waiting }}</text></view>
-      </view>
+      <!-- 状态标签（可左右滑），待确认上的数字是需要你确认完成的订单数 -->
+      <scroll-view scroll-x class="tabsline" :show-scrollbar="false">
+        <view v-for="t in tabs" :key="t.name" class="tb" :class="{ on: t.name === tab }" @tap="tab = t.name">{{ t.name }}<text v-if="t.name === '待确认' && waiting" class="dot">{{ waiting }}</text></view>
+      </scroll-view>
       <view class="list">
         <OrderCard v-for="o in shown" :key="o.id" :order="o" @open="open">
           <view v-for="b in actionsFor(o, session.user)" :key="b.key" class="btn sm" :class="{ ghost: b.ghost }" @tap="act(b.key, o)">{{ b.label }}</view>
@@ -69,7 +70,6 @@ async function act(key, o) { if (await doAction(key, o, session.user)) load() }
 </script>
 
 <style scoped>
-.list { margin-top: 20rpx; }
-.dotn { margin-left: 4rpx; font-size: 18rpx; color: #FFFFFF; background: #ED7384; border-radius: 14rpx; padding: 0 8rpx; }
+.list { margin-top: 4rpx; }
 .login { width: 280rpx; margin-top: 16rpx; }
 </style>

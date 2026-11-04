@@ -3,15 +3,17 @@
 -->
 <template>
   <view v-if="me" class="wrap">
-    <view class="card">
-      <view class="list-row"><text class="muted">名字</text><text>{{ me.name }}</text></view>
-      <view class="list-row"><text class="muted">角色</text><text>{{ ROLE_NAME[me.role] }}</text></view>
-      <view class="list-row"><text class="muted">账号</text><text>{{ me.account }}</text></view>
+    <view class="blk-banner person">
+      <view class="pav">{{ me.name.slice(0, 1) }}</view>
+      <view>
+        <text class="b-t">{{ me.name }}</text>
+        <text class="b-s">{{ ROLE_NAME[me.role] }} · 账号 {{ me.account }}{{ esc && esc.rating ? ' · 评分 ' + esc.rating : '' }}</text>
+      </view>
     </view>
 
     <!-- 护航：资料（老板指定护航时看得到）和评价 -->
     <template v-if="me.role === 'escort' && esc">
-      <text class="sec-title sec">我的主页 <text class="muted small">老板指定护航时能看到</text></text>
+      <view class="section"><text class="s-t">我的主页</text><text class="s-more">老板指定护航时能看到</text></view>
       <view class="card form">
         <text class="label">段位</text>
         <input class="input" v-model="pf.rank" placeholder="如：巅峰 · 绝密常客" />
@@ -22,7 +24,7 @@
         <button class="btn submit" @tap="saveProf">保存资料</button>
       </view>
 
-      <text class="sec-title sec">老板评价 <text class="muted small">{{ esc.rating ? esc.rating + ' 分 · ' : '' }}{{ esc.ratingCount }} 条</text></text>
+      <view class="section"><text class="s-t">老板评价</text><text class="s-more">{{ esc.rating ? esc.rating + ' 分 · ' : '' }}{{ esc.ratingCount }} 条</text></view>
       <view class="card">
         <view class="rv" v-for="r in esc.reviews.slice(0, 20)" :key="r.orderId">
           <view class="between"><text class="stars">{{ r.stars }}</text><text class="muted rt">{{ fmtTime(r.t) }}</text></view>
@@ -33,7 +35,7 @@
       </view>
     </template>
 
-    <text class="sec-title sec">修改密码</text>
+    <view class="section"><text class="s-t">修改密码</text></view>
     <view class="card form">
       <text class="label">原密码</text>
       <input class="input" v-model="oldPwd" password placeholder="请输入原密码" />
@@ -97,15 +99,14 @@ async function onLogout() { if (await confirm('确定退出登录吗？')) logou
 </script>
 
 <style scoped>
-.sec { display: block; margin: 36rpx 8rpx 16rpx; }
-.small { font-size: 22rpx; font-weight: 400; margin-left: 8rpx; }
+.pav { width: 96rpx; height: 96rpx; border-radius: 32rpx; background: rgba(255, 255, 255, 0.2); border: 2rpx solid rgba(255, 255, 255, 0.4); color: #FFFFFF; font-size: 40rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .form { padding: 8rpx 28rpx 32rpx; }
 .area { height: auto; min-height: 140rpx; padding: 20rpx 24rpx; }
 .submit { margin-top: 36rpx; }
 .out { margin-top: 40rpx; }
 .rv { padding: 24rpx 28rpx; display: flex; flex-direction: column; gap: 8rpx; }
-.rv + .rv { border-top: 2rpx solid #E8EFFD; }
-.stars { color: #E0A548; font-size: 28rpx; letter-spacing: 4rpx; }
-.rx { font-size: 26rpx; }
-.rt { font-size: 22rpx; }
+.rv + .rv { border-top: 2rpx solid #E7EEF9; }
+.stars { color: #E9B35B; font-size: 28rpx; letter-spacing: 4rpx; }
+.rx { font-size: 24rpx; color: #5B6F92; }
+.rt { font-size: 21rpx; }
 </style>

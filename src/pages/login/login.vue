@@ -3,10 +3,11 @@
 -->
 <template>
   <view class="page">
+    <!-- 品牌横幅（图片在 src/static/brand/hero.jpg，换品牌图直接替换这个文件） -->
     <view class="brand">
-      <view class="logo">LOGO</view>
-      <text class="title">BLK电竞</text>
-      <text class="muted">三角洲行动 · 专业护航</text>
+      <image class="hero" src="/static/brand/hero.jpg" mode="aspectFill" />
+      <text class="hdr-t title">欢迎来到 BLK电竞</text>
+      <text class="hdr-s">三角洲行动 · 专业护航</text>
     </view>
 
     <view class="seg tabs">
@@ -171,24 +172,24 @@ function demoUser() {
 </script>
 
 <style scoped>
-.page { padding: 40rpx 40rpx 60rpx; }
-.brand { display: flex; flex-direction: column; align-items: center; gap: 12rpx; margin: 32rpx 0 48rpx; }
-.logo { width: 128rpx; height: 128rpx; border-radius: 28rpx; background: linear-gradient(115deg, #3F66AD, #7196D8); color: #FFFFFF; font-size: 24rpx; display: flex; align-items: center; justify-content: center; }
-.title { font-size: 40rpx; font-weight: 700; margin-top: 8rpx; }
+.page { padding: 28rpx 32rpx 60rpx; }
+.brand { margin-bottom: 36rpx; }
+.hero { width: 100%; height: 250rpx; border-radius: 40rpx; display: block; box-shadow: 0 24rpx 68rpx rgba(40, 74, 132, 0.2); }
+.title { margin-top: 32rpx; }
 .tabs { margin-bottom: 24rpx; }
-.panel { padding: 8rpx 32rpx 32rpx; }
+.panel { padding: 8rpx 30rpx 32rpx; }
 .wx { background: #07C160; margin-top: 24rpx; }
 .code-row { display: flex; gap: 16rpx; }
 .code { flex: 1; }
-.get { width: 200rpx; height: 88rpx; font-size: 26rpx; margin: 0; }
+.get { width: 200rpx; height: 88rpx; font-size: 24rpx; margin: 0; }
 .submit { margin-top: 40rpx; }
-.tip { display: block; text-align: center; font-size: 24rpx; margin-top: 24rpx; }
-.agree { display: flex; align-items: center; justify-content: center; gap: 12rpx; margin-top: 32rpx; font-size: 24rpx; }
-.check { width: 32rpx; height: 32rpx; border-radius: 50%; border: 2rpx solid #A2B3CC; font-size: 20rpx; display: flex; align-items: center; justify-content: center; color: #FFFFFF; }
-.check.on { background: linear-gradient(115deg, #3F66AD, #7196D8); border-color: #527AC3; }
+.tip { display: block; text-align: center; font-size: 22rpx; margin-top: 24rpx; }
+.agree { display: flex; align-items: center; justify-content: center; gap: 12rpx; margin-top: 32rpx; font-size: 22rpx; }
+.check { width: 32rpx; height: 32rpx; border-radius: 50%; border: 2rpx solid #A2B3CC; font-size: 20rpx; display: flex; align-items: center; justify-content: center; color: #FFFFFF; flex-shrink: 0; }
+.check.on { background: linear-gradient(110deg, #4B73BA, #7CA1E5); border-color: #527AC3; }
 .lk { color: #4B72B8; }
-.demo { margin-top: 48rpx; padding: 24rpx 28rpx; border: 2rpx dashed #C9D8F2; background: #F4F7FF; }
-.demo-title { font-size: 24rpx; font-weight: 600; }
-.demo-row { display: flex; justify-content: space-between; padding: 16rpx 0; font-size: 26rpx; border-bottom: 2rpx solid #E8EFFD; }
-.demo-note { display: block; font-size: 22rpx; margin-top: 12rpx; }
+.demo { margin-top: 44rpx; padding: 24rpx 28rpx; border: 2rpx dashed #C9D8F2; background: #F4F7FF; box-shadow: none; }
+.demo-title { font-size: 23rpx; font-weight: 700; }
+.demo-row { display: flex; justify-content: space-between; padding: 16rpx 0; font-size: 24rpx; border-bottom: 2rpx solid #E4ECFA; }
+.demo-note { display: block; font-size: 21rpx; margin-top: 12rpx; }
 </style>

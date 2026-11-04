@@ -5,29 +5,30 @@
   <view v-if="me">
     <StaffHead v-if="me.role === 'owner'" :user="me" />
     <view class="wrap">
-      <view class="seg">
-        <view v-for="r in ranges" :key="r.d" class="seg-item" :class="{ on: r.d === days }" @tap="setDays(r.d)">{{ r.name }}</view>
+      <!-- 时间范围 -->
+      <view class="tabsline">
+        <view v-for="r in ranges" :key="r.d" class="tb" :class="{ on: r.d === days }" @tap="setDays(r.d)">{{ r.name }}</view>
       </view>
 
       <view v-if="a">
         <!-- 流水 -->
-        <view class="card hero">
-          <text class="muted hl">实收（成交 − 退款）</text>
-          <view class="row hv-row"><text class="hv">¥{{ a.money.net }}</text><text v-if="a.vs.net !== null" :class="['chg', a.vs.net >= 0 ? 'up' : 'down']">{{ a.vs.net >= 0 ? '↑' : '↓' }} {{ abs(a.vs.net) }}%</text></view>
-          <text class="muted hl">对比上一个{{ rangeName }}</text>
-          <view class="hgrid">
-            <view><text class="muted hl">成交额</text><text class="hs">¥{{ a.money.gmv }}</text></view>
-            <view><text class="muted hl">退款</text><text class="hs">¥{{ a.money.refund }}</text></view>
-            <view><text class="muted hl">护航分成</text><text class="hs">¥{{ a.money.share }}</text></view>
-            <view><text class="muted hl">毛利</text><text class="hs">¥{{ a.money.profit }}</text></view>
-            <view><text class="muted hl">订单数</text><text class="hs">{{ a.money.orders }}</text></view>
-            <view><text class="muted hl">客单价</text><text class="hs">¥{{ a.users.avgOrder }}</text></view>
-          </view>
+        <view class="blk-banner">
+          <text class="b-s">{{ rangeName }} · 实收（成交 − 退款）</text>
+          <text class="b-big">¥{{ a.money.net }}</text>
+          <text class="b-s" v-if="a.vs.net !== null">{{ a.vs.net >= 0 ? '↑' : '↓' }} {{ abs(a.vs.net) }}% 较上一个{{ rangeName }}</text>
+        </view>
+        <view class="grid3">
+          <view class="metric"><text class="m-l">成交额</text><text class="m-v">¥{{ a.money.gmv }}</text></view>
+          <view class="metric"><text class="m-l">退款</text><text class="m-v">¥{{ a.money.refund }}</text></view>
+          <view class="metric"><text class="m-l">护航分成</text><text class="m-v">¥{{ a.money.share }}</text></view>
+          <view class="metric"><text class="m-l">毛利</text><text class="m-v">¥{{ a.money.profit }}</text></view>
+          <view class="metric"><text class="m-l">订单数</text><text class="m-v">{{ a.money.orders }}</text></view>
+          <view class="metric"><text class="m-l">客单价</text><text class="m-v">¥{{ a.users.avgOrder }}</text></view>
         </view>
 
         <!-- 趋势 -->
         <view v-if="days > 1" class="card block">
-          <view class="between"><text class="sec-title">每日实收</text><text class="muted small">最高 ¥{{ maxNet }}</text></view>
+          <view class="between"><text class="card-t">每日实收趋势</text><text class="muted small">最高 ¥{{ maxNet }}</text></view>
           <view class="chart">
             <view class="bar-col" v-for="(t, i) in a.trend" :key="i">
               <view class="bar" :style="{ height: barH(t.net) }"></view>
@@ -38,7 +39,7 @@
 
         <!-- 储值 -->
         <view class="card block">
-          <text class="sec-title">储值充值</text>
+          <text class="card-t">储值充值</text>
           <view class="ugrid">
             <view><text class="uv">¥{{ a.recharge.pay }}</text><text class="muted ul">充值金额</text></view>
             <view><text class="uv">¥{{ a.recharge.bonus }}</text><text class="muted ul">赠送金额</text></view>
@@ -51,7 +52,7 @@
 
         <!-- 用户 -->
         <view class="card block">
-          <text class="sec-title">用户</text>
+          <text class="card-t">用户</text>
           <view class="ugrid">
             <view><text class="uv">{{ a.users.newUsers }}</text><text class="muted ul">新增用户</text></view>
             <view><text class="uv">{{ a.users.active }}</text><text class="muted ul">活跃用户</text></view>
@@ -65,7 +66,7 @@
 
         <!-- 消费排行 -->
         <view class="card block">
-          <text class="sec-title">消费排行</text>
+          <text class="card-t">消费排行</text>
           <view class="rank" v-for="(u, i) in a.topSpenders" :key="u.id">
             <text :class="['ri', i < 3 ? 'top' : '']">{{ i + 1 }}</text>
             <view class="rt"><text class="rn">{{ u.name }}</text><text class="muted small">{{ u.orders }} 单 · 最近 {{ fmtTime(u.last) }}</text></view>
@@ -76,7 +77,7 @@
 
         <!-- 单子 -->
         <view class="card block">
-          <text class="sec-title">单子销售</text>
+          <text class="card-t">单子销售</text>
           <view class="pr" v-for="p in a.products" :key="p.name">
             <view class="between"><text>{{ p.name }}</text><text class="muted small">{{ p.count }} 单 · ¥{{ p.revenue }} · {{ p.share }}%</text></view>
             <view class="track"><view class="fill" :style="{ width: p.share + '%' }"></view></view>
@@ -85,7 +86,7 @@
 
         <!-- 护航 -->
         <view class="card block">
-          <text class="sec-title">护航表现</text>
+          <text class="card-t">护航表现</text>
           <view class="th"><text class="c1">护航</text><text class="c">完成</text><text class="c">完成率</text><text class="c">退款率</text><text class="c">评分</text><text class="c2">收入</text></view>
           <view class="tr" v-for="e in a.escorts" :key="e.id">
             <text class="c1 ellipsis">{{ e.name.replace('护航 ', '') }}</text><text class="c">{{ e.done }}</text><text class="c">{{ e.completion }}%</text>
@@ -95,7 +96,7 @@
 
         <!-- 客服 -->
         <view class="card block">
-          <text class="sec-title">客服</text>
+          <text class="card-t">客服</text>
           <view class="ugrid">
             <view><text class="uv">{{ a.cs.avgDispatchMin === null ? '—' : a.cs.avgDispatchMin + ' 分' }}</text><text class="muted ul">平均派单用时</text></view>
             <view><text class="uv">{{ a.cs.refundsHandled }}</text><text class="muted ul">处理退款</text></view>
@@ -148,39 +149,29 @@ onPullDownRefresh(async () => { await load(); uni.stopPullDownRefresh() })
 </script>
 
 <style scoped>
-.hero { margin-top: 20rpx; padding: 32rpx; background: linear-gradient(115deg, #203B69, #527AC3 70%, #7196D8); color: #FFFFFF; }
-.hero .muted { color: #C5D6F3; }
-.hl { display: block; font-size: 22rpx; }
-.hv-row { gap: 16rpx; align-items: baseline; margin: 8rpx 0 4rpx; }
-.hv { font-size: 60rpx; font-weight: 700; }
-.chg { font-size: 24rpx; font-weight: 600; }
-.chg.up { color: #5CC4A6; }
-.chg.down { color: #ED7384; }
-.hgrid { display: flex; flex-wrap: wrap; margin-top: 24rpx; row-gap: 20rpx; }
-.hgrid view { width: 33.33%; }
-.hs { display: block; font-size: 30rpx; font-weight: 600; margin-top: 4rpx; }
+.m-v { font-size: 30rpx; }
 .block { margin-top: 20rpx; padding: 28rpx; }
-.small { font-size: 22rpx; }
-.chart { display: flex; align-items: flex-end; gap: 4rpx; height: 260rpx; margin-top: 20rpx; padding-bottom: 36rpx; position: relative; }
+.small { font-size: 21rpx; }
+.chart { display: flex; align-items: flex-end; gap: 6rpx; height: 250rpx; margin-top: 16rpx; padding-bottom: 36rpx; border-bottom: 2rpx solid #DFE8F7; position: relative; }
 .bar-col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; position: relative; min-width: 0; }
-.bar { width: 80%; max-width: 40rpx; background: linear-gradient(#8CB0EC, #446BB0); border-radius: 6rpx 6rpx 0 0; }
+.bar { width: 80%; max-width: 40rpx; background: linear-gradient(#8CB0EC, #446BB0); border-radius: 10rpx 10rpx 0 0; }
 .bl { position: absolute; bottom: -34rpx; font-size: 18rpx; color: #8798B5; white-space: nowrap; }
-.ugrid { display: flex; flex-wrap: wrap; margin-top: 16rpx; row-gap: 24rpx; }
-.ugrid view { width: 33.33%; display: flex; flex-direction: column; gap: 4rpx; }
-.uv { font-size: 34rpx; font-weight: 700; }
-.ul { font-size: 22rpx; }
-.foot { display: block; font-size: 22rpx; margin: 20rpx 8rpx 0; line-height: 1.6; }
-.rank { display: flex; align-items: center; gap: 20rpx; padding: 18rpx 0; border-bottom: 2rpx solid #F4F7FF; }
-.ri { width: 40rpx; height: 40rpx; border-radius: 50%; background: #E8EFFD; font-size: 22rpx; display: flex; align-items: center; justify-content: center; }
-.ri.top { background: linear-gradient(115deg, #3F66AD, #7196D8); color: #FFFFFF; }
+.ugrid { display: flex; flex-wrap: wrap; row-gap: 26rpx; }
+.ugrid view { width: 33.33%; display: flex; flex-direction: column; gap: 6rpx; }
+.uv { font-size: 32rpx; font-weight: 800; color: #142B53; }
+.ul { font-size: 20rpx; }
+.foot { display: block; font-size: 21rpx; margin: 20rpx 6rpx 0; line-height: 1.7; }
+.rank { display: flex; align-items: center; gap: 20rpx; padding: 20rpx 0; border-bottom: 2rpx solid #EEF3FB; }
+.ri { width: 44rpx; height: 44rpx; border-radius: 16rpx; background: #DCE9FF; color: #4E75B7; font-size: 22rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.ri.top { background: linear-gradient(110deg, #4B73BA, #7CA1E5); color: #FFFFFF; }
 .rt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4rpx; }
-.rn { font-size: 28rpx; font-weight: 600; }
-.pr { margin-top: 20rpx; font-size: 26rpx; }
-.track { height: 12rpx; background: #E8EFFD; border-radius: 6rpx; margin-top: 10rpx; overflow: hidden; }
-.fill { height: 100%; background: linear-gradient(115deg, #3F66AD, #7196D8); }
-.th, .tr { display: flex; font-size: 24rpx; padding: 14rpx 0; }
-.th { color: #8798B5; border-bottom: 2rpx solid #E8EFFD; margin-top: 12rpx; }
-.tr + .tr { border-top: 2rpx solid #F4F7FF; }
+.rn { font-size: 26rpx; font-weight: 700; }
+.pr { margin-top: 22rpx; font-size: 24rpx; }
+.track { height: 16rpx; background: #E4ECFA; border-radius: 40rpx; margin-top: 12rpx; overflow: hidden; }
+.fill { height: 100%; border-radius: 40rpx; background: #6794DF; }
+.th, .tr { display: flex; font-size: 22rpx; padding: 20rpx 0; }
+.th { color: #8295B5; border-bottom: 2rpx solid #E7EEF9; }
+.tr { border-bottom: 2rpx solid #E7EEF9; }
 .c1 { width: 120rpx; }
 .c { flex: 1; text-align: center; }
 .c2 { width: 130rpx; text-align: right; }

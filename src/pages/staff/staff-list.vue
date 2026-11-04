@@ -4,15 +4,18 @@
 <template>
   <view class="wrap">
     <view class="btn add" @tap="newStaff">＋ 新建员工账号</view>
-    <scroll-view scroll-x class="filters">
-      <view v-for="r in roles" :key="r.key" class="fchip" :class="{ on: r.key === role }" @tap="role = r.key">{{ r.name }}</view>
+    <scroll-view scroll-x class="tabsline" :show-scrollbar="false">
+      <view v-for="r in roles" :key="r.key" class="tb" :class="{ on: r.key === role }" @tap="role = r.key">{{ r.name }}</view>
     </scroll-view>
     <view class="card srow" v-for="u in shown" :key="u.id">
-      <view class="pt">
-        <view class="row"><text class="pn">{{ u.name }}</text><text class="tag">{{ ROLE_NAME[u.role] }}</text><text class="tag off" v-if="u.status !== 'active'">已停用</text></view>
-        <text class="muted pm">账号：{{ u.account }}</text>
+      <view class="person pt">
+        <view class="avatar">{{ u.name.slice(0, 1) }}</view>
+        <view class="pin">
+          <view class="row"><text class="p-n">{{ u.name }}</text><text class="chip">{{ ROLE_NAME[u.role] }}</text><text class="chip red" v-if="u.status !== 'active'">已停用</text></view>
+          <text class="p-s">账号：{{ u.account }}</text>
+        </view>
       </view>
-      <view class="btn sm ghost" @tap="reset(u)">重置密码</view>
+      <view class="btn sm light" @tap="reset(u)">重置密码</view>
       <view v-if="u.id !== me.id" class="btn sm" :class="u.status === 'active' ? 'danger' : ''" @tap="toggleUser(u)">{{ u.status === 'active' ? '停用' : '启用' }}</view>
     </view>
   </view>
@@ -57,14 +60,10 @@ async function toggleUser(u) {
 </script>
 
 <style scoped>
-.add { margin-bottom: 16rpx; }
-.filters { white-space: nowrap; margin-bottom: 16rpx; }
-.fchip { display: inline-block; font-size: 24rpx; padding: 10rpx 22rpx; margin-right: 12rpx; border-radius: 30rpx; background: #FFFFFF; color: #5B6F92; }
-.fchip.on { background: linear-gradient(115deg, #3F66AD, #7196D8); color: #FFFFFF; }
-.srow { display: flex; align-items: center; gap: 16rpx; padding: 24rpx; margin-bottom: 16rpx; }
-.pt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6rpx; }
-.pt .row { gap: 10rpx; }
-.pn { font-size: 28rpx; font-weight: 600; }
-.pm { font-size: 22rpx; }
-.off { background: #FFEBEF; color: #CB5368; }
+.add { margin-bottom: 22rpx; }
+.srow { display: flex; align-items: center; gap: 14rpx; padding: 26rpx; margin-bottom: 18rpx; }
+.pt { flex: 1; min-width: 0; }
+.pin { min-width: 0; }
+.row { gap: 8rpx; flex-wrap: wrap; }
+.chip { padding: 4rpx 12rpx; }
 </style>

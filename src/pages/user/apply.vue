@@ -10,9 +10,9 @@
 
     <template v-else>
       <view v-if="mine" class="card state"><text class="st">上次报名未通过</text><text class="muted sd">{{ mine.note || '可以修改资料后重新提交' }}</text></view>
-      <view class="card intro">
-        <text class="sec-title">成为护航</text>
-        <text class="muted sd">时间自由、按单分成。提交资料后由客服审核，通过后为你开通护航账号。</text>
+      <view class="blk-banner">
+        <text class="b-t">成为 BLK 正式护航</text>
+        <text class="b-s">时间自由、按单分成。提交资料后由客服审核，通过后为你开通护航账号。</text>
       </view>
       <view class="card form">
         <text class="label">称呼</text>
@@ -60,9 +60,9 @@ async function submit() {
 </script>
 
 <style scoped>
-.state, .intro { padding: 28rpx; margin-bottom: 20rpx; }
-.st { display: block; font-size: 32rpx; font-weight: 700; }
-.sd { display: block; font-size: 24rpx; margin-top: 10rpx; line-height: 1.6; }
+.state { padding: 28rpx; margin-bottom: 20rpx; }
+.st { display: block; font-size: 30rpx; font-weight: 800; }
+.sd { display: block; font-size: 23rpx; margin-top: 10rpx; line-height: 1.7; }
 .form { padding: 8rpx 28rpx 32rpx; }
 .area { height: auto; min-height: 160rpx; padding: 20rpx 24rpx; }
 .submit { margin-top: 36rpx; }

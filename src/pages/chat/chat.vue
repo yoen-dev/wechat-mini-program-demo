@@ -3,9 +3,12 @@
 -->
 <template>
   <view class="page">
+    <!-- 顶部：这是哪个订单的沟通 -->
     <view v-if="o" class="obar">
-      <view class="cover th">封面</view>
-      <view class="ot"><text class="on">{{ o.productName }} · ¥{{ o.amount }}</text><text class="muted ono">#{{ o.id }} · {{ o.escortName || '待分配护航' }}</text></view>
+      <view class="person ot">
+        <view class="avatar">♧</view>
+        <view class="ot-in"><text class="p-n ellipsis">{{ o.productName }} · ¥{{ o.amount }}</text><text class="p-s">BLK-{{ o.id }} · {{ o.escortName || '待分配护航' }}</text></view>
+      </view>
       <StatusTag :status="o.status" />
     </view>
 
@@ -21,8 +24,8 @@
     </scroll-view>
 
     <view class="composer">
-      <input class="input box" v-model="draft" placeholder="发消息…" confirm-type="send" @confirm="send" />
-      <view class="btn sm send" @tap="send">发送</view>
+      <input class="f-in box" v-model="draft" placeholder="输入消息…" confirm-type="send" @confirm="send" />
+      <view class="btn send" @tap="send">发送</view>
     </view>
   </view>
 </template>
@@ -86,21 +89,19 @@ async function send() {
 
 <style scoped>
 .page { height: calc(100vh - var(--window-top)); display: flex; flex-direction: column; }
-.obar { display: flex; align-items: center; gap: 16rpx; padding: 20rpx 24rpx; background: #FFFFFF; border-bottom: 2rpx solid #E8EFFD; }
-.th { width: 72rpx; height: 72rpx; border-radius: 10rpx; flex-shrink: 0; font-size: 18rpx; }
-.ot { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4rpx; }
-.on { font-size: 26rpx; font-weight: 600; }
-.ono { font-size: 22rpx; }
+.obar { display: flex; align-items: center; gap: 16rpx; margin: 20rpx 24rpx 0; padding: 22rpx 24rpx; background: #FFFFFF; border: 2rpx solid #DCE6F8; border-radius: 32rpx; }
+.ot { flex: 1; }
+.ot-in { min-width: 0; flex: 1; }
 .msgs { flex: 1; min-height: 0; padding: 24rpx; box-sizing: border-box; }
-.sys { margin: 0 auto 24rpx; width: fit-content; font-size: 22rpx; color: #8798B5; background: #DCE6F8; border-radius: 8rpx; padding: 6rpx 16rpx; }
+.sys { margin: 0 auto 24rpx; width: fit-content; font-size: 20rpx; color: #8798B5; background: #E4ECFA; border-radius: 16rpx; padding: 8rpx 18rpx; }
 .mrow { display: flex; gap: 16rpx; margin-bottom: 24rpx; }
 .mrow.me { justify-content: flex-end; }
-.av { width: 64rpx; height: 64rpx; border-radius: 50%; background: #C9D8F2; color: #5B6F92; font-size: 24rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.av { width: 68rpx; height: 68rpx; border-radius: 24rpx; background: linear-gradient(130deg, #B3C9F3, #5176BA); color: #FFFFFF; font-size: 24rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .mcol { display: flex; flex-direction: column; gap: 6rpx; max-width: 500rpx; }
 .who { font-size: 20rpx; }
-.bubble { padding: 18rpx 22rpx; font-size: 28rpx; line-height: 1.5; background: #FFFFFF; border-radius: 16rpx; word-break: break-all; }
-.mrow.me .bubble { background: linear-gradient(115deg, #3F66AD, #7196D8); color: #FFFFFF; }
-.composer { display: flex; gap: 16rpx; align-items: center; padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom)); background: #FFFFFF; border-top: 2rpx solid #E8EFFD; }
-.box { flex: 1; height: 76rpx; }
-.send { height: 76rpx; }
+.bubble { padding: 20rpx 24rpx; font-size: 25rpx; line-height: 1.6; background: #FFFFFF; border: 2rpx solid #DCE6F8; color: #4F70A6; border-radius: 28rpx; word-break: break-all; }
+.mrow.me .bubble { background: #DCE9FF; border-color: #DCE9FF; color: #203B69; }
+.composer { display: flex; gap: 16rpx; align-items: center; padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom)); background: #FFFFFF; border-top: 2rpx solid #E0E9FA; }
+.box { flex: 1; width: auto; }
+.send { height: 88rpx; padding: 0 34rpx; }
 </style>

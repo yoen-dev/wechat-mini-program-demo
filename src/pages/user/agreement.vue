@@ -26,5 +26,5 @@ onLoad(async (q) => {
 
 <style scoped>
 .body { padding: 32rpx; }
-.tx { font-size: 26rpx; line-height: 1.8; white-space: pre-wrap; }
+.tx { font-size: 25rpx; line-height: 1.9; color: #4F5F7E; white-space: pre-wrap; }
 </style>

@@ -3,42 +3,43 @@
 -->
 <template>
   <view class="wrap">
-    <view class="card profile" @tap="!logged && login()">
-      <view class="avatar">{{ logged ? session.user.name.slice(0, 1) : '?' }}</view>
+    <!-- 个人信息横幅：没登录时点一下去登录 -->
+    <view class="blk-banner profile" @tap="!logged && login()">
+      <view class="pav">{{ logged ? session.user.name.slice(0, 1) : '🐳' }}</view>
       <view class="pt" v-if="logged">
-        <text class="pn">{{ session.user.name }}</text>
-        <text class="muted">{{ maskPhone(session.user.phone) }}</text>
+        <text class="b-t">{{ session.user.name }}</text>
+        <text class="b-s">{{ maskPhone(session.user.phone) }} · 欢迎来到 BLK电竞</text>
       </view>
       <view class="pt" v-else>
-        <text class="pn">登录 / 注册</text>
-        <text class="muted">登录后查看订单和余额</text>
+        <text class="b-t">登录 / 注册</text>
+        <text class="b-s">登录后查看订单和余额</text>
       </view>
-      <text class="arrow" v-if="!logged">›</text>
+      <text class="b-s" v-if="!logged">❯</text>
     </view>
 
-    <view class="card wallet between" @tap="goLogged('/pages/user/recharge')">
-      <view><text class="muted wl">余额（元）</text><text class="wn">{{ balance }}</text></view>
+    <!-- 余额 -->
+    <view class="metric wallet between" @tap="goLogged('/pages/user/recharge')">
+      <view><text class="m-l">余额（元）</text><text class="m-v">{{ balance }}</text></view>
       <view class="btn sm">充值</view>
     </view>
 
-    <view class="card quick">
-      <view class="q" v-for="q in quick" :key="q.t" @tap="q.go"><view class="qi">{{ q.t.slice(0, 1) }}</view><text>{{ q.t }}</text></view>
+    <!-- 快捷入口 -->
+    <view class="grid4 quick">
+      <view class="tile mini" v-for="q in quick" :key="q.t" @tap="q.go"><text class="ti">{{ ICON[q.t] || '◆' }}</text><text class="tt">{{ q.t }}</text></view>
     </view>
 
-    <view class="card menu">
-      <view class="list-row" @tap="goLogged('/pages/user/apply')"><text>成为护航</text><text class="arrow">›</text></view>
-      <view class="list-row" @tap="goLogged('/pages/user/tickets')"><text>投诉 / 售后</text><text class="arrow">›</text></view>
-      <view class="list-row" @tap="toService"><text>帮助中心</text><text class="arrow">›</text></view>
-      <view class="list-row" @tap="go('/pages/user/agreement?type=user')"><text>用户协议</text><text class="arrow">›</text></view>
-      <view class="list-row" @tap="go('/pages/user/agreement?type=privacy')"><text>隐私政策</text><text class="arrow">›</text></view>
-      <view class="list-row"><text class="muted">陪玩</text><text class="muted">即将上线</text></view>
-    </view>
+    <!-- 我的服务 -->
+    <view class="section"><text class="s-t">我的服务</text></view>
+    <view class="lrow" @tap="goLogged('/pages/user/apply')"><view><text class="l-t">成为护航</text><text class="l-s">报名加入 BLK</text></view><text class="chev">❯</text></view>
+    <view class="lrow" @tap="goLogged('/pages/user/tickets')"><view><text class="l-t">投诉 / 售后</text><text class="l-s">售后申请记录</text></view><text class="chev">❯</text></view>
+    <view class="lrow" @tap="toService"><view><text class="l-t">帮助中心</text><text class="l-s">客服与常见问题</text></view><text class="chev">❯</text></view>
+    <view class="lrow" @tap="go('/pages/user/agreement?type=user')"><view><text class="l-t">用户协议</text></view><text class="chev">❯</text></view>
+    <view class="lrow" @tap="go('/pages/user/agreement?type=privacy')"><view><text class="l-t">隐私政策</text></view><text class="chev">❯</text></view>
+    <view class="lrow"><view><text class="l-t muted">陪玩</text></view><text class="chip grey">即将上线</text></view>
 
-    <view class="card menu">
-      <view class="list-row" v-if="logged" @tap="logout"><text>退出登录</text><text class="arrow">›</text></view>
-      <!-- 只有网页演示版显示：清空本机的模拟数据 -->
-      <view class="list-row" v-if="IS_MOCK" @tap="reset"><text class="muted">重置演示数据</text><text class="arrow">›</text></view>
-    </view>
+    <view class="lrow" v-if="logged" @tap="logout"><view><text class="l-t">退出登录</text></view><text class="chev">❯</text></view>
+    <!-- 只有网页演示版显示：清空本机的模拟数据 -->
+    <view class="lrow" v-if="IS_MOCK" @tap="reset"><view><text class="l-t muted">重置演示数据</text></view><text class="chev">❯</text></view>
   </view>
 </template>
 
@@ -73,6 +74,8 @@ const soon = () => toast('敬请期待')
 const go = (url) => uni.navigateTo({ url })
 // 需要登录的入口：没登录先去登录
 const goLogged = (url) => needUserLogin() && go(url)
+// 快捷入口图标
+const ICON = { 我的订单: '▤', 优惠券: '🎁', 售后记录: '♧', 收藏: '☆' }
 const quick = [
   { t: '我的订单', go: toOrders }, { t: '优惠券', go: () => goLogged('/pages/user/coupons') },
   { t: '售后记录', go: () => goLogged('/pages/user/tickets') }, { t: '收藏', go: soon }
@@ -86,15 +89,9 @@ async function reset() {
 </script>
 
 <style scoped>
-.profile { display: flex; align-items: center; gap: 24rpx; padding: 32rpx; }
-.avatar { width: 112rpx; height: 112rpx; border-radius: 50%; background: linear-gradient(115deg, #3F66AD, #7196D8); color: #FFFFFF; font-size: 40rpx; display: flex; align-items: center; justify-content: center; }
-.pt { flex: 1; display: flex; flex-direction: column; gap: 8rpx; }
-.pn { font-size: 34rpx; font-weight: 700; }
-.wallet { margin-top: 20rpx; padding: 28rpx 32rpx; }
-.wl { display: block; font-size: 24rpx; }
-.wn { font-size: 44rpx; font-weight: 700; }
-.quick { margin-top: 20rpx; display: flex; padding: 28rpx 0; }
-.q { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10rpx; font-size: 24rpx; }
-.qi { width: 72rpx; height: 72rpx; border-radius: 20rpx; background: #F4F7FF; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-.menu { margin-top: 20rpx; }
+.profile { display: flex; align-items: center; gap: 24rpx; }
+.pav { width: 104rpx; height: 104rpx; border-radius: 34rpx; background: rgba(255, 255, 255, 0.2); border: 2rpx solid rgba(255, 255, 255, 0.4); color: #FFFFFF; font-size: 42rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pt { flex: 1; min-width: 0; }
+.wallet { margin-bottom: 20rpx; }
+.quick { margin-bottom: 4rpx; }
 </style>

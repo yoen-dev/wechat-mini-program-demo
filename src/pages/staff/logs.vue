@@ -3,15 +3,16 @@
 -->
 <template>
   <view class="wrap">
-    <text class="muted top">记录员工的关键操作：派单、退款、改价、上下架、账号管理、提现、设置修改等，最多保留最近 500 条。</text>
-    <view class="card">
-      <view class="lg" v-for="l in list" :key="l.id">
-        <view class="between"><text class="la">{{ l.action }}</text><text class="muted lt">{{ fmtTime(l.t) }}</text></view>
-        <text class="sub lx">{{ l.target }}</text>
-        <text class="muted lt">{{ l.actorName }} · {{ ROLE_NAME[l.role] }}</text>
+    <view class="notice-bar top">记录员工的关键操作：派单、退款、改价、上下架、账号管理、提现、设置修改等，最多保留最近 500 条。</view>
+    <view class="lrow" v-for="l in list" :key="l.id">
+      <view class="lg">
+        <text class="l-t">{{ l.action }}</text>
+        <text class="l-s">{{ l.actorName }} · {{ ROLE_NAME[l.role] }} · {{ fmtTime(l.t) }}</text>
+        <text class="l-s lx" v-if="l.target">{{ l.target }}</text>
       </view>
-      <Empty v-if="!list.length" text="暂无记录" />
+      <text class="chip">记录</text>
     </view>
+    <Empty v-if="!list.length" text="暂无记录" />
   </view>
 </template>
 
@@ -34,10 +35,7 @@ onShow(async () => {
 </script>
 
 <style scoped>
-.top { display: block; font-size: 22rpx; margin: 0 8rpx 20rpx; line-height: 1.6; }
-.lg { padding: 22rpx 28rpx; display: flex; flex-direction: column; gap: 6rpx; }
-.lg + .lg { border-top: 2rpx solid #E8EFFD; }
-.la { font-size: 28rpx; font-weight: 600; }
-.lx { font-size: 24rpx; }
-.lt { font-size: 22rpx; }
+.top { margin-bottom: 22rpx; }
+.lg { flex: 1; min-width: 0; }
+.lx { color: #5B6F92; }
 </style>

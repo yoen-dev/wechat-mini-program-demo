@@ -3,12 +3,12 @@
 -->
 <template>
   <view v-if="s" class="wrap">
-    <view class="seg">
-      <view class="seg-item" :class="{ on: part === 'money' }" @tap="part = 'money'">分成与规则</view>
-      <view class="seg-item" :class="{ on: part === 'recharge' }" @tap="part = 'recharge'">储值充值</view>
-      <view class="seg-item" :class="{ on: part === 'content' }" @tap="part = 'content'">公告与问答</view>
-      <view class="seg-item" :class="{ on: part === 'agree' }" @tap="part = 'agree'">协议</view>
-    </view>
+    <scroll-view scroll-x class="tabsline" :show-scrollbar="false">
+      <view class="tb" :class="{ on: part === 'money' }" @tap="part = 'money'">分成与规则</view>
+      <view class="tb" :class="{ on: part === 'recharge' }" @tap="part = 'recharge'">储值充值</view>
+      <view class="tb" :class="{ on: part === 'content' }" @tap="part = 'content'">公告与问答</view>
+      <view class="tb" :class="{ on: part === 'agree' }" @tap="part = 'agree'">协议</view>
+    </scroll-view>
 
     <view v-if="part === 'money'" class="card form">
       <text class="label">护航分成比例（%）</text>
@@ -21,7 +21,7 @@
     </view>
 
     <view v-if="part === 'recharge'">
-      <text class="sec-title sec">充值档位</text>
+      <view class="section"><text class="s-t">充值档位</text></view>
       <view class="card form">
         <view class="tier-row" v-for="(t, i) in tiers" :key="i">
           <view class="col"><text class="label">充值（元）</text><input class="input" v-model="t.pay" type="digit" /></view>
@@ -29,11 +29,11 @@
           <text class="del tdel" @tap="tiers.splice(i, 1)">删除</text>
         </view>
         <view class="two">
-          <view class="btn ghost" @tap="tiers.push({ pay: '', bonus: '0' })">＋ 加一档</view>
+          <view class="btn light" @tap="tiers.push({ pay: '', bonus: '0' })">＋ 加一档</view>
           <view class="btn" @tap="saveTiers">保存档位</view>
         </view>
       </view>
-      <text class="sec-title sec">首页充值提示</text>
+      <view class="section"><text class="s-t">首页充值提示</text></view>
       <view class="card form">
         <view class="between sw-row"><text>在首页弹出「某某刚刚充值」</text><switch :checked="popup" color="#527AC3" @change="popup = $event.detail.value" /></view>
         <text class="label">充值多少元以上才提示</text>
@@ -49,14 +49,14 @@
         <textarea class="input area" v-model="notice" placeholder="如：国庆福利单限时开放" auto-height />
         <button class="btn submit" @tap="saveNotice">保存公告</button>
       </view>
-      <text class="sec-title sec">常见问题（客服页显示）</text>
+      <view class="section"><text class="s-t">常见问题（客服页显示）</text></view>
       <view class="card form" v-for="(f, i) in faqs" :key="i">
         <view class="between"><text class="label">问题 {{ i + 1 }}</text><text class="del" @tap="faqs.splice(i, 1)">删除</text></view>
         <input class="input" v-model="f.q" placeholder="问题" />
         <textarea class="input area" v-model="f.a" placeholder="回答" auto-height />
       </view>
       <view class="two">
-        <view class="btn ghost" @tap="faqs.push({ q: '', a: '' })">＋ 加一条</view>
+        <view class="btn light" @tap="faqs.push({ q: '', a: '' })">＋ 加一条</view>
         <view class="btn" @tap="saveFaqs">保存问答</view>
       </view>
     </view>
@@ -137,17 +137,17 @@ async function saveAgree() { ok(await run(saveSettings(session.user, { agreement
 </script>
 
 <style scoped>
-.form { padding: 8rpx 28rpx 28rpx; margin-top: 20rpx; }
-.hint { display: block; font-size: 22rpx; margin-top: 10rpx; line-height: 1.6; }
+.form { padding: 8rpx 28rpx 28rpx; margin-bottom: 20rpx; }
+.tabsline + .form { margin-top: 0; }
+.hint { display: block; font-size: 21rpx; margin-top: 12rpx; line-height: 1.6; }
 .area { height: auto; min-height: 120rpx; padding: 20rpx 24rpx; margin-top: 12rpx; }
 .big { min-height: 300rpx; }
 .submit { margin-top: 32rpx; }
-.sec { display: block; margin: 36rpx 8rpx 0; }
-.del { font-size: 24rpx; color: #CB5368; margin-top: 12rpx; }
+.del { font-size: 22rpx; color: #CB5368; margin-top: 12rpx; }
 .two { display: flex; gap: 16rpx; margin-top: 24rpx; }
+.two .btn { flex: 1; }
 .tier-row { display: flex; align-items: flex-end; gap: 16rpx; }
 .tier-row .col { flex: 1; }
 .tdel { padding-bottom: 28rpx; }
-.sw-row { margin-top: 20rpx; font-size: 28rpx; }
-.two .btn { flex: 1; }
+.sw-row { margin-top: 22rpx; font-size: 25rpx; }
 </style>

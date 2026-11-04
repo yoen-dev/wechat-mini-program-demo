@@ -3,13 +3,16 @@
 -->
 <template>
   <view class="wrap">
-    <input class="input search" v-model="keyword" placeholder="搜索昵称或手机号" confirm-type="search" @confirm="load" @blur="load" />
+    <view class="search"><text class="s-ico">⌕</text><input class="s-in" v-model="keyword" placeholder="搜索昵称 / 手机号" confirm-type="search" @confirm="load" @blur="load" /></view>
     <text class="muted top">按累计消费排序，共 {{ list.length }} 人</text>
     <view class="card u" v-for="u in list" :key="u.id">
       <view class="between" @tap="toggleOpen(u.id)">
-        <view class="ut">
-          <view class="row"><text class="un">{{ u.name }}</text><text v-if="u.status !== 'active'" class="tag ban">已拉黑</text></view>
-          <text class="muted um">{{ maskPhone(u.phone) || '未绑定手机' }} · 注册 {{ fmtTime(u.createdAt) }}</text>
+        <view class="person ut">
+          <view class="avatar">{{ u.name.slice(0, 1) }}</view>
+          <view class="uin">
+            <view class="row"><text class="p-n">{{ u.name }}</text><text v-if="u.status !== 'active'" class="chip red ban">已拉黑</text></view>
+            <text class="p-s">{{ maskPhone(u.phone) || '未绑定手机' }} · 注册 {{ fmtTime(u.createdAt) }}</text>
+          </view>
         </view>
         <view class="us"><text class="price">¥{{ u.spent }}</text><text class="muted um">{{ u.orders }} 单 · 余额 ¥{{ u.balance }}</text></view>
       </view>
@@ -70,16 +73,18 @@ function toggleBan(u) {
 </script>
 
 <style scoped>
-.search { background: #FFFFFF; }
-.top { display: block; font-size: 22rpx; margin: 16rpx 8rpx; }
-.u { padding: 24rpx 28rpx; margin-bottom: 16rpx; }
+.search { height: 84rpx; background: #FFFFFF; border: 2rpx solid #DCE6F8; border-radius: 30rpx; padding: 0 28rpx; display: flex; align-items: center; gap: 12rpx; }
+.s-ico { font-size: 30rpx; color: #97A7BF; }
+.s-in { flex: 1; font-size: 25rpx; color: #284674; }
+.top { display: block; font-size: 21rpx; margin: 20rpx 6rpx; }
+.u { padding: 26rpx 28rpx; margin-bottom: 18rpx; }
 .ut { flex: 1; min-width: 0; }
+.uin { min-width: 0; }
 .row { gap: 10rpx; }
-.un { font-size: 28rpx; font-weight: 600; }
-.ban { background: #FFEBEF; color: #CB5368; }
-.um { display: block; font-size: 22rpx; margin-top: 4rpx; }
-.us { display: flex; flex-direction: column; align-items: flex-end; }
-.detail { margin-top: 20rpx; padding-top: 16rpx; border-top: 2rpx solid #F4F7FF; }
-.ord { display: flex; justify-content: space-between; gap: 16rpx; font-size: 24rpx; padding: 12rpx 0; }
+.ban { padding: 4rpx 12rpx; }
+.um { display: block; font-size: 21rpx; margin-top: 6rpx; }
+.us { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
+.detail { margin-top: 22rpx; padding-top: 18rpx; border-top: 2rpx solid #E7EEF9; }
+.ord { display: flex; justify-content: space-between; gap: 16rpx; font-size: 23rpx; padding: 14rpx 0; }
 .ops { display: flex; justify-content: flex-end; margin-top: 12rpx; }
 </style>

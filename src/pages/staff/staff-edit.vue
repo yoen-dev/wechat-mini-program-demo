@@ -18,7 +18,7 @@
       <input class="input" v-model="f.password" placeholder="至少 6 位" />
     </view>
     <button class="btn save" :loading="busy" @tap="submit">创建账号</button>
-    <text class="muted note">创建后把账号和初始密码发给对方，对方在登录页选「账号密码」登录，会自动进入对应界面，登录后可在「账号设置」修改密码。</text>
+    <view class="notice-bar note">创建后把账号和初始密码发给对方，对方在登录页选「账号密码」登录，会自动进入对应界面，登录后可在「账号设置」修改密码。</view>
   </view>
 </template>
 
@@ -58,10 +58,10 @@ async function submit() {
 
 <style scoped>
 .form { padding: 8rpx 28rpx 32rpx; }
-.roles { display: flex; flex-wrap: wrap; gap: 12rpx; }
-.role { width: calc(50% - 6rpx); box-sizing: border-box; display: flex; flex-direction: column; gap: 4rpx; padding: 18rpx 16rpx; }
-.rn { font-size: 28rpx; font-weight: 600; }
+.roles { display: grid; grid-template-columns: 1fr 1fr; gap: 14rpx; }
+.role { display: flex; flex-direction: column; gap: 4rpx; padding: 20rpx 18rpx; }
+.rn { font-size: 26rpx; font-weight: 800; }
 .rd { font-size: 20rpx; }
 .save { margin-top: 32rpx; }
-.note { display: block; font-size: 22rpx; margin: 20rpx 8rpx; line-height: 1.6; }
+.note { margin-top: 22rpx; }
 </style>

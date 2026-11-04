@@ -4,7 +4,7 @@
 <template>
   <view class="wrap">
     <template v-if="data.claimable.length">
-      <text class="sec-title sec">可领取</text>
+      <view class="section"><text class="s-t">可领取</text></view>
       <view class="card c" v-for="c in data.claimable" :key="c.id">
         <view class="cl"><text class="ca">¥{{ c.amount }}</text><text class="muted cm">{{ c.minSpend ? '满 ' + c.minSpend + ' 可用' : '无门槛' }}</text></view>
         <view class="cr"><text class="cn">{{ c.name }}</text><text class="muted cm">领取后 {{ c.days }} 天内有效</text></view>
@@ -12,7 +12,7 @@
       </view>
     </template>
 
-    <text class="sec-title sec">我的优惠券</text>
+    <view class="section"><text class="s-t">我的优惠券</text></view>
     <view class="card c" v-for="c in data.mine" :key="c.id" :class="{ dim: c.state !== '可使用' }">
       <view class="cl"><text class="ca">¥{{ c.amount }}</text><text class="muted cm">{{ c.minSpend ? '满 ' + c.minSpend + ' 可用' : '无门槛' }}</text></view>
       <view class="cr"><text class="cn">{{ c.name }}</text><text class="muted cm">{{ c.state === '可使用' ? fmtTime(c.expireAt) + ' 到期' : c.state }}</text></view>
@@ -46,12 +46,11 @@ const use = () => uni.switchTab({ url: '/pages/index/index' })
 </script>
 
 <style scoped>
-.sec { display: block; margin: 16rpx 8rpx; }
-.c { display: flex; align-items: center; gap: 20rpx; padding: 24rpx; margin-bottom: 16rpx; }
+.c { display: flex; align-items: center; gap: 22rpx; padding: 26rpx; margin-bottom: 18rpx; }
 .c.dim { opacity: 0.5; }
-.cl { width: 150rpx; display: flex; flex-direction: column; align-items: center; border-right: 2rpx dashed #DCE6F8; padding-right: 16rpx; }
-.ca { font-size: 40rpx; font-weight: 700; color: #CB5368; }
+.cl { width: 160rpx; display: flex; flex-direction: column; align-items: center; border-right: 2rpx dashed #C9D8F2; padding-right: 18rpx; }
+.ca { font-size: 44rpx; font-weight: 800; color: #416FBA; }
 .cr { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6rpx; }
-.cn { font-size: 28rpx; font-weight: 600; }
-.cm { font-size: 22rpx; }
+.cn { font-size: 27rpx; font-weight: 800; }
+.cm { font-size: 21rpx; }
 </style>

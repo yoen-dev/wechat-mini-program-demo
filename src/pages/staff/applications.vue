@@ -3,11 +3,11 @@
 -->
 <template>
   <view class="wrap">
-    <text class="muted top">老板在「我的 → 成为护航」提交报名。通过后自动生成护航账号和初始密码，请转告对方登录后修改。</text>
+    <view class="notice-bar top">老板在「我的 → 成为护航」提交报名。通过后自动生成护航账号和初始密码，请转告对方登录后修改。</view>
     <view class="card ap" v-for="a in list" :key="a.id">
       <view class="between">
-        <text class="an">{{ a.name }}</text>
-        <text :class="['as', a.status === '已通过' ? 'ok' : a.status === '已拒绝' ? 'bad' : 'new']">{{ a.status }}</text>
+        <view class="person"><view class="avatar">♛</view><view><text class="p-n">新护航报名 · {{ a.name }}</text><text class="p-s">{{ a.rank }}{{ a.maps ? ' · ' + a.maps : '' }}</text></view></view>
+        <text :class="['chip', a.status === '已通过' ? 'green' : a.status === '已拒绝' ? 'red' : 'orange']">{{ a.status }}</text>
       </view>
       <view class="kv"><text class="muted">手机号</text><text>{{ a.phone }}</text></view>
       <view class="kv"><text class="muted">段位</text><text>{{ a.rank }}</text></view>
@@ -16,9 +16,9 @@
       <view class="kv"><text class="muted">提交时间</text><text>{{ fmtTime(a.createdAt) }}</text></view>
       <view class="kv" v-if="a.account"><text class="muted">已开账号</text><text>{{ a.account }}</text></view>
       <view class="kv" v-if="a.handler"><text class="muted">处理人</text><text>{{ a.handler }}{{ a.note ? '（' + a.note + '）' : '' }}</text></view>
-      <view v-if="a.status === '待审核'" class="ops">
-        <view class="btn sm ghost" @tap="handle(a, false)">不通过</view>
-        <view class="btn sm" @tap="handle(a, true)">通过并开号</view>
+      <view v-if="a.status === '待审核'" class="grid2 ops">
+        <view class="btn" @tap="handle(a, true)">通过并开号</view>
+        <view class="btn danger" @tap="handle(a, false)">拒绝申请</view>
       </view>
     </view>
     <Empty v-if="!list.length" text="还没有人报名" />
@@ -59,14 +59,9 @@ async function handle(a, approve) {
 </script>
 
 <style scoped>
-.top { display: block; font-size: 22rpx; line-height: 1.6; margin: 0 8rpx 20rpx; }
+.top { margin-bottom: 22rpx; }
 .ap { padding: 28rpx; margin-bottom: 20rpx; }
-.an { font-size: 30rpx; font-weight: 700; }
-.as { font-size: 24rpx; }
-.as.new { color: #BB873A; }
-.as.ok { color: #269B79; }
-.as.bad { color: #CB5368; }
-.kv { display: flex; justify-content: space-between; gap: 24rpx; margin-top: 14rpx; font-size: 26rpx; }
+.kv { display: flex; justify-content: space-between; gap: 24rpx; margin-top: 16rpx; font-size: 24rpx; }
 .intro { text-align: right; flex: 1; }
-.ops { display: flex; justify-content: flex-end; gap: 16rpx; margin-top: 24rpx; }
+.ops { margin-top: 26rpx; }
 </style>

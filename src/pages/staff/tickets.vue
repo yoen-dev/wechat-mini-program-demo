@@ -3,23 +3,23 @@
 -->
 <template>
   <view class="wrap">
-    <view class="seg">
-      <view v-for="t in tabs" :key="t" class="seg-item" :class="{ on: t === tab }" @tap="tab = t">{{ t }}{{ t !== '全部' && count(t) ? ' ' + count(t) : '' }}</view>
-    </view>
+    <scroll-view scroll-x class="tabsline" :show-scrollbar="false">
+      <view v-for="t in tabs" :key="t" class="tb" :class="{ on: t === tab }" @tap="tab = t">{{ t }}<text v-if="t !== '全部' && count(t)" class="dot">{{ count(t) }}</text></view>
+    </scroll-view>
 
     <view class="card tk" v-for="t in shown" :key="t.id">
       <view class="between">
-        <text class="tt">#{{ t.id }} · {{ t.type }}</text>
-        <text :class="['ts', t.status === '已解决' ? 'ok' : t.status === '待处理' ? 'new' : '']">{{ t.status }}</text>
+        <text class="tt">售后 #{{ t.id }} · {{ t.type }}</text>
+        <text :class="['chip', t.status === '已解决' ? 'green' : t.status === '待处理' ? 'orange' : '']">{{ t.status }}</text>
       </view>
       <text class="muted tm">{{ t.userName }} · {{ fmtTime(t.createdAt) }}<text v-if="t.orderId" class="link" @tap="openOrder(t.orderId)"> · 订单 #{{ t.orderId }}</text></text>
       <text class="tc">{{ t.content }}</text>
       <view class="rp" v-for="(r, i) in t.replies" :key="i">
         <text class="rn">{{ r.name }}：</text><text>{{ r.text }}</text>
       </view>
-      <view v-if="t.status !== '已解决'" class="ops">
-        <view class="btn sm ghost" @tap="reply(t, false)">回复</view>
-        <view class="btn sm" @tap="reply(t, true)">回复并标记已解决</view>
+      <view v-if="t.status !== '已解决'" class="grid2 ops">
+        <view class="btn light" @tap="reply(t, false)">回复老板</view>
+        <view class="btn" @tap="reply(t, true)">回复并解决</view>
       </view>
     </view>
     <Empty v-if="!shown.length" text="没有工单" />
@@ -69,15 +69,12 @@ function reply(t, resolve) {
 </script>
 
 <style scoped>
-.tk { padding: 28rpx; margin-top: 20rpx; }
-.tt { font-size: 28rpx; font-weight: 700; }
-.ts { font-size: 24rpx; color: #4B72B8; }
-.ts.new { color: #BB873A; }
-.ts.ok { color: #269B79; }
-.tm { display: block; font-size: 22rpx; margin-top: 6rpx; }
+.tk { padding: 28rpx; margin-bottom: 20rpx; }
+.tt { font-size: 27rpx; font-weight: 800; }
+.tm { display: block; font-size: 21rpx; margin-top: 10rpx; }
 .link { color: #4B72B8; }
-.tc { display: block; font-size: 28rpx; margin-top: 16rpx; line-height: 1.6; }
-.rp { margin-top: 12rpx; padding: 16rpx 20rpx; background: #F4F7FF; border-radius: 12rpx; font-size: 24rpx; line-height: 1.6; }
-.rn { font-weight: 600; }
-.ops { display: flex; justify-content: flex-end; gap: 16rpx; margin-top: 20rpx; }
+.tc { display: block; font-size: 24rpx; color: #5B6F92; margin-top: 16rpx; line-height: 1.7; }
+.rp { margin-top: 14rpx; padding: 16rpx 20rpx; background: #F0F5FF; border-radius: 20rpx; font-size: 23rpx; line-height: 1.6; color: #4F70A6; }
+.rn { font-weight: 700; }
+.ops { margin-top: 24rpx; }
 </style>

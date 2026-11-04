@@ -3,13 +3,13 @@
 -->
 <template>
   <view class="wrap">
-    <view class="card head">
-      <text class="muted hl">我的余额（元）</text>
-      <text class="hv">{{ wallet.balance }}</text>
-      <text class="muted hl">下单时可选「余额支付」；用余额付的单退款会退回余额</text>
+    <view class="blk-banner">
+      <text class="b-s">我的余额（元）</text>
+      <text class="b-big">{{ wallet.balance }}</text>
+      <text class="b-s">下单时可选「余额支付」；用余额付的单退款会退回余额</text>
     </view>
 
-    <text class="sec-title sec">选择充值金额</text>
+    <view class="section"><text class="s-t">选择充值金额</text></view>
     <view class="tiers">
       <view v-for="(t, i) in tiers" :key="i" class="tier" :class="{ on: pick === i }" @tap="pick = i">
         <text class="tp">¥{{ t.pay }}</text>
@@ -20,14 +20,12 @@
     <button class="btn pay" :loading="busy" @tap="submit">微信支付 ¥{{ tiers[pick] ? tiers[pick].pay : 0 }}</button>
     <text class="muted note">充值金额可用于平台内所有单子。余额退款请联系客服。</text>
 
-    <text class="sec-title sec">余额明细</text>
-    <view class="card">
-      <view class="list-row" v-for="(l, i) in wallet.logs" :key="i">
-        <view class="lt"><text>{{ l.title }}</text><text class="muted ls">{{ l.sub }} · {{ fmtTime(l.t) }}</text></view>
-        <text :class="l.amount > 0 ? 'plus' : 'minus'">{{ l.amount > 0 ? '+' : '' }}{{ l.amount }}</text>
-      </view>
-      <Empty v-if="!wallet.logs.length" text="还没有余额变动" />
+    <view class="section"><text class="s-t">余额明细</text></view>
+    <view class="lrow" v-for="(l, i) in wallet.logs" :key="i">
+      <view><text class="l-t">{{ l.title }}</text><text class="l-s">{{ l.sub }} · {{ fmtTime(l.t) }}</text></view>
+      <text :class="l.amount > 0 ? 'plus' : 'minus'">{{ l.amount > 0 ? '+' : '' }}{{ l.amount }}</text>
     </view>
+    <Empty v-if="!wallet.logs.length" text="还没有余额变动" />
   </view>
 </template>
 
@@ -76,21 +74,14 @@ async function submit() {
 </script>
 
 <style scoped>
-.head { padding: 32rpx; background: linear-gradient(115deg, #203B69, #527AC3 70%, #7196D8); color: #FFFFFF; }
-.head .muted { color: #C5D6F3; }
-.hl { display: block; font-size: 22rpx; }
-.hv { display: block; font-size: 64rpx; font-weight: 700; margin: 8rpx 0 16rpx; }
-.sec { display: block; margin: 36rpx 8rpx 16rpx; }
-.tiers { display: flex; flex-wrap: wrap; gap: 16rpx; }
-.tier { width: calc(50% - 8rpx); box-sizing: border-box; background: #FFFFFF; border: 3rpx solid #FFFFFF; border-radius: 20rpx; padding: 28rpx 24rpx; display: flex; flex-direction: column; gap: 6rpx; }
-.tier.on { border-color: #527AC3; }
-.tp { font-size: 44rpx; font-weight: 700; }
-.tb { font-size: 24rpx; font-weight: 600; color: #CB5368; }
-.tg { font-size: 22rpx; }
-.pay { margin-top: 28rpx; background: #07C160; }
-.note { display: block; text-align: center; font-size: 22rpx; margin-top: 16rpx; }
-.lt { display: flex; flex-direction: column; gap: 4rpx; }
-.ls { font-size: 22rpx; }
-.plus { font-weight: 700; color: #269B79; }
-.minus { font-weight: 700; }
+.tiers { display: flex; flex-wrap: wrap; gap: 20rpx; }
+.tier { width: calc(50% - 10rpx); box-sizing: border-box; background: linear-gradient(150deg, #FFFFFF, #E9F1FF); border: 3rpx solid #DCE6F8; border-radius: 32rpx; padding: 28rpx 26rpx; display: flex; flex-direction: column; gap: 6rpx; }
+.tier.on { border-color: #527AC3; background: linear-gradient(150deg, #F3F7FF, #DCE9FF); }
+.tp { font-size: 46rpx; font-weight: 800; color: #416FBA; }
+.tb { font-size: 22rpx; font-weight: 700; color: #CB5368; }
+.tg { font-size: 20rpx; }
+.pay { margin-top: 30rpx; }
+.note { display: block; text-align: center; font-size: 21rpx; margin-top: 16rpx; }
+.plus { font-weight: 800; color: #269B79; }
+.minus { font-weight: 800; color: #142B53; }
 </style>

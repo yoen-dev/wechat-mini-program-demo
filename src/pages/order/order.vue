@@ -2,28 +2,17 @@
   订单详情（老板、护航、客服、管理员共用）：状态说明、订单信息、战绩截图、评价、进度时间线，底部是当前身份能做的操作按钮。
 -->
 <template>
-  <view v-if="o" class="page">
-    <view class="card head">
-      <StatusTag :status="o.status" />
-      <text class="hint">{{ hint }}</text>
-      <text v-if="o.status === '待确认' && autoHours" class="muted sub-hint">{{ autoHours }} 小时内未确认将自动确认完成</text>
+  <view v-if="o" class="wrap page">
+    <!-- 顶部状态横幅 -->
+    <view class="blk-banner">
+      <view class="between"><text class="b-t">{{ o.status }}</text><text class="b-s amt">¥{{ o.amount }}</text></view>
+      <text class="b-s">{{ hint }}</text>
+      <text v-if="o.status === '待确认' && autoHours" class="b-s">{{ autoHours }} 小时内未确认将自动确认完成</text>
     </view>
 
-    <!-- 护航提交的战绩截图 -->
-    <view v-if="o.proofs && o.proofs.length" class="card block">
-      <text class="sec-title">战绩截图</text>
-      <view class="imgs">
-        <image v-for="(p, i) in o.proofs" :key="i" class="img" :src="p" mode="aspectFill" @tap="preview(i)" />
-      </view>
-      <text v-if="o.proofNote" class="sub note">护航说明：{{ o.proofNote }}</text>
-    </view>
-    <view v-else-if="o.status === '待确认'" class="card block">
-      <text class="sec-title">战绩截图</text>
-      <text class="muted note">（未附截图）{{ o.proofNote || '' }}</text>
-    </view>
-
-    <view class="card block">
-      <view class="between"><text class="name">{{ o.productName }}</text><text class="price amt">¥{{ o.amount }}</text></view>
+    <!-- 订单信息 -->
+    <view class="card pad">
+      <text class="card-t">{{ o.productName }}</text>
       <view class="kv" v-if="o.discount"><text class="muted">优惠</text><text>{{ o.couponName }} −¥{{ o.discount }}（原价 ¥{{ o.original }}）</text></view>
       <view class="kv" v-if="o.paidAt"><text class="muted">支付方式</text><text>{{ o.payMethod === 'balance' ? '余额支付' : '微信支付' }}</text></view>
       <view class="kv"><text class="muted">规格</text><text>{{ o.spec }}</text></view>
@@ -34,24 +23,38 @@
       <view class="kv" v-if="o.note"><text class="muted">备注</text><text>{{ o.note }}</text></view>
       <view class="kv" v-if="o.refundReason"><text class="muted">退款原因</text><text>{{ o.refundReason }}</text></view>
       <view class="kv" v-if="isStaff && o.escortShare"><text class="muted">护航分成</text><text>¥{{ o.escortShare }}</text></view>
-      <view class="kv"><text class="muted">订单号</text><text>{{ o.id }}</text></view>
+      <view class="kv"><text class="muted">订单编号</text><text>BLK-{{ o.id }}</text></view>
       <view class="kv"><text class="muted">下单时间</text><text>{{ fmtTime(o.createdAt) }}</text></view>
     </view>
 
-    <view v-if="o.rating" class="card block">
-      <text class="sec-title">老板评价</text>
-      <text class="stars">{{ stars }}</text>
-      <text class="sub note">{{ o.rating.text || '（没有写评价内容）' }}</text>
-    </view>
-
-    <view class="card block">
-      <text class="sec-title">订单进度</text>
-      <view class="log" v-for="(l, i) in logs" :key="i">
-        <view class="dot" :class="{ first: i === 0 }"></view>
-        <view class="lt"><text>{{ l.text }}</text><text class="muted ltime">{{ fmtTime(l.t) }}</text></view>
+    <!-- 护航提交的战绩截图（点击放大） -->
+    <view v-if="o.proofs && o.proofs.length" class="card pad block">
+      <text class="card-t">战绩截图</text>
+      <view class="imgs">
+        <image v-for="(p, i) in o.proofs" :key="i" class="img" :src="p" mode="aspectFill" @tap="preview(i)" />
       </view>
+      <text v-if="o.proofNote" class="card-p note">护航说明：{{ o.proofNote }}</text>
+    </view>
+    <view v-else-if="o.status === '待确认'" class="card pad block">
+      <text class="card-t">战绩截图</text>
+      <view class="notice-bar">（未附截图）{{ o.proofNote || '' }}</view>
     </view>
 
+    <!-- 老板评价 -->
+    <view v-if="o.rating" class="card pad block">
+      <text class="card-t">老板评价</text>
+      <text class="stars">{{ stars }}</text>
+      <text class="card-p note">{{ o.rating.text || '（没有写评价内容）' }}</text>
+    </view>
+
+    <!-- 订单进度（按时间顺序，最新一步高亮） -->
+    <view class="section"><text class="s-t">订单进度</text></view>
+    <view class="step-row" v-for="(l, i) in logs" :key="i">
+      <text class="sn" :class="{ on: i === logs.length - 1 }">{{ i + 1 }}</text>
+      <view class="lt"><text>{{ l.text }}</text><text class="muted ltime">{{ fmtTime(l.t) }}</text></view>
+    </view>
+
+    <!-- 底部操作按钮（规则在 src/orderActions.js） -->
     <view v-if="actions.length" class="bar">
       <view v-for="b in actions" :key="b.key" class="btn bb" :class="{ ghost: b.ghost }" @tap="act(b.key)">{{ b.label }}</view>
     </view>
@@ -78,8 +81,8 @@ const autoHours = ref(0)
 const isStaff = computed(() => session.user && session.user.role !== 'user')
 // 底部按钮（规则在 orderActions.js）
 const actions = computed(() => actionsFor(o.value, session.user))
-// 进度时间线，新的在上
-const logs = computed(() => (o.value ? o.value.logs.slice().reverse() : []))
+// 进度时间线，按时间先后
+const logs = computed(() => (o.value ? o.value.logs : []))
 // 评分星星
 const stars = computed(() => (o.value && o.value.rating ? '★'.repeat(o.value.rating.score) + '☆'.repeat(5 - o.value.rating.score) : ''))
 const HINT = {
@@ -109,23 +112,16 @@ async function act(key) { const r = await doAction(key, o.value, session.user); 
 </script>
 
 <style scoped>
-.page { padding: 24rpx 24rpx 180rpx; }
-.head { padding: 32rpx; display: flex; flex-direction: column; align-items: flex-start; gap: 16rpx; }
-.hint { font-size: 30rpx; font-weight: 600; }
-.sub-hint { font-size: 22rpx; margin-top: -8rpx; }
-.block { margin-top: 20rpx; padding: 28rpx; }
-.imgs { display: flex; gap: 16rpx; margin-top: 16rpx; }
-.img { width: 196rpx; height: 196rpx; border-radius: 12rpx; background: #E8EFFD; }
-.note { display: block; font-size: 24rpx; margin-top: 16rpx; line-height: 1.6; }
-.stars { display: block; color: #E0A548; font-size: 32rpx; letter-spacing: 4rpx; margin-top: 12rpx; }
-.name { font-size: 32rpx; font-weight: 700; }
-.amt { font-size: 36rpx; }
-.kv { display: flex; justify-content: space-between; gap: 24rpx; margin-top: 18rpx; font-size: 26rpx; }
-.log { display: flex; gap: 20rpx; margin-top: 24rpx; }
-.dot { width: 16rpx; height: 16rpx; border-radius: 50%; background: #C9D8F2; margin-top: 10rpx; flex-shrink: 0; }
-.dot.first { background: linear-gradient(115deg, #3F66AD, #7196D8); }
-.lt { display: flex; flex-direction: column; gap: 4rpx; font-size: 26rpx; }
-.ltime { font-size: 22rpx; }
-.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 2rpx solid #E8EFFD; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 16rpx; padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom)); }
-.bb { height: 76rpx; padding: 0 28rpx; font-size: 28rpx; }
+.page { padding-bottom: 200rpx; }
+.amt { font-size: 32rpx; font-weight: 800; color: #FFFFFF; margin-top: 0; }
+.block { margin-top: 20rpx; }
+.kv { display: flex; justify-content: space-between; gap: 24rpx; margin-top: 16rpx; font-size: 24rpx; }
+.imgs { display: flex; flex-wrap: wrap; gap: 16rpx; }
+.img { width: 196rpx; height: 196rpx; border-radius: 20rpx; background: #E8EFFD; }
+.note { margin-top: 14rpx; }
+.stars { display: block; color: #E9B35B; font-size: 34rpx; letter-spacing: 4rpx; }
+.lt { display: flex; flex-direction: column; gap: 4rpx; }
+.ltime { font-size: 20rpx; }
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 2rpx solid #E0E9FA; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 16rpx; padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom)); z-index: 10; }
+.bb { height: 76rpx; padding: 0 30rpx; font-size: 26rpx; }
 </style>

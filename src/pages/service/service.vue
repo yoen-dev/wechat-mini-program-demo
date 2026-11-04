@@ -3,18 +3,22 @@
 -->
 <template>
   <view class="wrap">
-    <view class="card">
-      <view class="list-row" @tap="goOrders"><text>订单沟通</text><text class="arrow">›</text></view>
-      <!-- 小程序内 open-type="contact" 会打开微信官方客服会话 -->
-      <button class="list-row plain" open-type="contact" @tap="onContact"><text>联系客服</text><text class="muted">24 小时在线 ›</text></button>
-      <view class="list-row" @tap="goTickets"><text>投诉 / 售后</text><text class="arrow">›</text></view>
+    <view class="blk-banner">
+      <text class="b-t">BLK 专属客服</text>
+      <text class="b-s">订单问题、投诉售后，我们都在</text>
     </view>
 
-    <text class="sec-title sec">常见问题</text>
-    <view class="card">
-      <view v-for="(f, i) in faqs" :key="f.q">
-        <view class="list-row" @tap="open = open === i ? -1 : i"><text>{{ f.q }}</text><text class="arrow">{{ open === i ? '−' : '+' }}</text></view>
-        <view v-if="open === i" class="ans sub">{{ f.a }}</view>
+    <view class="lrow" @tap="goOrders"><view><text class="l-t">订单沟通</text><text class="l-s">每个订单都有独立聊天</text></view><text class="chev">❯</text></view>
+    <!-- 小程序内 open-type="contact" 会打开微信官方客服会话 -->
+    <button class="lrow plain" open-type="contact" @tap="onContact"><view><text class="l-t">联系客服</text><text class="l-s">24 小时在线咨询</text></view><text class="chev">❯</text></button>
+    <view class="lrow" @tap="goTickets"><view><text class="l-t">投诉 / 售后</text><text class="l-s">提交问题，跟踪处理</text></view><text class="chev">❯</text></view>
+
+    <!-- 常见问题：管理员在后台编辑，点开看答案 -->
+    <view class="section"><text class="s-t">常见问题</text></view>
+    <view class="card faq">
+      <view v-for="(f, i) in faqs" :key="f.q" class="fq">
+        <view class="between fh" @tap="open = open === i ? -1 : i"><text class="fqt">Q：{{ f.q }}</text><text class="chev">{{ open === i ? '−' : '+' }}</text></view>
+        <view v-if="open === i" class="card-p ans">{{ f.a }}</view>
       </view>
     </view>
   </view>
@@ -46,7 +50,11 @@ function onContact() {
 </script>
 
 <style scoped>
-.sec { display: block; margin: 36rpx 8rpx 16rpx; }
-.plain { background: transparent; margin: 0; line-height: normal; border-radius: 0; text-align: left; }
-.ans { padding: 0 32rpx 28rpx; font-size: 26rpx; line-height: 1.7; white-space: pre-line; }
+.plain { margin: 0 0 18rpx; line-height: normal; text-align: left; }
+.faq { padding: 6rpx 28rpx; }
+.fq + .fq { border-top: 2rpx solid #E7EEF9; }
+.fh { padding: 26rpx 0; gap: 16rpx; }
+.fqt { font-size: 25rpx; font-weight: 700; }
+.chev { color: #A2B3CC; font-size: 30rpx; }
+.ans { padding: 0 0 26rpx; white-space: pre-line; }
 </style>

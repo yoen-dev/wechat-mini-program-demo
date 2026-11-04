@@ -4,12 +4,14 @@
 <template>
   <view v-if="o" class="wrap">
     <view class="card block">
-      <text class="name">{{ o.productName }} · ¥{{ o.amount }}</text>
-      <text class="muted sub">#{{ o.id }} · 老板 {{ o.userName }} · 游戏 ID {{ o.gameId }}</text>
+      <text class="card-t">{{ o.productName }} · ¥{{ o.amount }}</text>
+      <text class="card-p">订单编号：BLK-{{ o.id }}</text>
+      <text class="card-p">老板 {{ o.userName }} · 游戏 ID {{ o.gameId }}</text>
+      <text class="card-p">必须上传 1–3 张战绩截图后才可提交完成。</text>
     </view>
 
     <view class="card block">
-      <text class="sec-title">战绩截图（必填，最多 3 张）</text>
+      <text class="card-t">战绩截图（必填，最多 3 张）</text>
       <text class="muted hint">截图要能看出撤离结果和收益，老板会根据截图确认完成；有纠纷时也以截图为准</text>
       <view class="imgs">
         <view class="img-box" v-for="(p, i) in proofs" :key="i">
@@ -21,7 +23,7 @@
     </view>
 
     <view class="card block">
-      <text class="sec-title">给老板的说明（选填）</text>
+      <text class="card-t">给老板的说明（选填）</text>
       <textarea class="input area" v-model="note" placeholder="如：保底已打满 1000 万，两局都撤离成功" auto-height />
     </view>
 
@@ -71,15 +73,13 @@ async function submit() {
 
 <style scoped>
 .block { padding: 28rpx; margin-bottom: 20rpx; }
-.name { display: block; font-size: 30rpx; font-weight: 700; }
-.sub { display: block; font-size: 22rpx; margin-top: 8rpx; }
-.hint { display: block; font-size: 22rpx; margin: 8rpx 0 20rpx; line-height: 1.5; }
-.imgs { display: flex; gap: 16rpx; }
-.img-box { position: relative; width: 196rpx; height: 196rpx; border-radius: 12rpx; overflow: hidden; background: #F4F7FF; }
+.hint { display: block; font-size: 21rpx; color: #8192AD; margin: 0 0 20rpx; line-height: 1.6; }
+.imgs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18rpx; }
+.img-box { position: relative; height: 196rpx; border-radius: 28rpx; overflow: hidden; background: #F4F7FF; }
 .img { width: 100%; height: 100%; }
-.del { position: absolute; right: 0; top: 0; width: 44rpx; height: 44rpx; background: rgba(0, 0, 0, 0.6); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 30rpx; }
-.add { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 48rpx; color: #8798B5; border: 2rpx dashed #C9D8F2; box-sizing: border-box; }
-.add-t { font-size: 22rpx; }
-.area { height: auto; min-height: 140rpx; padding: 20rpx 24rpx; margin-top: 16rpx; }
+.del { position: absolute; right: 0; top: 0; width: 48rpx; height: 48rpx; background: rgba(20, 43, 83, 0.7); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 30rpx; border-radius: 0 0 0 20rpx; }
+.add { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 50rpx; color: #4B72B8; background: linear-gradient(150deg, #FFFFFF, #E9F1FF); border: 2rpx dashed #9BB5E5; box-sizing: border-box; }
+.add-t { font-size: 22rpx; font-weight: 700; }
+.area { height: auto; min-height: 160rpx; padding: 20rpx 24rpx; }
 .submit { margin-top: 12rpx; }
 </style>

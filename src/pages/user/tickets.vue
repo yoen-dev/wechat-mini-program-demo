@@ -4,7 +4,7 @@
 <template>
   <view class="wrap">
     <view class="card form">
-      <text class="sec-title">提交投诉 / 售后</text>
+      <text class="card-t">提交投诉 / 售后</text>
       <text class="label">问题类型</text>
       <view class="types">
         <view v-for="t in TICKET_TYPES" :key="t" class="fchip" :class="{ on: type === t }" @tap="type = t">{{ t }}</view>
@@ -16,7 +16,7 @@
       <button class="btn submit" :loading="busy" @tap="submit">提交</button>
     </view>
 
-    <text class="sec-title sec">我的售后记录</text>
+    <view class="section"><text class="s-t">我的售后记录</text></view>
     <view class="card tk" v-for="t in list" :key="t.id">
       <view class="between"><text class="tt">{{ t.type }}{{ t.orderId ? ' · 订单 #' + t.orderId : '' }}</text><text :class="['ts', t.status === '已解决' ? 'ok' : '']">{{ t.status }}</text></view>
       <text class="tc">{{ t.content }}</text>
@@ -85,22 +85,21 @@ function append(t) {
 </script>
 
 <style scoped>
-.form { padding: 28rpx 28rpx 32rpx; }
-.types { display: flex; flex-wrap: wrap; gap: 12rpx; }
-.fchip { font-size: 24rpx; padding: 12rpx 24rpx; border-radius: 30rpx; background: #F4F7FF; color: #5B6F92; }
-.fchip.on { background: linear-gradient(115deg, #3F66AD, #7196D8); color: #FFFFFF; }
+.form { padding: 30rpx 28rpx 32rpx; }
+.types { display: flex; flex-wrap: wrap; gap: 14rpx; }
+.fchip { font-size: 22rpx; padding: 16rpx 26rpx; border-radius: 20rpx; background: #E8EEFB; color: #7D91B3; }
+.fchip.on { background: #4E76BD; color: #FFFFFF; font-weight: 700; }
 .pick { display: flex; align-items: center; }
 .area { height: auto; min-height: 180rpx; padding: 20rpx 24rpx; }
 .submit { margin-top: 32rpx; }
-.sec { display: block; margin: 36rpx 8rpx 16rpx; }
-.tk { padding: 24rpx 28rpx; margin-bottom: 16rpx; }
-.tt { font-size: 26rpx; font-weight: 600; }
-.ts { font-size: 24rpx; color: #BB873A; }
-.ts.ok { color: #269B79; }
-.tc { display: block; font-size: 26rpx; margin-top: 12rpx; line-height: 1.6; }
-.rp { margin-top: 12rpx; padding: 14rpx 18rpx; background: #F4F7FF; border-radius: 12rpx; font-size: 24rpx; line-height: 1.6; }
-.rn { font-weight: 600; }
-.ops { display: flex; justify-content: space-between; margin-top: 16rpx; }
-.small { font-size: 22rpx; }
-.lk { font-size: 24rpx; color: #4B72B8; }
+.tk { padding: 26rpx 28rpx; margin-bottom: 18rpx; }
+.tt { font-size: 26rpx; font-weight: 800; }
+.ts { font-size: 20rpx; padding: 8rpx 16rpx; border-radius: 16rpx; background: #FFF0D8; color: #BB873A; }
+.ts.ok { background: #E0F6EF; color: #269B79; }
+.tc { display: block; font-size: 24rpx; color: #5B6F92; margin-top: 14rpx; line-height: 1.7; }
+.rp { margin-top: 14rpx; padding: 16rpx 20rpx; background: #F0F5FF; border-radius: 20rpx; font-size: 23rpx; line-height: 1.6; color: #4F70A6; }
+.rn { font-weight: 700; }
+.ops { display: flex; justify-content: space-between; margin-top: 18rpx; }
+.small { font-size: 21rpx; }
+.lk { font-size: 23rpx; color: #4B72B8; font-weight: 600; }
 </style>

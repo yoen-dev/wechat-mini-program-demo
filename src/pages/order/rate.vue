@@ -3,20 +3,19 @@
 -->
 <template>
   <view v-if="o" class="wrap">
-    <view class="card block">
-      <text class="name">{{ o.productName }}</text>
-      <text class="muted sub">护航：{{ o.escortName }} · #{{ o.id }}</text>
+    <view class="blk-banner">
+      <text class="b-t">{{ o.productName }}</text>
+      <text class="b-s">护航：{{ o.escortName }} · BLK-{{ o.id }}</text>
     </view>
-    <view class="card block center">
-      <text class="sec-title">给这次护航打分</text>
+    <!-- 点星星打分 -->
+    <view class="card pad center">
+      <text class="card-t">这次护航体验如何？</text>
       <view class="stars">
         <text v-for="n in 5" :key="n" class="star" :class="{ on: n <= score }" @tap="score = n">★</text>
       </view>
-      <text class="muted lvl">{{ LEVEL[score] }}</text>
+      <text class="card-p">{{ LEVEL[score] }}</text>
     </view>
-    <view class="card block">
-      <textarea class="input area" v-model="text" placeholder="说说护航的表现（选填）" auto-height />
-    </view>
+    <view class="field"><text class="f-l">写下你的评价（选填）</text><textarea class="f-ta" v-model="text" placeholder="分享这次的服务体验" auto-height /></view>
     <button class="btn submit" :loading="busy" @tap="submit">提交评价</button>
   </view>
 </template>
@@ -54,13 +53,9 @@ async function submit() {
 </script>
 
 <style scoped>
-.block { padding: 28rpx; margin-bottom: 20rpx; }
 .center { display: flex; flex-direction: column; align-items: center; }
-.name { display: block; font-size: 30rpx; font-weight: 700; }
-.sub { display: block; font-size: 22rpx; margin-top: 6rpx; }
-.stars { display: flex; gap: 20rpx; margin-top: 24rpx; }
-.star { font-size: 64rpx; color: #DCE6F8; }
-.star.on { color: #E0A548; }
-.lvl { font-size: 24rpx; margin-top: 8rpx; }
-.area { height: auto; min-height: 180rpx; padding: 20rpx 24rpx; }
+.stars { display: flex; gap: 20rpx; margin: 16rpx 0 8rpx; }
+.star { font-size: 68rpx; color: #DCE6F8; }
+.star.on { color: #E9B35B; }
+.submit { margin-top: 8rpx; }
 </style>

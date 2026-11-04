@@ -4,14 +4,14 @@
 <template>
   <view class="wrap">
     <view class="btn add" :class="{ disabled: list.length >= MAX_BANNERS }" @tap="addImg">＋ 添加图片（{{ list.length }}/{{ MAX_BANNERS }}）</view>
-    <text class="muted note">显示在老板首页搜索框下方，按这里的顺序轮播。推荐尺寸 1080 × 450，其他比例会居中裁切。点名称可以改名。</text>
+    <view class="notice-bar note">显示在老板首页搜索框下方，按这里的顺序轮播。最多 9 张，推荐尺寸 1080 × 450，其他比例会居中裁切。点名称可以改名。</view>
     <view class="card brow" v-for="(b, i) in list" :key="b.id">
       <image class="bthumb" :src="b.url" mode="aspectFill" @tap="preview(i)" />
       <view class="bt">
         <text class="pn ellipsis" @tap="rename(b)">{{ i + 1 }}. {{ b.title }}</text>
         <view class="bops">
-          <view class="btn sm ghost" :class="{ disabled: i === 0 }" @tap="move(b, -1)">上移</view>
-          <view class="btn sm ghost" :class="{ disabled: i === list.length - 1 }" @tap="move(b, 1)">下移</view>
+          <view class="btn sm light" :class="{ disabled: i === 0 }" @tap="move(b, -1)">上移</view>
+          <view class="btn sm light" :class="{ disabled: i === list.length - 1 }" @tap="move(b, 1)">下移</view>
           <view class="btn sm danger" @tap="del(b)">删除</view>
         </view>
       </view>
@@ -59,12 +59,12 @@ const preview = (i) => uni.previewImage({ urls: list.value.map((x) => x.url), cu
 </script>
 
 <style scoped>
-.add { margin-bottom: 16rpx; }
-.note { display: block; font-size: 22rpx; margin: 0 8rpx 20rpx; line-height: 1.6; }
-.brow { display: flex; gap: 20rpx; padding: 20rpx; margin-bottom: 16rpx; }
-.bthumb { width: 240rpx; height: 100rpx; border-radius: 10rpx; background: #E4ECFA; flex-shrink: 0; }
-.bt { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 12rpx; }
-.pn { font-size: 28rpx; font-weight: 600; }
-.bops { display: flex; gap: 10rpx; }
-.bops .btn { padding: 0 18rpx; }
+.add { margin-bottom: 20rpx; }
+.note { margin-bottom: 22rpx; }
+.brow { padding: 20rpx; margin-bottom: 18rpx; }
+.bthumb { width: 100%; height: 270rpx; border-radius: 24rpx; background: #E4ECFA; display: block; }
+.bt { display: flex; align-items: center; justify-content: space-between; gap: 12rpx; margin-top: 18rpx; }
+.pn { flex: 1; min-width: 0; font-size: 26rpx; font-weight: 800; }
+.bops { display: flex; gap: 10rpx; flex-shrink: 0; }
+.bops .btn { padding: 0 20rpx; }
 </style>
