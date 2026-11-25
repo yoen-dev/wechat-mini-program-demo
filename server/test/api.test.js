@@ -50,6 +50,23 @@ describe('登录与权限', () => {
     assert.equal(ok.body.user.phone, '13700000001')
   })
 
+  test('微信手机号一键绑定；同一手机号不能绑两个账号；短信可以关掉', async () => {
+    assert.equal((await request(app).get('/api/auth/options')).body.sms, true)
+    const u = await wxLogin('one-tap-user')
+    assert.equal((await request(app).post('/api/auth/wx-phone').send({ code: 'x' })).status, 401) // 没登录不能绑
+    const ok = await u.post('/api/auth/wx-phone', { code: 'phone-code-1' })
+    assert.match(ok.body.user.phone, /^139\d{8}$/)
+    const u2 = await wxLogin('one-tap-user-2')
+    assert.equal((await u2.post('/api/auth/wx-phone', { code: 'phone-code-1' })).status, 400) // 同一个号
+    const config = require('../src/config')
+    config.sms.enabled = false
+    try {
+      assert.equal((await request(app).get('/api/auth/options')).body.sms, false)
+      assert.equal((await request(app).post('/api/auth/sms').send({ phone: '13700000009' })).status, 403)
+      assert.equal((await u2.post('/api/auth/bind-phone', { phone: '13700000009', code: '123456' })).status, 403)
+    } finally { config.sms.enabled = true }
+  })
+
   test('手机号登录自动注册，验证码只能用一次', async () => {
     await request(app).post('/api/auth/sms').send({ phone: '13700000002' })
     const r = await request(app).post('/api/auth/phone').send({ phone: '13700000002', code: '123456' })

@@ -30,6 +30,14 @@ export async function wxLogin({ openid, nickname } = {}) {
   return { user: r.user, needPhone: r.needPhone }
 }
 
+/** 登录方式开关 → { sms }。sms=false 表示还没开通短信，页面隐藏短信相关入口 */
+export const getAuthOptions = () => get('/auth/options')
+
+/** 微信手机号一键绑定：code 来自 <button open-type="getPhoneNumber"> 的回调，返回新的用户信息 */
+export async function wxPhoneBind(userId, code) {
+  return (await post('/auth/wx-phone', { code })).user
+}
+
 /** 发短信验证码 → { ok, demoCode }（demoCode 只有后端开着模拟短信时才有） */
 export const sendSmsCode = (phone) => post('/auth/sms', { phone })
 

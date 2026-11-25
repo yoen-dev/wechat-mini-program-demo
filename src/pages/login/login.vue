@@ -1,5 +1,6 @@
 <!--
   登录页（所有身份共用）：微信登录、手机号登录（老板）、账号密码登录（员工，账号由管理员发放）。登录后按身份自动进入对应首页。
+  「手机号登录」要用短信验证码，后端设置 SMS_ENABLED=false（还没开通短信）时这个标签自动隐藏。
 -->
 <template>
   <view class="page">
@@ -17,7 +18,7 @@
     <!-- 微信登录：首次需要绑定手机号 -->
     <view v-if="tab === 'wx'" class="card panel">
       <button class="btn wx" :loading="loading" @tap="onWxLogin()">微信一键登录</button>
-      <text class="muted tip">首次登录需要绑定手机号</text>
+      <text class="muted tip">首次登录需要绑定手机号（微信一键授权）</text>
     </view>
 
     <!-- 手机号 + 验证码：没注册过的自动注册 -->
@@ -63,15 +64,26 @@
 </template>
 
 <script setup>
-import { ref, onUnmounted } from 'vue'
-import { wxLogin, staffLogin, phoneLogin, sendSmsCode } from '@api/auth.js'
+import { ref, computed, onUnmounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { wxLogin, staffLogin, phoneLogin, sendSmsCode, getAuthOptions } from '@api/auth.js'
 import { setSession, goHome } from '@/store/session.js'
 import { run, toast } from '@/utils.js'
 import { API_MODE } from '@/api/constants.js'
 
 const showDemo = API_MODE !== 'cloud'
 
-const tabs = [{ key: 'wx', name: '微信登录' }, { key: 'phone', name: '手机号登录' }, { key: 'pwd', name: '账号密码' }]
+// 后端是否开放了短信验证码（没开放就不显示「手机号登录」）
+const smsOn = ref(false)
+onLoad(async () => {
+  const r = await getAuthOptions().catch(() => null)
+  smsOn.value = !!(r && r.sms)
+})
+const tabs = computed(() => [
+  { key: 'wx', name: '微信登录' },
+  ...(smsOn.value ? [{ key: 'phone', name: '手机号登录' }] : []),
+  { key: 'pwd', name: '账号密码' }
+])
 // 当前登录方式
 const tab = ref('wx')
 // 手机号

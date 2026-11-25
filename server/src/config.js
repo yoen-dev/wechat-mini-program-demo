@@ -44,6 +44,9 @@ const config = {
 
   // 短信
   sms: {
+    // 是否开放短信验证码（手机号登录、短信绑定手机号）。还没开通短信服务时设 SMS_ENABLED=false，
+    // 老板只用「微信手机号一键绑定」，短信相关入口在小程序里自动隐藏，代码保留，开通后改回 true 即可
+    enabled: bool(env.SMS_ENABLED, true),
     mock: bool(env.SMS_MOCK, true),
     mockCode: env.SMS_MOCK_CODE || '123456',
     accessKeyId: env.SMS_ACCESS_KEY_ID || '',
@@ -77,7 +80,7 @@ const config = {
 if (config.isProd) {
   const problems = []
   if (config.jwtSecret.length < 32 || config.jwtSecret.includes('请改')) problems.push('JWT_SECRET 太短或未修改')
-  if (config.sms.mock) problems.push('SMS_MOCK 仍为 true（验证码是固定的，任何人都能登录任何手机号）')
+  if (config.sms.enabled && config.sms.mock) problems.push('SMS_MOCK 仍为 true（验证码是固定的，任何人都能登录任何手机号）')
   if (config.pay.mock) problems.push('PAY_MOCK 仍为 true（不付钱也能下单和充值）')
   if (config.wx.mock) problems.push('WX_MOCK 仍为 true（微信登录是模拟的）；云托管请设置 WX_CLOUD=true')
   if (problems.length && !bool(env.ALLOW_UNSAFE_PROD)) {

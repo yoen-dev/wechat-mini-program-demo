@@ -2,6 +2,8 @@
  * 登录相关接口  /api/auth/...
  *
  *   POST /wx          微信登录（老板）       { code, nickname }        → { token, user, needPhone }
+ *   GET  /options     登录方式开关                                     → { sms }（sms=false 时小程序隐藏短信入口）
+ *   POST /wx-phone    微信手机号一键绑定      { code }                  → { user }（code 来自 getPhoneNumber 按钮）
  *   POST /sms         发短信验证码            { phone }                 → { ok, demoCode? }（只有模拟模式会返回 demoCode）
  *   POST /phone       手机号 + 验证码登录     { phone, code }           → { token, user }
  *   POST /bind-phone  微信用户绑定手机号      { phone, code }           → { user }
@@ -10,6 +12,7 @@
  *   GET  /me          当前登录用户信息                                   → user
  *
  * 老板账号：微信登录或手机号登录时自动注册；员工账号：只能由管理员在后台创建。
+ * 短信相关的三个接口（/sms /phone /bind-phone）在 SMS_ENABLED=false 时关闭，代码保留，开通短信后打开即可。
  */
 const express = require('express')
 const bcrypt = require('bcryptjs')
@@ -48,14 +51,37 @@ router.post('/wx', limit({ windowSec: 600, max: 30 }), wrap(async (req, res) => 
   res.json(loginResult(u, { needPhone: !u.phone }))
 }))
 
+// 短信没开通时，短信相关接口直接拒绝
+function smsOn(req, res, next) {
+  if (!config.sms.enabled) return next(new AppError('短信验证暂未开放，请使用微信一键绑定', 403))
+  next()
+}
+
+// 把手机号绑到当前老板账号上（短信绑定和微信一键绑定共用）
+async function bindTo(user, phone) {
+  const other = await db('users').where({ phone }).whereNot({ id: user.id }).first()
+  if (other) throw bad('该手机号已绑定其他账号，请联系客服处理')
+  await db('users').where({ id: user.id }).update({ phone })
+  return serialize.user(await db('users').where({ id: user.id }).first())
+}
+
+// ---------------- 登录方式开关 ----------------
+router.get('/options', (req, res) => res.json({ sms: config.sms.enabled }))
+
+// ---------------- 微信手机号一键绑定 ----------------
+router.post('/wx-phone', need('user'), limit({ windowSec: 600, max: 10 }), wrap(async (req, res) => {
+  const phone = await wechat.getPhoneNumber(clean(req.body.code, 128))
+  res.json({ user: await bindTo(req.user, phone) })
+}))
+
 // ---------------- 短信验证码 ----------------
-router.post('/sms', limit({ windowSec: 600, max: 10 }), wrap(async (req, res) => {
+router.post('/sms', smsOn, limit({ windowSec: 600, max: 10 }), wrap(async (req, res) => {
   const r = await sms.sendCode(clean(req.body.phone, 20), req.ip)
   res.json({ ok: true, demoCode: r.mock ? config.sms.mockCode : undefined })
 }))
 
 // ---------------- 手机号登录（没注册过自动注册） ----------------
-router.post('/phone', limit({ windowSec: 600, max: 20 }), wrap(async (req, res) => {
+router.post('/phone', smsOn, limit({ windowSec: 600, max: 20 }), wrap(async (req, res) => {
   const phone = clean(req.body.phone, 20)
   await sms.verifyCode(phone, clean(req.body.code, 8))
   let u = await db('users').where({ phone }).first()
@@ -69,14 +95,11 @@ router.post('/phone', limit({ windowSec: 600, max: 20 }), wrap(async (req, res) 
   res.json(loginResult(u))
 }))
 
-// ---------------- 微信用户绑定手机号 ----------------
-router.post('/bind-phone', need('user'), limit({ windowSec: 600, max: 20 }), wrap(async (req, res) => {
+// ---------------- 微信用户用短信验证码绑定手机号 ----------------
+router.post('/bind-phone', smsOn, need('user'), limit({ windowSec: 600, max: 20 }), wrap(async (req, res) => {
   const phone = clean(req.body.phone, 20)
   await sms.verifyCode(phone, clean(req.body.code, 8))
-  const other = await db('users').where({ phone }).whereNot({ id: req.user.id }).first()
-  if (other) throw bad('该手机号已绑定其他账号，请联系客服处理')
-  await db('users').where({ id: req.user.id }).update({ phone })
-  res.json({ user: serialize.user(await db('users').where({ id: req.user.id }).first()) })
+  res.json({ user: await bindTo(req.user, phone) })
 }))
 
 // ---------------- 员工账号密码登录 ----------------

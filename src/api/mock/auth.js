@@ -43,7 +43,20 @@ export function sendSmsCode(phone) {
   return respond({ ok: true, demoCode: DEMO_SMS_CODE })
 }
 
-/** 绑定手机号 */
+/** 登录方式开关（演示版短信一直可用） */
+export const getAuthOptions = () => respond({ sms: true })
+
+/** 微信手机号一键绑定（演示版：按用户 id 生成一个假手机号） */
+export function wxPhoneBind(userId) {
+  const d = db()
+  const u = d.users.find((x) => x.id === userId)
+  if (!u) return fail('用户不存在')
+  u.phone = '139' + String(10000000 + Number(String(userId).replace(/\D/g, '') || 0)).slice(-8)
+  save()
+  return respond(publicUser(u))
+}
+
+/** 短信验证码绑定手机号 */
 export function bindPhone(userId, phone, code) {
   if (!/^1\d{10}$/.test(phone)) return fail('请输入正确的手机号')
   if (code !== DEMO_SMS_CODE) return fail('验证码错误')
