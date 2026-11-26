@@ -11,6 +11,9 @@
       <text class="s-ico">⌕</text><text>搜索单子，如 保底单</text>
     </view>
 
+    <!-- 公告：在「管理后台 → 公告与问答」修改；放在搜索框下面，老板一进首页就能看到 -->
+    <view v-if="notice" class="notice-bar notice"><text class="nt chip">公告</text><text class="ellipsis nx">{{ notice }}</text></view>
+
     <!-- 轮播图（首页大图）：在「管理后台 → 轮播图」里增删和排序 -->
     <view class="hero"><BannerSwiper :list="banners" /></view>
 
@@ -43,12 +46,11 @@
       </view>
     </view>
 
-    <!-- 公告：在「管理后台 → 公告与问答」修改 -->
-    <view v-if="notice" class="notice-bar notice"><text class="nt chip">公告</text><text class="ellipsis nx">{{ notice }}</text></view>
-
     <!-- 单子列表 -->
     <view class="section"><text class="s-t">人气单子</text><text class="s-more" @tap="goCat('')">全部 ❯</text></view>
     <view class="card prod" v-for="p in list" :key="p.id" @tap="open(p.id)">
+      <!-- 封面图（管理员上传了才显示） -->
+      <image v-if="p.cover" class="pcover" :src="p.cover" mode="aspectFill" />
       <view class="pi">
         <view class="chips"><text class="chip" v-for="c in p.cats.slice(0, 1)" :key="c">{{ c }}</text><text class="chip green" v-for="t in p.tags.slice(0, 2)" :key="t">{{ t }}</text></view>
         <text class="pn">{{ p.name }}</text>
@@ -126,11 +128,12 @@ const open = (id) => uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
 .n { width: 54rpx; height: 54rpx; border-radius: 50%; background: #DCE9FF; color: #4E75B7; font-size: 24rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 .t { font-size: 25rpx; font-weight: 700; }
 .d { font-size: 20rpx; }
-.notice { display: flex; align-items: center; gap: 12rpx; margin-top: 26rpx; }
+.notice { display: flex; align-items: center; gap: 12rpx; margin-top: 20rpx; }
 .nt { flex-shrink: 0; }
 .nx { flex: 1; min-width: 0; }
 .prod { display: flex; align-items: flex-end; gap: 20rpx; padding: 28rpx; margin-bottom: 20rpx; }
 .pi { flex: 1; min-width: 0; }
+.pcover { width: 150rpx; height: 150rpx; border-radius: 18rpx; flex-shrink: 0; align-self: center; background: #EEF3FC; }
 .chips { display: flex; flex-wrap: wrap; gap: 8rpx; }
 .pn { display: block; font-size: 30rpx; font-weight: 800; margin: 14rpx 0 6rpx; }
 .pd { overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }

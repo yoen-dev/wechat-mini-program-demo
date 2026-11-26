@@ -1,10 +1,16 @@
 <!--
   【负责人 / 管理员】经营数据（只看不改）：实收、成交、退款、分成、毛利、每日趋势、储值、用户、单子排行、护航和客服表现。
+  负责人额外有「提现打款」入口：管理员初审通过的护航提现，由负责人线下转账后确认（两级审批的第 2 步）。
 -->
 <template>
   <view v-if="me">
     <StaffHead v-if="me.role === 'owner'" :user="me" />
     <view class="wrap">
+      <!-- 负责人：提现打款入口（有待打款时显示数量） -->
+      <view v-if="me.role === 'owner'" class="card pay-entry" @tap="goWithdrawals">
+        <view><text class="card-t">提现打款</text><text class="muted small pay-sub">管理员初审通过后，由你线下转账并确认</text></view>
+        <view class="row"><text v-if="toPay" class="dot pay-dot">{{ toPay }}</text><text class="muted">❯</text></view>
+      </view>
       <!-- 时间范围 -->
       <view class="tabsline">
         <view v-for="r in ranges" :key="r.d" class="tb" :class="{ on: r.d === days }" @tap="setDays(r.d)">{{ r.name }}</view>
@@ -103,7 +109,7 @@
             <view><text class="uv">{{ a.cs.ticketsOpen }}</text><text class="muted ul">未解决工单</text></view>
           </view>
         </view>
-        <text class="muted foot">数据只读。如需处理订单或修改设置，请使用管理员账号。</text>
+        <text class="muted foot">经营数据只读。如需处理订单或修改设置，请使用管理员账号。</text>
       </view>
     </view>
   </view>
@@ -113,12 +119,23 @@
 import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { getAnalytics } from '@api/analytics.js'
+import { listWithdrawals } from '@api/finance.js'
 import { session, guard } from '@/store/session.js'
-import { run, fmtTime } from '@/utils.js'
+import { run, fmtTime, hideHomeButton } from '@/utils.js'
 import StaffHead from '@/components/StaffHead.vue'
 
 // 当前登录的员工
 const me = computed(() => session.user)
+// 等负责人打款的提现笔数
+const toPay = ref(0)
+// 进入提现打款页
+const goWithdrawals = () => uni.navigateTo({ url: '/pages/staff/withdrawals' })
+// 刷新待打款数量（只有负责人需要）
+async function loadToPay() {
+  if (!me.value || me.value.role !== 'owner') return
+  const l = (await listWithdrawals(me.value).catch(() => [])) || []
+  toPay.value = l.filter((w) => w.canHandle).length
+}
 const ranges = [{ d: 1, name: '今天' }, { d: 7, name: '7 天' }, { d: 30, name: '30 天' }, { d: 90, name: '90 天' }]
 // 统计天数：1 / 7 / 30 / 90
 const days = ref(7)
@@ -143,12 +160,15 @@ async function load() {
 // 切换时间范围
 function setDays(d) { days.value = d; load() }
 // 每次显示页面时刷新（从别的页面返回也会触发）
-onShow(load)
+onShow(() => { if (me.value && me.value.role === 'owner') hideHomeButton(); load(); loadToPay() })
 // 下拉刷新
 onPullDownRefresh(async () => { await load(); uni.stopPullDownRefresh() })
 </script>
 
 <style scoped>
+.pay-entry { display: flex; align-items: center; justify-content: space-between; padding: 26rpx 28rpx; margin-bottom: 22rpx; }
+.pay-sub { display: block; margin-top: 6rpx; }
+.pay-dot { min-width: 34rpx; height: 34rpx; padding: 0 8rpx; box-sizing: border-box; border-radius: 17rpx; background: #ED7384; color: #FFFFFF; font-size: 20rpx; line-height: 34rpx; text-align: center; margin-right: 12rpx; }
 .m-v { font-size: 30rpx; }
 .block { margin-top: 20rpx; padding: 28rpx; }
 .small { font-size: 21rpx; }

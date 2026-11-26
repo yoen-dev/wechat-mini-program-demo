@@ -3,7 +3,8 @@
  *
  *   GET  /              列表   ?cat=分类&keyword=关键词&includeOff=1（includeOff 只有管理员有效，含已下架）
  *   GET  /:id           详情（已下架的单子老板看不到）
- *   POST /              新建或保存（管理员）  { id?, name, price, desc, cats, tags, points }
+ *   POST /              新建或保存（管理员）  { id?, name, price, desc, cover?, cats, tags, points }
+ *                       cover：封面图地址（cloud:// / http(s)），传空字符串 = 去掉封面
  *   POST /:id/toggle    上架 / 下架（管理员）
  */
 const express = require('express')
@@ -18,6 +19,9 @@ const router = express.Router()
 const isAdmin = (u) => !!u && u.role === 'admin'
 
 // 把前端传来的数组整理干净（去空、限制个数和长度）
+// 封面图地址只允许：云托管对象存储（cloud://）、http(s) 图片；演示版本地文件不会传到这里
+const okCover = (s) => !s || /^(https?|cloud):\/\/[^\s]+$/.test(s)
+
 const cleanList = (a, max = 10, len = 60) => (Array.isArray(a) ? a.map((s) => clean(s, len)).filter(Boolean).slice(0, max) : [])
 
 // 列表
@@ -46,8 +50,10 @@ router.post('/', need('admin'), wrap(async (req, res) => {
   const name = clean(b.name, 64)
   if (!name) throw bad('请填写名称')
   if (!(price > 0 && price < 1000000)) throw bad('请填写正确的价格')
+  const cover = clean(b.cover, 500)
+  if (!okCover(cover)) throw bad('封面图地址不正确')
   const data = {
-    name, price, description: clean(b.desc, 255),
+    name, price, description: clean(b.desc, 255), cover: cover || null,
     cats: JSON.stringify(cleanList(b.cats, 10, 20)), tags: JSON.stringify(cleanList(b.tags, 8, 20)), points: JSON.stringify(cleanList(b.points, 12, 120))
   }
   if (b.id) {

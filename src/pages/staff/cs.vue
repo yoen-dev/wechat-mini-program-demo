@@ -28,7 +28,7 @@ import { onLoad, onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { listOrders, getTodo } from '@api/orders.js'
 import { session, guard } from '@/store/session.js'
 import { actionsFor, doAction } from '@/orderActions.js'
-import { run } from '@/utils.js'
+import { run, hideHomeButton } from '@/utils.js'
 import StaffHead from '@/components/StaffHead.vue'
 import OrderCard from '@/components/OrderCard.vue'
 import ModuleGrid from '@/components/ModuleGrid.vue'
@@ -44,7 +44,7 @@ const tabs = [
   { key: 'all', name: '全部' }
 ]
 const tips = {
-  dispatch: '派单时会显示护航是否在线、手上有几单；「待接单」是老板指定了护航但对方还没接，必要时可以改派',
+  dispatch: '派单时会显示护航是否在线、手上有几单；「已派单」是已派给护航（或老板指定了护航）但对方还没点接单，必要时可以改派',
   refund: '同意后订单变为已退款；拒绝则订单继续',
   doing: '已派出的单，可以随时进入订单沟通介入处理',
   all: ''
@@ -77,7 +77,7 @@ async function load() {
   todo.value = (await run(getTodo(me.value))) || {}
 }
 // 每次显示页面时刷新（从别的页面返回也会触发）
-onShow(load)
+onShow(() => { hideHomeButton(); load() })
 // 下拉刷新
 onPullDownRefresh(async () => { await load(); uni.stopPullDownRefresh() })
 // 打开订单详情

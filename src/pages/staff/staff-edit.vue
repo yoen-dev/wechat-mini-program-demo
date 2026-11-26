@@ -27,7 +27,7 @@ import { reactive, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { createStaff } from '@api/staff.js'
 import { session, guard } from '@/store/session.js'
-import { run } from '@/utils.js'
+import { run, showPassword } from '@/utils.js'
 
 const roles = [
   { key: 'escort', name: '护航', desc: '接单、打单' },
@@ -48,11 +48,9 @@ async function submit() {
   const u = await run(createStaff(session.user, { ...f }))
   busy.value = false
   if (!u) return
-  uni.showModal({
-    title: '账号已创建', showCancel: false,
-    content: `角色：${roles.find((r) => r.key === u.role).name}\n账号：${u.account}\n初始密码：${f.password}`,
-    success: () => uni.navigateBack()
-  })
+  const roleName = roles.find((r) => r.key === u.role).name
+  showPassword('账号已创建', `角色：${roleName}\n账号：${u.account}\n初始密码：${f.password}`,
+    `${roleName}账号：${u.account} 初始密码：${f.password}`, () => uni.navigateBack())
 }
 </script>
 

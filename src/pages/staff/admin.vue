@@ -31,7 +31,7 @@ import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { getTodo } from '@api/orders.js'
 import { session, guard } from '@/store/session.js'
-import { run } from '@/utils.js'
+import { run, hideHomeButton } from '@/utils.js'
 import StaffHead from '@/components/StaffHead.vue'
 import ModuleGrid from '@/components/ModuleGrid.vue'
 
@@ -74,7 +74,7 @@ async function load() {
   todo.value = (await run(getTodo(me.value))) || {}
 }
 // 每次显示页面时刷新（从别的页面返回也会触发）
-onShow(load)
+onShow(() => { hideHomeButton(); load() })
 // 下拉刷新
 onPullDownRefresh(async () => { await load(); uni.stopPullDownRefresh() })
 </script>

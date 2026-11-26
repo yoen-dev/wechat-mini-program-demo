@@ -25,7 +25,7 @@ function product(p) {
   if (!p) return null
   return {
     id: p.id, name: p.name, price: Number(p.price), desc: p.description, cats: parseJson(p.cats, []), tags: parseJson(p.tags, []),
-    points: parseJson(p.points, []), onSale: !!p.on_sale, sort: p.sort
+    points: parseJson(p.points, []), cover: p.cover || '', onSale: !!p.on_sale, sort: p.sort
   }
 }
 

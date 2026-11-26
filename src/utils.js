@@ -28,6 +28,33 @@ export function confirm(content, title = '提示') {
   return new Promise((resolve) => uni.showModal({ title, content, success: (r) => resolve(r.confirm) }))
 }
 
+/**
+ * 弹窗显示新账号 / 新密码，带「复制」按钮（密码只显示这一次，复制后发给对方最方便）
+ * @param title 弹窗标题
+ * @param content 弹窗里显示的文字
+ * @param copyText 点「复制」时放进剪贴板的文字
+ * @param onClose 弹窗关掉后要做的事（比如刷新列表、返回上一页），可不传
+ */
+export function showPassword(title, content, copyText, onClose) {
+  uni.showModal({
+    title, content, confirmText: '复制', cancelText: '关闭',
+    success: (r) => {
+      if (r.confirm) uni.setClipboardData({ data: copyText, success: () => toast('已复制，发给对方吧') })
+      if (onClose) setTimeout(onClose, r.confirm ? 900 : 0)
+    }
+  })
+}
+
+/**
+ * 隐藏小程序左上角的「回首页」小房子。
+ * 员工工作台是用 reLaunch 打开的，微信会自动加这个按钮；点了会跳到老板首页再被送回来，白屏好几秒，所以在员工首页隐藏掉。
+ */
+export function hideHomeButton() {
+  // #ifdef MP-WEIXIN
+  uni.hideHomeButton()
+  // #endif
+}
+
 // 手机号打码：138****0000
 export const maskPhone = (p) => (p ? p.slice(0, 3) + '****' + p.slice(7) : '')
 

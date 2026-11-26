@@ -1,5 +1,5 @@
 <!--
-  【管理员】员工账号列表：按身份筛选、新建、重置密码（随机生成）、停用 / 启用。
+  【管理员】员工账号列表：按身份筛选、新建、修改角色、重置密码（随机生成，可一键复制）、停用 / 启用。
 -->
 <template>
   <view class="wrap">
@@ -12,7 +12,7 @@
         <view class="avatar">{{ u.name.slice(0, 1) }}</view>
         <view class="pin">
           <view class="row"><text class="p-n">{{ u.name }}</text><text class="chip">{{ ROLE_NAME[u.role] }}</text><text class="chip red" v-if="u.status !== 'active'">已停用</text></view>
-          <text class="p-s">账号：{{ u.account }}</text>
+          <view class="row"><text class="p-s">账号：{{ u.account }}</text><text v-if="u.id !== me.id" class="lk role-lk" @tap="changeRole(u)">改角色</text></view>
         </view>
       </view>
       <view class="btn sm light" @tap="reset(u)">重置密码</view>
@@ -24,9 +24,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listStaff, resetPassword, toggleStaff, ROLE_NAME } from '@api/staff.js'
+import { listStaff, resetPassword, toggleStaff, changeStaffRole, ROLE_NAME } from '@api/staff.js'
 import { session, guard } from '@/store/session.js'
-import { run, confirm } from '@/utils.js'
+import { run, confirm, toast, showPassword } from '@/utils.js'
 
 // 当前登录的员工
 const me = computed(() => session.user)
@@ -50,7 +50,19 @@ const newStaff = () => uni.navigateTo({ url: '/pages/staff/staff-edit' })
 async function reset(u) {
   if (!(await confirm(`重置 ${u.name} 的密码？对方需要用新密码重新登录。`))) return
   const r = await run(resetPassword(me.value, u.id))
-  if (r) uni.showModal({ title: '已重置', content: `账号：${u.account}\n新密码：${r.password}\n请转告对方登录后修改`, showCancel: false })
+  if (r) showPassword('已重置', `账号：${u.account}\n新密码：${r.password}\n请转告对方登录后修改`, `账号：${u.account} 新密码：${r.password}`)
+}
+// 修改角色：从底部弹出角色列表，选了再确认
+function changeRole(u) {
+  const options = roles.filter((r) => r.key && r.key !== u.role)
+  uni.showActionSheet({
+    itemList: options.map((r) => `改为 ${r.name}`),
+    success: async ({ tapIndex }) => {
+      const to = options[tapIndex]
+      if (!(await confirm(`把 ${u.name} 从「${ROLE_NAME[u.role]}」改为「${to.name}」？对方需要重新登录。`))) return
+      if (await run(changeStaffRole(me.value, u.id, to.key))) { toast('已修改', 'success'); load() }
+    }
+  })
 }
 // 停用 / 启用账号（停用后立刻无法登录）
 async function toggleUser(u) {
@@ -66,4 +78,5 @@ async function toggleUser(u) {
 .pin { min-width: 0; }
 .row { gap: 8rpx; flex-wrap: wrap; }
 .chip { padding: 4rpx 12rpx; }
+.role-lk { font-size: 22rpx; color: #4E76BD; margin-left: 12rpx; }
 </style>

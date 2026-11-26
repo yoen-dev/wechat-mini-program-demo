@@ -19,7 +19,7 @@
       <view v-if="openId === u.id" class="detail">
         <text class="muted um">最近下单：{{ u.lastOrderAt ? fmtTime(u.lastOrderAt) : '无' }}</text>
         <view class="ord" v-for="o in orders" :key="o.id" @tap="openOrder(o.id)">
-          <text class="ellipsis">#{{ o.id }} {{ o.productName }}</text><text class="muted">¥{{ o.amount }} · {{ o.status }}</text>
+          <text class="ellipsis">#{{ o.id }} {{ o.productName }}</text><text class="muted">¥{{ o.amount }} · {{ statusText(o.status) }}</text>
         </view>
         <text v-if="!orders.length" class="muted um">没有订单</text>
         <view class="ops">
@@ -35,6 +35,7 @@ import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { listCustomers, toggleCustomer } from '@api/service.js'
 import { listOrders } from '@api/orders.js'
+import { statusText } from '@/api/constants.js'
 import { session, guard } from '@/store/session.js'
 import { run, fmtTime, maskPhone, toast } from '@/utils.js'
 

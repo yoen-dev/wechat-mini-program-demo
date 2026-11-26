@@ -30,7 +30,7 @@ import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { listApplications, handleApplication } from '@api/service.js'
 import { session, guard } from '@/store/session.js'
-import { run, fmtTime, confirm } from '@/utils.js'
+import { run, fmtTime, confirm, showPassword } from '@/utils.js'
 import Empty from '@/components/Empty.vue'
 
 // 列表数据
@@ -48,7 +48,8 @@ async function handle(a, approve) {
   if (approve) {
     if (!(await confirm(`通过 ${a.name} 的报名，并为他开通护航账号？`))) return
     const r = await run(handleApplication(session.user, a.id, true))
-    if (r) uni.showModal({ title: '已开通护航账号', showCancel: false, content: `账号：${r.account.account}\n初始密码：${r.account.password}\n请转告 ${a.name}（${a.phone}）`, success: load })
+    if (r) showPassword('已开通护航账号', `账号：${r.account.account}\n初始密码：${r.account.password}\n请转告 ${a.name}（${a.phone}）`,
+      `护航账号：${r.account.account} 初始密码：${r.account.password}`, load)
     return
   }
   uni.showModal({

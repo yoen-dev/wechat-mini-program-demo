@@ -14,6 +14,8 @@
     </scroll-view>
 
     <view class="card item" v-for="p in shown" :key="p.id" @tap="open(p.id)">
+      <!-- 封面图（管理员上传了才显示） -->
+      <image v-if="p.cover" class="icover" :src="p.cover" mode="aspectFill" />
       <view class="ii">
         <view class="chips"><text class="chip" v-for="c in p.cats.slice(0, 2)" :key="c">{{ c }}</text></view>
         <text class="in">{{ p.name }}</text>
@@ -64,6 +66,7 @@ const open = (id) => uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
 .s-ico { font-size: 30rpx; color: #97A7BF; }
 .s-in { flex: 1; font-size: 25rpx; color: #284674; }
 .item { display: flex; align-items: flex-end; gap: 20rpx; padding: 28rpx; margin-bottom: 20rpx; }
+.icover { width: 150rpx; height: 150rpx; border-radius: 18rpx; flex-shrink: 0; align-self: center; background: #EEF3FC; }
 .ii { flex: 1; min-width: 0; }
 .chips { display: flex; gap: 8rpx; }
 .in { display: block; font-size: 29rpx; font-weight: 800; margin: 14rpx 0 6rpx; }

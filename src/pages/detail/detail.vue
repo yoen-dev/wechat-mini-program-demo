@@ -3,6 +3,8 @@
 -->
 <template>
   <view v-if="p" class="wrap page">
+    <!-- 封面图（管理员上传了才显示） -->
+    <image v-if="p.cover" class="cover" :src="p.cover" mode="aspectFill" />
     <!-- 顶部横幅：分类、名称、简介 -->
     <view class="blk-banner">
       <text class="b-s top">BLK · {{ p.cats[0] || '护航' }}</text>
@@ -169,6 +171,8 @@ function showProfile(e) {
 
 // 页面打开时读取网址参数并加载数据
 onLoad(async (q) => {
+  // 游戏 ID：「再来一单」会带上原订单的 ID；否则用上次下单填的（存在本机），老板不用每次重填
+  gameId.value = q.gameId ? decodeURIComponent(q.gameId) : (uni.getStorageSync('last_game_id') || '')
   p.value = await run(getProduct(q.id))
   if (!p.value) return setTimeout(() => uni.navigateBack(), 800)
   uni.setNavigationBarTitle({ title: p.value.name })
@@ -192,6 +196,7 @@ async function submit() {
     couponId: coupon.value ? coupon.value.id : null
   }))
   if (!o) return (busy.value = false)
+  uni.setStorageSync('last_game_id', gameId.value.trim()) // 记住这次的游戏 ID，下次自动填
   // 真实环境：微信支付调用 uni.requestPayment；余额支付由后端扣款
   const byBalance = payWith.value === 'balance'
   // 余额支付先确认一下；微信支付在真实环境会弹微信自己的付款界面，只有演示版才弹「模拟微信支付」
@@ -207,6 +212,7 @@ async function submit() {
 </script>
 
 <style scoped>
+.cover { width: 100%; height: 320rpx; border-radius: 24rpx; display: block; margin-bottom: 20rpx; background: #EEF3FC; }
 .page { padding-bottom: 200rpx; }
 .top { margin-top: 0; letter-spacing: 2rpx; }
 .chips { display: flex; flex-wrap: wrap; gap: 8rpx; }

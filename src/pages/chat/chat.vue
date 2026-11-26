@@ -1,5 +1,6 @@
 <!--
   【老板 / 护航 / 客服】订单沟通：同一个订单里老板、护航、客服互发消息。每 3 秒自动拉取新消息。
+  护航要接单后才能进来；接单时会出现一条系统消息「护航 XX 已接单，加入了订单沟通」。
 -->
 <template>
   <view class="page">
@@ -14,13 +15,17 @@
 
     <scroll-view scroll-y class="msgs" :scroll-into-view="last" scroll-with-animation>
       <view class="sys">消息仅订单相关人员可见：老板、护航、客服</view>
-      <view v-for="m in msgs" :key="m.id" :id="'m' + m.id" class="mrow" :class="{ me: m.from === me.id }">
-        <view v-if="m.from !== me.id" class="av">{{ m.name.slice(0, 1) }}</view>
-        <view class="mcol">
-          <text v-if="m.from !== me.id" class="muted who">{{ m.name }} · {{ ROLE_NAME[m.role] }}</text>
-          <view class="bubble">{{ m.text }}</view>
+      <template v-for="m in msgs" :key="m.id">
+        <!-- 系统消息（如「护航 XX 已接单，加入了订单沟通」）：灰色居中 -->
+        <view v-if="m.role === 'system'" :id="'m' + m.id" class="sys">{{ m.text }}</view>
+        <view v-else :id="'m' + m.id" class="mrow" :class="{ me: m.from === me.id }">
+          <view v-if="m.from !== me.id" class="av">{{ m.name.slice(0, 1) }}</view>
+          <view class="mcol">
+            <text v-if="m.from !== me.id" class="muted who">{{ m.name }} · {{ ROLE_NAME[m.role] }}</text>
+            <view class="bubble">{{ m.text }}</view>
+          </view>
         </view>
-      </view>
+      </template>
     </scroll-view>
 
     <view class="composer">

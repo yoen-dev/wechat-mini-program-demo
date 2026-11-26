@@ -4,8 +4,10 @@
  *
  * 订单状态流转（和前端 src/api/mock/orders.js 顶部说明一致）：
  *   待付款 ──支付──▶ 待派单（客服派单）/ 待接单（指定护航）
- *   待派单 ──客服派单 / 护航抢单──▶ 已接单
+ *   待派单 ──护航抢单──▶ 已接单
+ *   待派单 ──客服派单──▶ 待接单（前端显示「已派单」，等护航确认）
  *   待接单 ──护航接单──▶ 已接单        ──护航拒单──▶ 待派单
+ *   护航接单 / 抢单后才能进「订单沟通」，聊天里会出现一条系统消息「护航 XX 已接单，加入了订单沟通」
  *   已接单 ──开始──▶ 进行中 ──护航提交完成（附战绩截图）──▶ 待确认
  *   待确认 ──老板确认 / 超时自动确认──▶ 已完成（护航分成此时入账）
  *   待确认 ──老板反馈「还没完成」──▶ 进行中
@@ -59,6 +61,9 @@ async function loadForClient(id, u, trx = db) {
 
 // 写一条进度记录
 const addLog = (trx, orderId, text) => trx('order_logs').insert({ order_id: orderId, text: String(text).slice(0, 255), created_at: now() })
+
+// 在订单沟通里插一条系统消息（灰色居中显示，比如「护航 XX 已接单，加入了订单沟通」）
+const addSystemMessage = (trx, orderId, text) => trx('messages').insert({ order_id: orderId, from_id: 0, role: 'system', name: '系统', text: String(text).slice(0, 1000), created_at: now() })
 
 /**
  * 有条件地改状态（核心防并发方法）
@@ -145,4 +150,4 @@ function priceOf(product, spec) {
   return Math.round(Number(product.price) * rate)
 }
 
-module.exports = { STATUS, REFUNDABLE, ACTIVE, SPECS, isStaff, baseQuery, toClient, canSee, loadForClient, addLog, transition, markPaid, finish, autoConfirm, autoConfirmSoon, priceOf }
+module.exports = { STATUS, REFUNDABLE, ACTIVE, SPECS, isStaff, baseQuery, toClient, canSee, loadForClient, addLog, addSystemMessage, transition, markPaid, finish, autoConfirm, autoConfirmSoon, priceOf }

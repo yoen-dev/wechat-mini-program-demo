@@ -252,9 +252,12 @@ router.post('/:id/dispatch', need('cs', 'admin'), wrap(async (req, res) => {
     const o = await raw(req.orderId, trx)
     const from = ['待派单', '待接单', '已接单']
     if (!from.includes(o.status)) throw conflict('订单状态已变化')
-    const re = o.status === '已接单'
-    await transition(trx, o.id, [o.status], { status: '已接单', escort_id: e.id, dispatched_at: o.dispatched_at || now() })
-    await addLog(trx, o.id, `${req.user.name} ${re ? '改派' : '派单'}给 ${e.name}`)
+    const re = o.status !== '待派单'
+    if (re && o.escort_id === e.id) throw bad('已经是这个护航了')
+    // 派给护航后先进「待接单」（前端显示「已派单」），护航点「接单」才变「已接单」并进入订单沟通
+    await transition(trx, o.id, [o.status], { status: '待接单', escort_id: e.id, dispatched_at: o.dispatched_at || now() })
+    await addLog(trx, o.id, `${req.user.name} ${re ? '改派' : '派单'}给 ${e.name}，等待护航接单`)
+    if (o.status === '已接单' && o.escort_id) await os.addSystemMessage(trx, o.id, `订单已改派，原护航退出订单沟通`)
     await audit(req.user, re ? '改派' : '派单', `#${o.id} → ${e.name}`, trx)
   })
   res.json(await loadForClient(req.orderId, req.user))
@@ -267,6 +270,7 @@ router.post('/:id/grab', need('escort'), wrap(async (req, res) => {
   await db.transaction(async (trx) => {
     await transition(trx, req.orderId, ['待派单'], { status: '已接单', escort_id: req.user.id, dispatched_at: now() }, {}, '手慢了，这单已被接走')
     await addLog(trx, req.orderId, `${req.user.name} 抢单成功`)
+    await os.addSystemMessage(trx, req.orderId, `护航 ${req.user.name} 已接单，加入了订单沟通`)
   })
   res.json(await loadForClient(req.orderId, req.user))
 }))
@@ -278,6 +282,7 @@ router.post('/:id/respond', need('escort'), wrap(async (req, res) => {
     if (accept) {
       await transition(trx, req.orderId, ['待接单'], { status: '已接单', dispatched_at: now() }, mine)
       await addLog(trx, req.orderId, `${req.user.name} 已接单`)
+      await os.addSystemMessage(trx, req.orderId, `护航 ${req.user.name} 已接单，加入了订单沟通`)
     } else {
       await transition(trx, req.orderId, ['待接单'], { status: '待派单', escort_id: null }, mine)
       await addLog(trx, req.orderId, `${req.user.name} 暂时无法接单，转客服派单`)
@@ -307,11 +312,12 @@ router.post('/:id/submit', need('escort'), wrap(async (req, res) => {
 
 // ================= 订单沟通 =================
 
-// 检查能不能进这个订单的聊天：老板本人、接这单的护航、客服 / 管理员
+// 检查能不能进这个订单的聊天：老板本人、已经接单的护航、客服 / 管理员
+// 护航在「待接单」（已派单、还没确认）时进不了，接单后才加入
 async function chatGuard(req) {
   const o = await raw(req.orderId)
   const u = req.user
-  const ok = os.isStaff(u) || (u.role === 'user' && o.user_id === u.id) || (u.role === 'escort' && o.escort_id === u.id)
+  const ok = os.isStaff(u) || (u.role === 'user' && o.user_id === u.id) || (u.role === 'escort' && o.escort_id === u.id && o.status !== '待接单')
   if (!ok) throw forbidden()
   return o
 }

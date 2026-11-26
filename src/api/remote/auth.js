@@ -30,8 +30,16 @@ export async function wxLogin({ openid, nickname } = {}) {
   return { user: r.user, needPhone: r.needPhone }
 }
 
-/** 登录方式开关 → { sms }。sms=false 表示还没开通短信，页面隐藏短信相关入口 */
-export const getAuthOptions = () => get('/auth/options')
+/**
+ * 登录方式开关 → { sms }。sms=false 表示还没开通短信，页面隐藏短信相关入口。
+ * 云托管实例从 0 启动时第一个请求可能很慢或失败，所以失败了自动重试，最多 3 次（间隔 1.5 秒）
+ */
+export async function getAuthOptions() {
+  for (let i = 0; i < 3; i++) {
+    try { return await get('/auth/options') } catch (e) { if (i === 2) throw e }
+    await new Promise((r) => setTimeout(r, 1500))
+  }
+}
 
 /** 微信手机号一键绑定：code 来自 <button open-type="getPhoneNumber"> 的回调，返回新的用户信息 */
 export async function wxPhoneBind(userId, code) {

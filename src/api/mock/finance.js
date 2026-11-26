@@ -54,7 +54,7 @@ function incomeOf(escortId) {
   const total = done.reduce((s, o) => s + (o.escortShare || 0), 0)
   const ws = d.withdrawals.filter((w) => w.escortId === escortId)
   const withdrawn = ws.filter((w) => w.status === '已打款').reduce((s, w) => s + w.amount, 0)
-  const pending = ws.filter((w) => w.status === '待审核').reduce((s, w) => s + w.amount, 0)
+  const pending = ws.filter((w) => ['待审核', '待打款'].includes(w.status)).reduce((s, w) => s + w.amount, 0)
   const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0)
   const month = done.filter((o) => o.completedAt >= monthStart.getTime()).reduce((s, o) => s + o.escortShare, 0)
   const waiting = d.orders.filter((o) => o.escortId === escortId && o.status === '待确认').reduce((s, o) => s + o.amount * d.settings.shareRate, 0)
@@ -83,22 +83,37 @@ export function requestWithdraw(actor, amount) {
   return respond({ ok: true })
 }
 
-// ---------------- 提现审批（管理员） ----------------
-export function listWithdrawals(actor) {
-  if (!isAdmin(actor)) return fail('无权限')
-  return respond(db().withdrawals.slice().sort((a, b) => b.createdAt - a.createdAt).map((w) => ({ ...w, escortName: nameOf(w.escortId) })))
+// ---------------- 提现审批（两级：管理员初审 → 负责人确认打款） ----------------
+// 没有启用中的负责人账号时，管理员也能做第二步
+const hasOwner = () => db().users.some((u) => u.role === 'owner' && u.status === 'active')
+function canHandle(w, u) {
+  if (w.status === '待审核') return u.role === 'admin'
+  if (w.status === '待打款') return u.role === 'owner' || (u.role === 'admin' && !hasOwner())
+  return false
 }
 
-/** approve=true 表示已线下打款；false 为驳回 */
+export function listWithdrawals(actor) {
+  if (!['admin', 'owner'].includes(actor.role)) return fail('无权限')
+  return respond(db().withdrawals.slice().sort((a, b) => b.createdAt - a.createdAt).map((w) => ({ ...w, escortName: nameOf(w.escortId), canHandle: canHandle(w, actor) })))
+}
+
+/** approve=true：待审核 → 待打款（初审通过）；待打款 → 已打款（确认已线下转账）。false 为驳回 */
 export function handleWithdraw(actor, id, approve, note = '') {
-  if (!isAdmin(actor)) return fail('无权限')
   const w = db().withdrawals.find((x) => x.id === id)
-  if (!w || w.status !== '待审核') return fail('状态已变化')
-  w.status = approve ? '已打款' : '已驳回'
-  w.handledAt = Date.now()
-  w.handler = actor.name
-  w.note = note
-  audit(actor, approve ? '提现打款' : '驳回提现', `${nameOf(w.escortId)} ¥${w.amount}`)
+  if (!w || !['待审核', '待打款'].includes(w.status)) return fail('状态已变化')
+  if (!canHandle(w, actor)) return fail(w.status === '待审核' ? '需要管理员先初审' : '需要负责人确认打款')
+  let action
+  if (!approve) {
+    action = '驳回提现'
+    Object.assign(w, { status: '已驳回', handledAt: Date.now(), handler: actor.name, note })
+  } else if (w.status === '待审核') {
+    action = '提现初审通过'
+    Object.assign(w, { status: '待打款', reviewedAt: Date.now(), reviewer: actor.name, note })
+  } else {
+    action = '提现打款'
+    Object.assign(w, { status: '已打款', handledAt: Date.now(), handler: actor.name, note: note || w.note })
+  }
+  audit(actor, action, `${nameOf(w.escortId)} ¥${w.amount}`)
   save()
-  return respond(w)
+  return respond({ ...w, escortName: nameOf(w.escortId), canHandle: canHandle(w, actor) })
 }

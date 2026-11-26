@@ -21,7 +21,7 @@
         <view class="btn sm light" @tap="amount = String(inc.available)">全部</view>
         <view class="btn sm" @tap="apply">提交</view>
       </view>
-      <text class="muted hint">管理员审核后线下打款，打款后状态变为「已打款」</text>
+      <text class="muted hint">管理员审核后由负责人线下打款，打款后状态变为「已打款」</text>
     </view>
 
     <view class="tabsline tabs">
@@ -38,7 +38,7 @@
     <view v-else>
       <view class="lrow" v-for="w in inc.withdrawals" :key="w.id">
         <view><text class="l-t">¥{{ w.amount }}</text><text class="l-s">{{ fmtTime(w.createdAt) }}{{ w.note ? ' · ' + w.note : '' }}</text></view>
-        <text :class="['chip', w.status === '已打款' ? 'green' : w.status === '已驳回' ? 'red' : 'orange']">{{ w.status }}</text>
+        <text :class="['chip', w.status === '已打款' ? 'green' : w.status === '已驳回' ? 'red' : 'orange']">{{ { 待审核: '审核中', 待打款: '等待打款' }[w.status] || w.status }}</text>
       </view>
       <Empty v-if="!inc.withdrawals.length" text="还没有提现记录" />
     </view>
@@ -68,9 +68,13 @@ async function load() {
 }
 // 每次显示页面时刷新（从别的页面返回也会触发）
 onShow(load)
-// 申请提现（管理员线下打款后标记）
+// 申请提现（管理员初审 → 负责人线下打款后标记）
 async function apply() {
-  if (!(await confirm(`申请提现 ¥${amount.value}？`))) return
+  // 先在页面上检查金额，不用等弹完确认框才报错
+  const a = Math.round(Number(amount.value) * 100) / 100
+  if (!(a > 0)) return toast('请输入提现金额')
+  if (a > inc.value.available) return toast(`最多可提现 ¥${inc.value.available}`)
+  if (!(await confirm(`申请提现 ¥${a}？`))) return
   if (await run(requestWithdraw(session.user, amount.value))) { toast('已提交，等待审核', 'success'); amount.value = ''; tab.value = 'wd'; load() }
 }
 </script>

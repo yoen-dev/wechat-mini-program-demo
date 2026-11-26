@@ -3,7 +3,9 @@
 // 订单状态流转：
 //   待付款 ──支付──▶ 待派单（客服派单）/ 待接单（指定护航）
 //   待派单 ──客服派单 / 护航抢单──▶ 已接单
+//   待派单 ──客服派单──▶ 待接单（显示「已派单」）；护航抢单直接 ▶ 已接单
 //   待接单 ──护航接单──▶ 已接单        ──护航拒单──▶ 待派单
+//   护航接单后才能进订单沟通，聊天里出现系统消息「护航 XX 已接单，加入了订单沟通」
 //   已接单 ──开始──▶ 进行中 ──护航提交完成（附战绩截图）──▶ 待确认
 //   待确认 ──老板确认 / 超时自动确认──▶ 已完成（护航分成此时入账）
 //   待确认 ──老板反馈“还没完成”──▶ 进行中
@@ -168,11 +170,13 @@ export function dispatchOrder(actor, id, escortId) {
   if (!isStaff(actor)) return fail('无权限')
   const o = find(id)
   if (!o || !['待派单', '待接单', '已接单'].includes(o.status)) return fail('订单状态已变化')
-  const re = o.status === '已接单'
+  const re = o.status !== '待派单'
+  if (re && o.escortId === escortId) return fail('已经是这个护航了')
+  if (o.status === '已接单' && o.escortId) sysMsg(o.id, '订单已改派，原护航退出订单沟通')
   o.escortId = escortId
-  o.status = '已接单'
+  o.status = '待接单' // 显示为「已派单」，等护航确认接单
   o.dispatchedAt = o.dispatchedAt || Date.now()
-  log(o, `${actor.name} ${re ? '改派' : '派单'}给 ${nameOf(escortId)}`)
+  log(o, `${actor.name} ${re ? '改派' : '派单'}给 ${nameOf(escortId)}，等待护航接单`)
   audit(actor, re ? '改派' : '派单', `#${o.id} → ${nameOf(escortId)}`)
   save()
   return respond(decorate(o))
@@ -188,6 +192,7 @@ export function grabOrder(actor, id) {
   o.status = '已接单'
   o.dispatchedAt = Date.now()
   log(o, `${actor.name} 抢单成功`)
+  sysMsg(o.id, `护航 ${actor.name} 已接单，加入了订单沟通`)
   save()
   return respond(decorate(o))
 }
@@ -195,7 +200,7 @@ export function grabOrder(actor, id) {
 export function respondAssign(actor, id, accept) {
   const o = find(id)
   if (!o || o.escortId !== actor.id || o.status !== '待接单') return fail('订单状态已变化')
-  if (accept) { o.status = '已接单'; o.dispatchedAt = Date.now(); log(o, `${actor.name} 已接单`) }
+  if (accept) { o.status = '已接单'; o.dispatchedAt = Date.now(); log(o, `${actor.name} 已接单`); sysMsg(o.id, `护航 ${actor.name} 已接单，加入了订单沟通`) }
   else { o.status = '待派单'; o.escortId = null; log(o, `${actor.name} 暂时无法接单，转客服派单`) }
   save()
   return respond(decorate(o))
@@ -255,15 +260,25 @@ export function rateOrder(actor, id, score, text) {
 }
 
 // ---------------- 聊天 ----------------
+// 护航只有接单后才能进订单沟通（待接单 = 已派单还没确认，进不了）
+const canChat = (o, a) => canSee(o, a) && !(a.role === 'escort' && (o.escortId !== a.id || o.status === '待接单'))
+
+// 往订单沟通里插一条系统消息
+function sysMsg(orderId, text) {
+  const d = db()
+  if (!d.messages[orderId]) d.messages[orderId] = []
+  d.messages[orderId].push({ id: nextId('msg'), from: 0, role: 'system', name: '系统', text, t: Date.now() })
+}
+
 export function listMessages(actor, orderId) {
   const o = find(orderId)
-  if (!o || !canSee(o, actor)) return fail('无权限')
+  if (!o || !canChat(o, actor)) return fail('无权限')
   return respond(db().messages[orderId] || [], 60)
 }
 
 export function sendMessage(actor, orderId, text) {
   const o = find(orderId)
-  if (!o || !canSee(o, actor)) return fail('无权限')
+  if (!o || !canChat(o, actor)) return fail('无权限')
   if (!text.trim()) return fail('消息不能为空')
   const d = db()
   if (!d.messages[orderId]) d.messages[orderId] = []

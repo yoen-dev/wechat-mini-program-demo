@@ -24,7 +24,7 @@ export function saveProduct(actor, input) {
   if (!input.name || !input.name.trim()) return fail('请填写名称')
   if (!(price > 0)) return fail('请填写正确的价格')
   const data = {
-    name: input.name.trim(), price, desc: (input.desc || '').trim(),
+    name: input.name.trim(), price, desc: (input.desc || '').trim(), cover: input.cover || '',
     cats: input.cats || [], tags: input.tags || [], points: input.points || []
   }
   if (input.id) {

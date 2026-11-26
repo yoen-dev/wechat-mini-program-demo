@@ -5,7 +5,7 @@
   <view v-if="o" class="wrap page">
     <!-- 顶部状态横幅 -->
     <view class="blk-banner">
-      <view class="between"><text class="b-t">{{ o.status }}</text><text class="b-s amt">¥{{ o.amount }}</text></view>
+      <view class="between"><text class="b-t">{{ statusText(o.status) }}</text><text class="b-s amt">¥{{ o.amount }}</text></view>
       <text class="b-s">{{ hint }}</text>
       <text v-if="o.status === '待确认' && autoHours" class="b-s">{{ autoHours }} 小时内未确认将自动确认完成</text>
     </view>
@@ -65,6 +65,7 @@
 import { ref, computed } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { getOrder } from '@api/orders.js'
+import { statusText } from '@/api/constants.js'
 import { getSettings } from '@api/finance.js'
 import { session } from '@/store/session.js'
 import { actionsFor, doAction } from '@/orderActions.js'
@@ -86,7 +87,7 @@ const logs = computed(() => (o.value ? o.value.logs : []))
 // 评分星星
 const stars = computed(() => (o.value && o.value.rating ? '★'.repeat(o.value.rating.score) + '☆'.repeat(5 - o.value.rating.score) : ''))
 const HINT = {
-  待付款: '请尽快完成支付', 待派单: '已支付，客服正在为你安排护航', 待接单: '已通知你指定的护航，等待接单',
+  待付款: '请尽快完成支付', 待派单: '已支付，客服正在为你安排护航', 待接单: '已派给护航，等待护航确认接单',
   已接单: '护航已接单，即将拉你进队', 进行中: '护航进行中，有问题可在订单沟通里联系',
   待确认: '护航已提交完成，请核对战绩截图后确认', 已完成: '订单已完成，感谢支持',
   退款中: '退款申请已提交，等待客服处理', 已退款: '已退款，款项将原路返回', 已取消: '订单已取消'

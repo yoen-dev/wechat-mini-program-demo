@@ -93,7 +93,13 @@ describe('订单完整流程', () => {
     assert.equal(o.amount, Math.round(88 * 2.73)) // 金额由服务器计算
     const paid = (await boss.post(`/api/orders/${o.id}/pay`, { method: 'wechat' })).body.order
     assert.equal(paid.status, '待派单')
-    assert.equal((await cs.post(`/api/orders/${o.id}/dispatch`, { escortId: 3 })).body.status, '已接单')
+    // 派单后先「待接单」（前端显示已派单），护航接单前进不了订单沟通
+    assert.equal((await cs.post(`/api/orders/${o.id}/dispatch`, { escortId: 3 })).body.status, '待接单')
+    assert.equal((await hh01.get(`/api/orders/${o.id}/messages`)).status, 403)
+    assert.equal((await hh01.post(`/api/orders/${o.id}/start`)).status, 409) // 还没接单不能开始
+    assert.equal((await hh01.post(`/api/orders/${o.id}/respond`, { accept: true })).body.status, '已接单')
+    const msgs = (await hh01.get(`/api/orders/${o.id}/messages`)).body
+    assert.ok(msgs.some((m) => m.role === 'system' && m.text.includes('已接单')))
     assert.equal((await hh02.post(`/api/orders/${o.id}/start`)).status, 409) // 不是自己的单
     assert.equal((await hh01.post(`/api/orders/${o.id}/start`)).body.status, '进行中')
     assert.equal((await hh01.post(`/api/orders/${o.id}/submit`, { proofs: [] })).status, 400)
@@ -200,8 +206,42 @@ describe('优惠券 / 充值 / 提现', () => {
     assert.deepEqual(rs.map((r) => r.status).sort(), [200, 400])
     const list = (await admin.get('/api/withdrawals')).body
     const w = list.find((x) => x.escortId === 4 && x.status === '待审核')
-    assert.equal((await admin.post(`/api/withdrawals/${w.id}/handle`, { approve: true })).body.status, '已打款')
-    assert.equal((await admin.post(`/api/withdrawals/${w.id}/handle`, { approve: true })).status, 409)
+    // 两级审批：管理员初审 → 待打款 → 负责人确认打款
+    assert.equal((await admin.post(`/api/withdrawals/${w.id}/handle`, { approve: true })).body.status, '待打款')
+    assert.equal((await owner.post(`/api/withdrawals/${w.id}/handle`, { approve: true })).body.status, '已打款')
+    assert.equal((await owner.post(`/api/withdrawals/${w.id}/handle`, { approve: true })).status, 409)
+  })
+
+  test('提现两级审批：管理员初审，负责人打款；可提现余额正确', async () => {
+    const before = (await hh02.get('/api/income')).body
+    assert.ok(before.available >= 1)
+    await hh02.post('/api/withdrawals', { amount: 1 })
+    let w = (await admin.get('/api/withdrawals')).body.find((x) => x.escortId === 4 && x.status === '待审核')
+    assert.equal(w.canHandle, true)
+    assert.equal((await owner.post(`/api/withdrawals/${w.id}/handle`, { approve: true })).status, 403) // 负责人不能跳过初审
+    assert.equal((await admin.post(`/api/withdrawals/${w.id}/handle`, { approve: true })).body.status, '待打款')
+    assert.equal((await admin.post(`/api/withdrawals/${w.id}/handle`, { approve: true })).status, 403) // 有负责人时管理员不能打款
+    w = (await owner.get('/api/withdrawals')).body.find((x) => x.id === w.id)
+    assert.equal(w.canHandle, true)
+    assert.equal((await hh02.get('/api/income')).body.available, Math.round((before.available - 1) * 100) / 100) // 审核中的钱不能再提
+    const paid = (await owner.post(`/api/withdrawals/${w.id}/handle`, { approve: true })).body
+    assert.equal(paid.status, '已打款')
+    assert.equal(paid.reviewer, admin.user.name)
+    assert.equal(paid.handler, owner.user.name)
+    // 驳回：钱退回
+    await hh02.post('/api/withdrawals', { amount: 1 })
+    const w2 = (await admin.get('/api/withdrawals')).body.find((x) => x.escortId === 4 && x.status === '待审核')
+    await admin.post(`/api/withdrawals/${w2.id}/handle`, { approve: true })
+    assert.equal((await owner.post(`/api/withdrawals/${w2.id}/handle`, { approve: false, note: '信息有误' })).body.status, '已驳回')
+    assert.equal((await hh02.get('/api/income')).body.available, Math.round((before.available - 1) * 100) / 100)
+    // 负责人停用后，管理员可以代做第二步（避免没人能打款）
+    await admin.post(`/api/staff/${owner.user.id}/toggle`)
+    await hh02.post('/api/withdrawals', { amount: 1 })
+    const w3 = (await admin.get('/api/withdrawals')).body.find((x) => x.escortId === 4 && x.status === '待审核')
+    await admin.post(`/api/withdrawals/${w3.id}/handle`, { approve: true })
+    assert.equal((await admin.post(`/api/withdrawals/${w3.id}/handle`, { approve: true })).body.status, '已打款')
+    await admin.post(`/api/staff/${owner.user.id}/toggle`)
+    owner = await login('boss', 'boss123')
   })
 })
 
@@ -235,6 +275,33 @@ describe('管理功能', () => {
     await login('kefu02', rp.password)
     await admin.post(`/api/staff/${u.id}/toggle`)
     assert.equal((await request(app).post('/api/auth/login').send({ account: 'kefu02', password: rp.password })).status, 403)
+  })
+
+  test('员工改角色：改完要重新登录；护航手上有单不能改', async () => {
+    const u = (await admin.post('/api/staff', { role: 'escort', name: '建错的客服', account: 'wrongrole', password: '123456' })).body
+    const before = await login('wrongrole', '123456')
+    const r = (await admin.post(`/api/staff/${u.id}/role`, { role: 'cs' })).body
+    assert.equal(r.role, 'cs')
+    assert.equal((await before.get('/api/auth/me')).status, 401) // 旧登录失效
+    assert.equal((await login('wrongrole', '123456')).user.role, 'cs')
+    assert.equal((await admin.post(`/api/staff/${admin.user.id}/role`, { role: 'cs' })).status, 400) // 不能改自己
+    assert.equal((await cs.post(`/api/staff/${u.id}/role`, { role: 'escort' })).status, 403) // 只有管理员能改
+    // 护航手上有单
+    const o = (await boss.post('/api/orders', { productId: 2, spec: '单次', mode: 'dispatch', gameId: 'R' })).body
+    await boss.post(`/api/orders/${o.id}/pay`, { method: 'wechat' })
+    await cs.post(`/api/orders/${o.id}/dispatch`, { escortId: 3 })
+    const rr = await admin.post('/api/staff/3/role', { role: 'cs' })
+    assert.equal(rr.status, 400)
+    assert.match(rr.body.message, /没完成/)
+  })
+
+  test('单子封面图：保存、返回、只接受云存储或网址', async () => {
+    await admin.post('/api/products', { name: '封面单', price: 30, cover: 'cloud://env/cover.jpg' })
+    const p = (await request(app).get('/api/products')).body.find((x) => x.name === '封面单')
+    assert.equal(p.cover, 'cloud://env/cover.jpg')
+    assert.equal((await admin.post('/api/products', { id: p.id, name: '封面单', price: 30, cover: 'javascript:alert(1)' })).status, 400)
+    await admin.post('/api/products', { id: p.id, name: '封面单', price: 30, cover: '' })
+    assert.equal((await request(app).get(`/api/products/${p.id}`)).body.cover, '')
   })
 
   test('护航报名通过后自动开号', async () => {

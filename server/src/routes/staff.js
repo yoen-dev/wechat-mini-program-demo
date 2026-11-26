@@ -12,6 +12,7 @@
  *   POST /api/staff                 新建员工账号（管理员）  { role, name, account, password, profile? }
  *   POST /api/staff/:id/reset-password  重置密码（管理员）→ 返回随机生成的新密码
  *   POST /api/staff/:id/toggle      停用 / 启用（管理员）
+ *   POST /api/staff/:id/role        修改角色（管理员）  { role }  护航手上还有没完成的单时不能改
  */
 const express = require('express')
 const crypto = require('crypto')
@@ -22,6 +23,7 @@ const { audit } = require('../services/audit')
 const { need } = require('../middleware/auth')
 const { wrap, bad, notFound } = require('../utils/errors')
 const { clean, toId, now } = require('../utils/helpers')
+const { ACTIVE } = require('../services/orderService')
 
 const router = express.Router()
 const ROLE_NAME = { user: '老板', escort: '护航', cs: '客服', admin: '管理员', owner: '负责人' }
@@ -121,6 +123,25 @@ router.post('/staff/:id/toggle', need('admin'), wrap(async (req, res) => {
   const status = u.status === 'active' ? 'disabled' : 'active'
   await db('users').where({ id }).update({ status, online: status === 'active' ? u.online : false })
   await audit(req.user, status === 'active' ? '启用账号' : '停用账号', u.name)
+  res.json(serialize.user(await db('users').where({ id }).first()))
+}))
+
+// 修改角色：比如建账号时选错了身份。改完对方要重新登录（进入新身份的工作台）
+router.post('/staff/:id/role', need('admin'), wrap(async (req, res) => {
+  const id = toId(req.params.id)
+  const role = req.body.role
+  if (id === req.user.id) throw bad('不能修改自己的角色')
+  if (!STAFF_ROLES.includes(role)) throw bad('请选择角色')
+  const u = await db('users').where({ id }).whereIn('role', STAFF_ROLES).first()
+  if (!u) throw notFound('账号不存在')
+  if (u.role === role) return res.json(serialize.user(u))
+  // 护航手上还有单，改成别的身份后这些单就没人做了，先让客服改派
+  if (u.role === 'escort') {
+    const [{ c }] = await db('orders').where({ escort_id: id }).whereIn('status', ACTIVE).count({ c: '*' })
+    if (Number(c) > 0) throw bad(`${u.name} 手上还有 ${c} 单没完成，请先改派`)
+  }
+  await db('users').where({ id }).update({ role, online: false, token_version: db.raw('token_version + 1') })
+  await audit(req.user, '修改角色', `${u.name}：${ROLE_NAME[u.role]} → ${ROLE_NAME[role]}`)
   res.json(serialize.user(await db('users').where({ id }).first()))
 }))
 

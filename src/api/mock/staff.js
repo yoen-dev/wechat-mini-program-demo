@@ -87,6 +87,20 @@ export function resetPassword(actor, id) {
   return respond({ ok: true, password: '123456' })
 }
 
+/** 修改员工角色（演示版：不检查护航手上的单） */
+export function changeStaffRole(actor, id, role) {
+  if (!isAdmin(actor)) return fail('无权限')
+  if (id === actor.id) return fail('不能修改自己的角色')
+  if (!STAFF_ROLES.includes(role)) return fail('请选择角色')
+  const u = db().users.find((x) => x.id === id && STAFF_ROLES.includes(x.role))
+  if (!u) return fail('账号不存在')
+  u.role = role
+  u.online = false
+  audit(actor, '修改角色', u.name)
+  save()
+  return respond(pub(u))
+}
+
 export function toggleStaff(actor, id) {
   if (!isAdmin(actor)) return fail('无权限')
   if (id === actor.id) return fail('不能停用自己')

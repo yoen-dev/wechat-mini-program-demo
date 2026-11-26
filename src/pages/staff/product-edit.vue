@@ -1,9 +1,16 @@
 <!--
-  【管理员】新建 / 编辑单子：名称、价格、分类、标签、简介、服务说明。改价会记入操作日志。
+  【管理员】新建 / 编辑单子：封面图、名称、价格、分类、标签、简介、服务说明。改价会记入操作日志。
+  封面图可选：上传后显示在首页 / 分类页的单子卡片和详情页顶部；不传就用默认的蓝色卡片。
 -->
 <template>
   <view class="wrap">
     <view class="card form">
+      <text class="label">封面图（选填，建议横图）</text>
+      <view class="cover-box" @tap="chooseCover">
+        <image v-if="f.cover" class="cover" :src="f.cover" mode="aspectFill" />
+        <view v-else class="cover empty"><text class="plus">＋</text><text class="muted">上传封面</text></view>
+      </view>
+      <text v-if="f.cover" class="lk remove" @tap="f.cover = ''">去掉封面</text>
       <text class="label">名称</text>
       <input class="input" v-model="f.name" placeholder="如：绝密保底单" />
       <text class="label">单次价格（元）</text>
@@ -29,10 +36,10 @@ import { reactive, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { getProduct, saveProduct, CATEGORIES } from '@api/products.js'
 import { session, guard } from '@/store/session.js'
-import { run, toast } from '@/utils.js'
+import { run, toast, pickImage } from '@/utils.js'
 
 // 表单内容
-const f = reactive({ id: null, name: '', price: '', desc: '', cats: [], tagsText: '', pointsText: '' })
+const f = reactive({ id: null, cover: '', name: '', price: '', desc: '', cats: [], tagsText: '', pointsText: '' })
 // 提交中，防止重复点击
 const busy = ref(false)
 
@@ -41,8 +48,14 @@ onLoad(async (q) => {
   if (!guard(['admin'])) return
   if (!q.id) return uni.setNavigationBarTitle({ title: '新建单子' })
   const p = await run(getProduct(q.id))
-  if (p) Object.assign(f, { id: p.id, name: p.name, price: String(p.price), desc: p.desc, cats: [...p.cats], tagsText: p.tags.join(' '), pointsText: p.points.join('\n') })
+  if (p) Object.assign(f, { id: p.id, cover: p.cover || '', name: p.name, price: String(p.price), desc: p.desc, cats: [...p.cats], tagsText: p.tags.join(' '), pointsText: p.points.join('\n') })
 })
+
+// 选封面图：真实后端会先上传到对象存储，拿到地址后再随表单保存
+async function chooseCover() {
+  const url = await pickImage(1280)
+  if (url) f.cover = url
+}
 
 // 勾选 / 取消分类
 function toggleCat(c) {
@@ -55,7 +68,7 @@ function toggleCat(c) {
 async function submit() {
   busy.value = true
   const ok = await run(saveProduct(session.user, {
-    id: f.id, name: f.name, price: f.price, desc: f.desc, cats: f.cats,
+    id: f.id, cover: f.cover, name: f.name, price: f.price, desc: f.desc, cats: f.cats,
     tags: f.tagsText.split(/\s+/).filter(Boolean), points: f.pointsText.split('\n').map((s) => s.trim()).filter(Boolean)
   }))
   busy.value = false
@@ -67,6 +80,11 @@ async function submit() {
 
 <style scoped>
 .form { padding: 8rpx 28rpx 32rpx; }
+.cover-box { width: 100%; }
+.cover { width: 100%; height: 280rpx; border-radius: 20rpx; display: block; }
+.cover.empty { background: #EEF3FC; border: 2rpx dashed #B9C8E6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6rpx; }
+.plus { font-size: 48rpx; color: #4E76BD; line-height: 1; }
+.remove { display: block; font-size: 22rpx; margin-top: 12rpx; color: #C0504D; }
 .hint { display: block; font-size: 21rpx; margin-top: 10rpx; }
 .cats { display: flex; flex-wrap: wrap; gap: 14rpx; }
 .fchip { font-size: 22rpx; padding: 16rpx 26rpx; border-radius: 20rpx; background: #E8EEFB; color: #7D91B3; }

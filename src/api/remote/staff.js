@@ -13,3 +13,5 @@ export const createStaff = (actor, data) => post('/staff', data)
 /** 重置密码，返回 { ok, password: 随机新密码 } */
 export const resetPassword = (actor, id) => post(`/staff/${id}/reset-password`)
 export const toggleStaff = (actor, id) => post(`/staff/${id}/toggle`)
+/** 修改员工角色（管理员）：role = escort / cs / admin / owner */
+export const changeStaffRole = (actor, id, role) => post(`/staff/${id}/role`, { role })

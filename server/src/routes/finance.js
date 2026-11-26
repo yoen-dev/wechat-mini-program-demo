@@ -11,8 +11,11 @@
  *   GET  /api/income                我的收入（护航）→ { rate, total, month, withdrawn, pending, available, waiting, records, withdrawals }
  *   POST /api/withdrawals           申请提现（护航）{ amount }
  * 提现审批（管理员）
- *   GET  /api/withdrawals           全部提现申请
- *   POST /api/withdrawals/:id/handle  { approve: true 已线下打款 / false 驳回, note }
+ *   GET  /api/withdrawals           全部提现申请（管理员、负责人）；每条带 canHandle = 当前账号能不能处理
+ *   POST /api/withdrawals/:id/handle  { approve, note }
+ *     两级审批：待审核 ──管理员初审通过──▶ 待打款 ──负责人线下转账后确认──▶ 已打款
+ *               两步都可以驳回 ──▶ 已驳回（钱退回护航的可提现余额）
+ *     没有启用中的负责人账号时，管理员也可以做第二步（避免没人能打款）
  */
 const express = require('express')
 const db = require('../db')
@@ -20,7 +23,7 @@ const settings = require('../services/settings')
 const { audit } = require('../services/audit')
 const { need } = require('../middleware/auth')
 const { limit } = require('../middleware/rateLimit')
-const { wrap, bad, conflict } = require('../utils/errors')
+const { wrap, bad, conflict, forbidden } = require('../utils/errors')
 const { clean, toId, now, r2 } = require('../utils/helpers')
 
 const router = express.Router()
@@ -103,15 +106,27 @@ async function incomeOf(escortId, trx = db) {
   const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0)
   const month = await sum(trx('orders').where({ escort_id: escortId, status: '已完成' }).where('completed_at', '>=', monthStart.getTime()), 'escort_share')
   const withdrawn = await sum(trx('withdrawals').where({ escort_id: escortId, status: '已打款' }), 'amount')
-  const pending = await sum(trx('withdrawals').where({ escort_id: escortId, status: '待审核' }), 'amount')
+  // 审核中 = 待初审 + 待打款，这部分钱暂时不能再提
+  const pending = await sum(trx('withdrawals').where({ escort_id: escortId }).whereIn('status', ['待审核', '待打款']), 'amount')
   const waitingAmount = await sum(trx('orders').where({ escort_id: escortId, status: '待确认' }), 'amount')
   return { rate, total: r2(total), month: r2(month), withdrawn: r2(withdrawn), pending: r2(pending), available: r2(total - withdrawn - pending), waiting: r2(waitingAmount * rate) }
 }
 
-const withdrawal = (w) => ({
+const withdrawal = (w, canHandle = false) => ({
   id: w.id, escortId: w.escort_id, escortName: w.escort_name, amount: Number(w.amount), status: w.status, note: w.note || '',
-  handler: w.handler || '', createdAt: Number(w.created_at), handledAt: w.handled_at ? Number(w.handled_at) : null
+  reviewer: w.reviewer || '', reviewedAt: w.reviewed_at ? Number(w.reviewed_at) : null,
+  handler: w.handler || '', createdAt: Number(w.created_at), handledAt: w.handled_at ? Number(w.handled_at) : null, canHandle
 })
+
+// 有没有启用中的负责人账号（没有的话第二步由管理员代做）
+const hasOwner = async (trx = db) => !!(await trx('users').where({ role: 'owner', status: 'active' }).first('id'))
+
+// 当前账号在这一步能不能处理：待审核 → 管理员；待打款 → 负责人（没有负责人时管理员）
+function canHandle(w, u, ownerExists) {
+  if (w.status === '待审核') return u.role === 'admin'
+  if (w.status === '待打款') return u.role === 'owner' || (u.role === 'admin' && !ownerExists)
+  return false
+}
 
 router.get('/income', need('escort'), wrap(async (req, res) => {
   const inc = await incomeOf(req.user.id)
@@ -139,22 +154,43 @@ router.post('/withdrawals', need('escort'), limit({ windowSec: 60, max: 5 }), wr
 
 // ================= 提现审批 =================
 
-router.get('/withdrawals', need('admin'), wrap(async (req, res) => {
+router.get('/withdrawals', need('admin', 'owner'), wrap(async (req, res) => {
   const list = await db('withdrawals as w').leftJoin('users as u', 'u.id', 'w.escort_id').orderBy('w.id', 'desc').limit(500).select('w.*', 'u.name as escort_name')
-  res.json(list.map(withdrawal))
+  const ownerExists = await hasOwner()
+  res.json(list.map((w) => withdrawal(w, canHandle(w, req.user, ownerExists))))
 }))
 
-router.post('/withdrawals/:id/handle', need('admin'), wrap(async (req, res) => {
+router.post('/withdrawals/:id/handle', need('admin', 'owner'), wrap(async (req, res) => {
   const id = toId(req.params.id)
   const approve = !!req.body.approve
+  const note = clean(req.body.note, 200)
   await db.transaction(async (trx) => {
     const w = await trx('withdrawals as w').leftJoin('users as u', 'u.id', 'w.escort_id').where('w.id', id).first('w.*', 'u.name as escort_name')
-    const n = w ? await trx('withdrawals').where({ id, status: '待审核' }).update({ status: approve ? '已打款' : '已驳回', handled_at: now(), handler: req.user.name, note: clean(req.body.note, 200) }) : 0
+    if (!w) throw conflict('状态已变化')
+    if (!canHandle(w, req.user, await hasOwner(trx))) {
+      if (w.status === '待审核') throw forbidden('需要管理员先初审')
+      if (w.status === '待打款') throw forbidden('需要负责人确认打款')
+      throw conflict('状态已变化')
+    }
+    let patch
+    let action
+    if (!approve) {
+      patch = { status: '已驳回', handled_at: now(), handler: req.user.name, note }
+      action = w.status === '待审核' ? '驳回提现（初审）' : '驳回提现（打款前）'
+    } else if (w.status === '待审核') {
+      patch = { status: '待打款', reviewed_at: now(), reviewer: req.user.name, note }
+      action = '提现初审通过'
+    } else {
+      patch = { status: '已打款', handled_at: now(), handler: req.user.name, note: note || w.note }
+      action = '提现打款'
+    }
+    // 条件更新：状态没被别人改过才生效（防止两人同时点）
+    const n = await trx('withdrawals').where({ id, status: w.status }).update(patch)
     if (!n) throw conflict('状态已变化')
-    await audit(req.user, approve ? '提现打款' : '驳回提现', `${w.escort_name} ¥${Number(w.amount)}`, trx)
+    await audit(req.user, action, `${w.escort_name} ¥${Number(w.amount)}`, trx)
   })
   const w = await db('withdrawals as w').leftJoin('users as u', 'u.id', 'w.escort_id').where('w.id', id).first('w.*', 'u.name as escort_name')
-  res.json(withdrawal(w))
+  res.json(withdrawal(w, canHandle(w, req.user, await hasOwner())))
 }))
 
 module.exports = router

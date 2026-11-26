@@ -49,7 +49,7 @@ import { setOnline, listEscorts } from '@api/staff.js'
 import { getIncome } from '@api/finance.js'
 import { session, guard } from '@/store/session.js'
 import { actionsFor, doAction } from '@/orderActions.js'
-import { run, toast } from '@/utils.js'
+import { run, toast, hideHomeButton } from '@/utils.js'
 import StaffHead from '@/components/StaffHead.vue'
 import OrderCard from '@/components/OrderCard.vue'
 import Empty from '@/components/Empty.vue'
@@ -86,7 +86,7 @@ async function load() {
   income.value = (await run(getIncome(me.value))) || income.value
 }
 // 每次显示页面时刷新（从别的页面返回也会触发）
-onShow(load)
+onShow(() => { hideHomeButton(); load() })
 // 下拉刷新
 onPullDownRefresh(async () => { await load(); uni.stopPullDownRefresh() })
 

@@ -1,12 +1,13 @@
 <!--
-  订单状态标签：不同状态显示不同颜色（待付款橙色、已完成绿色等）。
+  订单状态标签：不同状态显示不同颜色（待付款橙色、已完成绿色等）。「待接单」显示为「已派单」。
 -->
 <template>
-  <text class="status" :style="style">{{ status }}</text>
+  <text class="status" :style="style">{{ statusText(status) }}</text>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import { statusText } from '@/api/constants.js'
 const props = defineProps({ status: String })
 const MAP = {
   待付款: ['#FFF0D8', '#BB873A'],

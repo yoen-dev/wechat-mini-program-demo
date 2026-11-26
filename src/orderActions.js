@@ -69,7 +69,8 @@ export function pickEscort() {
 export async function doAction(key, o, a) {
   switch (key) {
     case 'chat': uni.navigateTo({ url: `/pages/chat/chat?id=${o.id}` }); return null
-    case 'again': uni.navigateTo({ url: `/pages/detail/detail?id=${o.productId}` }); return null
+    // 再来一单：带上原订单的游戏 ID，详情页自动填好
+    case 'again': uni.navigateTo({ url: `/pages/detail/detail?id=${o.productId}&gameId=${encodeURIComponent(o.gameId || '')}` }); return null
     case 'rate': uni.navigateTo({ url: `/pages/order/rate?id=${o.id}` }); return null
     case 'ticket': uni.navigateTo({ url: `/pages/user/tickets?orderId=${o.id}` }); return null
     case 'submit': uni.navigateTo({ url: `/pages/staff/complete?id=${o.id}` }); return null
