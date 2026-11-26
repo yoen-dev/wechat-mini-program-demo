@@ -70,8 +70,9 @@ function scroll() { nextTick(() => { last.value = msgs.value.length ? 'm' + msgs
 onLoad(async (q) => {
   id.value = Number(q.id)
   if (!session.user) return uni.redirectTo({ url: '/pages/login/login' })
-  o.value = await run(getOrder(session.user, id.value))
-  await refresh()
+  // 订单信息和消息同时请求，不用排队等，进页面更快看到消息
+  const [order] = await Promise.all([run(getOrder(session.user, id.value)), refresh()])
+  o.value = order
 })
 // 演示用轮询；真实环境换成 WebSocket 或云开发实时数据推送
 onShow(() => { timer = setInterval(refresh, 3000) })
